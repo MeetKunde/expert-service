@@ -1,0 +1,23 @@
+UWAGA: e jest traktowane jako stala a nie zmienna
+
+TO DO:
+
+Potestowac:
+    2/5 do potegi 2
+    4/9 do potegi -1/2
+    
+
+podobienstwo: BBB, KKK, BKB
+przystawanie: BBB, BKB, KBK,
+twierdzenie talesa, pitagorasa
+
+
+A, B, C
+A', B', C'
+
+A, B, C
+C', A', B'
+
+A, B, C
+B', C', A'
+
