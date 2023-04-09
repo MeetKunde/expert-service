@@ -1,3 +1,5 @@
 #include "IModel.h"
 
-namespace expertBackground {}  // namespace expertBackground
+namespace expertBackground {
+IModel::~IModel()  = default;
+}  // namespace expertBackground

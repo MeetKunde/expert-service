@@ -50,7 +50,7 @@ class DependenciesBank {
     TANGENT_LINE_TO_CIRCLE = static_cast<unsigned int>(IDependency::Type::TANGENT_LINE_TO_CIRCLE)
   };
 
-  enum class CirlePolygonDependencies {
+  enum class CirclePolygonDependencies {
     CIRCUMSCRIBED_CIRCLE = static_cast<unsigned int>(IDependency::Type::CIRCUMSCRIBED_CIRCLE),
     INSCRIBED_CIRCLE = static_cast<unsigned int>(IDependency::Type::INSCRIBED_CIRCLE),
     ESCRIBED_CIRCLE = static_cast<unsigned int>(IDependency::Type::ESCRIBED_CIRCLE)
@@ -203,7 +203,7 @@ class DependenciesBank {
   unsigned int addCirclePolygonDependency(unsigned int circleId, std::vector<unsigned int> polygonVerticesIds,
                                           IDependency::Type type, IDependency::Reason reason, std::vector<unsigned int> basedOn,
                                           IDependency::UsefulnessLevel usefulness);
-  std::vector<std::shared_ptr<CirclePolygonDependency>> getCirclePolygonDependencies(CirlePolygonDependencies type) {
+  std::vector<std::shared_ptr<CirclePolygonDependency>> getCirclePolygonDependencies(CirclePolygonDependencies type) {
     return getDependenciesWithType<IdentifierModel, PolygonModel>(static_cast<IDependency::Type>(type));
   }
 

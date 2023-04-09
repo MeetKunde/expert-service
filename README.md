@@ -12,7 +12,7 @@ It can find and deduce new geometric dependencies from given geometric scheme.
 ```
 { 
     "maxShapeId":           unsigned int,
-	"pointsNumber":         unsigned int,
+    "pointsNumber":         unsigned int,
     "segmentsNumber":       unsigned int,
     "circlesNumber":        unsigned int,
     "linesNumber":          unsigned int,

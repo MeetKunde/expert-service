@@ -10,7 +10,7 @@ namespace expertBackground {
 class IModel {
  public:
   virtual json getJsonObject() const = 0;
-  virtual ~IModel() = 0;
+  virtual ~IModel();
 };
 
 }  // namespace expertBackground
