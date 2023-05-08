@@ -88,7 +88,6 @@ json Expert::exportSolution() {
 }
 
 void Expert::useKnowledge() {
-  /*
   unsigned int dependenciesFoundNumber = 0;
 
   localTimer.startMeasurement();
@@ -100,11 +99,11 @@ void Expert::useKnowledge() {
   dependenciesFoundNumber += findAlternateAngles();
   dependenciesFoundNumber += findCorrespondingAngles();
 
-  dependenciesFoundNumber += setSumOfAnglesInTriangles();
+  //dependenciesFoundNumber += setSumOfAnglesInTriangles();
 
   dependenciesBank.extractEquations();
 
-  dependenciesFoundNumber += findSimilarAndCongruentTriangles();
+  //dependenciesFoundNumber += findSimilarAndCongruentTriangles();
 
   dependenciesFoundNumber += setRightAnglesBasedOnPerpendicularities();
   dependenciesFoundNumber += findParallelLinesBasedOnParallelLines();
@@ -113,8 +112,7 @@ void Expert::useKnowledge() {
   dependenciesFoundNumber += findPerpendicularLinesBasedOnRightAngles();
 
   localTimer.takeMeasurement("Using knowledge ended!\nFound " + std::to_string(dependenciesFoundNumber) + " new dependencies!",
-                             false);
-  */
+                             false, std::cout);
 }
 
 void Expert::addValues(json lengths, json angleValues) {
