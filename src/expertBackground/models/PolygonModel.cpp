@@ -1,12 +1,12 @@
 #include "PolygonModel.h"
 
 namespace expertBackground {
-PolygonModel::PolygonModel(std::vector<unsigned int> vertices) : verticesIds(std::move(vertices)) {}
+PolygonModel::PolygonModel(std::vector<std::string> vertices) : verticesIds{std::move(vertices)} {}
 
-PolygonModel::PolygonModel(const PolygonModel& polygonModel) : verticesIds(polygonModel.verticesIds) {}
+PolygonModel::PolygonModel(const PolygonModel& polygonModel) : verticesIds{polygonModel.verticesIds} {}
 
 PolygonModel& PolygonModel::operator=(const PolygonModel& polygonModel) {
-  verticesIds = std::vector<unsigned int>(polygonModel.verticesIds);
+  verticesIds = std::vector<std::string>(polygonModel.verticesIds);
 
   return *this;
 }
@@ -23,8 +23,8 @@ bool operator==(const PolygonModel& lhs, const PolygonModel& rhs) {
     return true;
   }
 
-  unsigned int lhsMinId = lhs.verticesIds[0];
-  unsigned int rhsMinId = rhs.verticesIds[0];
+  std::string lhsMinId = lhs.verticesIds[0];
+  std::string rhsMinId = rhs.verticesIds[0];
   size_t lhsMinIdIndex = 0;
   size_t rhsMinIdIndex = 0;
   for (size_t i = 1; i < lhsSize; i++) {
@@ -64,7 +64,7 @@ bool operator!=(const PolygonModel& lhs, const PolygonModel& rhs) {
 
 std::ostream& operator<<(std::ostream& stream, const PolygonModel& polygonModel) {
   stream << "->";
-  std::vector<unsigned int>::const_iterator iter;
+  std::vector<std::string>::const_iterator iter;
   for (iter = polygonModel.verticesIds.begin(); iter != polygonModel.verticesIds.end(); ++iter) {
     stream << (*iter) << "->";
   }

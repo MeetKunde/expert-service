@@ -12,12 +12,12 @@ class PointsPairModel : public IModel {
   /**
    * @brief Value of first element
    */
-  unsigned int point1Id;
+  std::string point1Id;
 
   /**
    * @brief Value of second element
    */
-  unsigned int point2Id;
+  std::string point2Id;
 
  public:
   /**
@@ -26,7 +26,7 @@ class PointsPairModel : public IModel {
    * @param point1Id first point ID
    * @param point2Id second point ID
    */
-  explicit PointsPairModel(unsigned int point1, unsigned int point2);
+  explicit PointsPairModel(std::string point1, std::string point2);
 
   /**
    * @brief Constructor of a new PointsPairModel object
@@ -48,14 +48,14 @@ class PointsPairModel : public IModel {
    *
    * @return first point ID
    */
-  inline unsigned int getPoint1Id() const { return point1Id; };
+  inline const std::string& getPoint1Id() const { return point1Id; };
 
   /**
    * @brief Second point ID getter
    *
    * @return second point ID
    */
-  inline unsigned int getPoint2Id() const { return point2Id; };
+  inline const std::string& getPoint2Id() const { return point2Id; };
 
   /**
    * @brief Override of equality operator

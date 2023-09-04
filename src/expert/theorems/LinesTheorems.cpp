@@ -1,5 +1,5 @@
 #include "../Expert.h"
-
+/*
 namespace expert {
 unsigned int Expert::setRightAnglesBasedOnPerpendicularities() {
   unsigned int result = 0;
@@ -168,7 +168,7 @@ unsigned int Expert::findPerpendicularLinesBasedOnLines() {
 }
 
 unsigned int Expert::findPerpendicularLinesBasedOnRightAngles() {
-  /*
+
   unsigned int result = 0;
 
   for (unsigned int line1Id = 0; line1Id < linesNumber; line1Id++) {
@@ -201,8 +201,9 @@ unsigned int Expert::findPerpendicularLinesBasedOnRightAngles() {
       }
     }
   }
-  */
+
   return 0;
 }
 
 }  // namespace expert
+*/

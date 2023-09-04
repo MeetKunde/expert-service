@@ -1,5 +1,6 @@
 #include "../Expert.h"
 
+/*
 namespace expert {
 unsigned int Expert::findVerticalAngles() {
   unsigned int result = 0;
@@ -576,3 +577,4 @@ unsigned int Expert::findCorrespondingAngles() {
   return result;
 }
 }  // namespace expert
+*/

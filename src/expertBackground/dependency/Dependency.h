@@ -14,7 +14,7 @@ class Dependency : public IDependency {
   /**
    * @brief Dependency ID
    */
-  unsigned int dependencyId;
+  size_t dependencyId;
 
   /**
    * @brief First dependency element of T type
@@ -44,7 +44,7 @@ class Dependency : public IDependency {
   /**
    * @brief IDs of dependencies from which this dependency is implied
    */
-  std::vector<unsigned int> dependencyBasedOn;
+  std::vector<size_t> dependencyBasedOn;
 
   /**
    * @brief Usefulness of dependency
@@ -63,8 +63,8 @@ class Dependency : public IDependency {
    * @param reason
    * @param basedOn
    */
-  Dependency(T first, U second, unsigned int identifier, Category category, Type type,
-             Reason reason, std::vector<unsigned int> basedOn, UsefulnessLevel usefulnessLevel)
+  Dependency(T first, U second, size_t identifier, Category category, Type type,
+             Reason reason, std::vector<size_t> basedOn, UsefulnessLevel usefulnessLevel)
       : dependencyId(identifier),
         firstObject(first),
         secondObject(second),
@@ -117,7 +117,7 @@ class Dependency : public IDependency {
    *
    * @return dependency ID
    */
-  inline unsigned int getId() const override { return dependencyId; }
+  inline size_t getId() const override { return dependencyId; }
 
   inline const T& getFirstElement() const { return firstObject; }
 
@@ -149,7 +149,7 @@ class Dependency : public IDependency {
    *
    * @return reference to vector of included dependencies on which this is implied IDs
    */
-  inline const std::vector<unsigned int>& getDependentDependencies() const override { return dependencyBasedOn; }
+  inline const std::vector<size_t>& getDependentDependencies() const override { return dependencyBasedOn; }
 
   inline UsefulnessLevel getUsefulnessLevel() const override { return usefulness; }
 

@@ -6,32 +6,32 @@ Expert::Expert() : pointsNumber(0), linesNumber(0), circlesNumber(0) {}
 void Expert::importTask(json task) {
   localTimer.startMeasurement();
 
-  shapesBank = expertBackground::ShapesBank(task["maxShapeId"], task["linesNumber"], task["maxShapeId"]);
-
   json::iterator iter;
   json points = task["points"];
   json circles = task["circles"];
   json lines = task["lines"];
 
   for (iter = points.begin(); iter != points.end(); ++iter) {
-    shapesBank.addPoint((*iter)["id"], (*iter)["x"], (*iter)["y"]);
+    shapesBank.addPoint((*iter)["id"], (*iter)["x"], (*iter)["y"], (*iter)["name"]);
   }
 
   for (iter = circles.begin(); iter != circles.end(); ++iter) {
-    shapesBank.addCircle((*iter)["id"], shapesBank.getUnifiedPointId((*iter)["centerId"]), (*iter)["centerX"], (*iter)["centerY"],
-                         (*iter)["radius"], shapesBank.getUnifiedPointsVector(parseUnsignedIntVector((*iter)["pointsOn"])));
+    const std::string centerName = shapesBank.getPoint((*iter)["centerId"]).getName();
+
+    shapesBank.addCircle((*iter)["id"], (*iter)["centerId"], (*iter)["centerX"], (*iter)["centerY"],
+                         centerName, (*iter)["radius"], (*iter)["pointsOn"]);
   }
 
   for (iter = lines.begin(); iter != lines.end(); ++iter) {
-    shapesBank.addLine((*iter)["id"], parseLineType((*iter)["type"]), (*iter)["a"], (*iter)["b"],
-                       shapesBank.getUnifiedPointsVector(parseUnsignedIntVector((*iter)["pointsOn"])));
+    shapesBank.addLine((*iter)["id"], parseLineType((*iter)["type"]), (*iter)["a"], (*iter)["b"], (*iter)["pointsOn"]);
   }
 
-  pointsNumber = static_cast<unsigned int>(shapesBank.getPointsNumber());
-  linesNumber = static_cast<unsigned int>(shapesBank.getLinesNumber());
-  circlesNumber = static_cast<unsigned int>(shapesBank.getCirclesNumber());
+  pointsNumber = shapesBank.getPointsNumber();
+  linesNumber = shapesBank.getLinesNumber();
+  circlesNumber = shapesBank.getCirclesNumber();
 
-  schemeGraph = expertBackground::Graph(static_cast<unsigned int>(shapesBank.getPointsNumber()));
+  /*
+  schemeGraph = expertBackground::Graph(shapesBank.getPointsNumber());
   for (unsigned int lineId = 0; lineId < shapesBank.getLinesNumber(); lineId++) {
     std::vector<unsigned int> includedPoints = shapesBank.getLine(lineId).getIncludedPoints();
     for (unsigned firstPointOnLineId = 0; firstPointOnLineId < includedPoints.size(); firstPointOnLineId++) {
@@ -68,6 +68,7 @@ void Expert::importTask(json task) {
   findIntersectionPointsOfCircles();
   findIntersectionPointsOfLinesCircles();
   checkPointsOnShapes();
+  */
 
   localTimer.takeMeasurement("Importing and parsing data", false, std::cout);
 }
@@ -88,10 +89,11 @@ json Expert::exportSolution() {
 }
 
 void Expert::useKnowledge() {
-  unsigned int dependenciesFoundNumber = 0;
+  const unsigned int dependenciesFoundNumber = 0;
 
   localTimer.startMeasurement();
 
+  /*
   dependenciesFoundNumber += findSpecificShapesDependencies();
 
   dependenciesFoundNumber += findVerticalAngles();
@@ -110,11 +112,11 @@ void Expert::useKnowledge() {
   dependenciesFoundNumber += findParallelLinesBasedOnPerpendicularLines();
   dependenciesFoundNumber += findPerpendicularLinesBasedOnLines();
   dependenciesFoundNumber += findPerpendicularLinesBasedOnRightAngles();
-
+  */
   localTimer.takeMeasurement("Using knowledge ended!\nFound " + std::to_string(dependenciesFoundNumber) + " new dependencies!",
                              false, std::cout);
 }
-
+/*
 void Expert::addValues(json lengths, json angleValues) {
   json::iterator iter;
 
@@ -281,16 +283,7 @@ void Expert::addSpecialSegments(json medians, json altitudes, json midSegments) 
   }
 }
 
-std::vector<unsigned int> Expert::parseUnsignedIntVector(json inputVector) {
-  std::vector<unsigned int> result = {};
-
-  json::iterator iter;
-  for (iter = inputVector.begin(); iter != inputVector.end(); ++iter) {
-    result.push_back(*iter);
-  }
-
-  return result;
-}
+*/
 
 LineType Expert::parseLineType(unsigned int lineType) {
   switch (lineType) {
@@ -356,15 +349,15 @@ void Expert::findIntersectionPointsOfLines() {
 
   for (unsigned int line1Id = 0; line1Id < (linesNumber < 1 ? 0 : (linesNumber - 1)); line1Id++) {
     for (unsigned int line2Id = line1Id + 1; line2Id < linesNumber; line2Id++) {
-      const std::vector<unsigned int>& points1 = lines[line1Id].getIncludedPoints();
-      const std::vector<unsigned int>& points2 = lines[line2Id].getIncludedPoints();
+      const std::vector<std::string>& points1 = lines[line1Id].getIncludedPoints();
+      const std::vector<std::string>& points2 = lines[line2Id].getIncludedPoints();
 
-      for (const unsigned int point1Id : points1) {
-        if (std::any_of(points2.begin(), points2.end(), [point1Id](unsigned int otherPoint) { return otherPoint == point1Id; })) {
-          const unsigned int commonPointId = point1Id;
+      for (const std::string& point1Id : points1) {
+        if (std::any_of(points2.begin(), points2.end(), [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
+          const std::string& commonPointId = point1Id;
           intersectionPointsOfLines[line1Id][line2Id] = {commonPointId};
           intersectionPointsOfLines[line2Id][line1Id] = {commonPointId};
-          pointsOnLinesIntersections[commonPointId].push_back({line1Id, line2Id});
+          pointsOnLinesIntersections[shapesBank.getPointPositionInVector(commonPointId)].push_back({lines[line1Id].getId(), lines[line2Id].getId()});
           break;
         }
       }
@@ -377,16 +370,16 @@ void Expert::findIntersectionPointsOfCircles() {
 
   for (unsigned int circle1Id = 0; circle1Id < (circlesNumber < 1 ? 0 : (circlesNumber - 1)); circle1Id++) {
     for (unsigned int circle2Id = circle1Id + 1; circle2Id < circlesNumber; circle2Id++) {
-      const std::vector<unsigned int>& points1 = circles[circle1Id].getIncludedPoints();
-      const std::vector<unsigned int>& points2 = circles[circle2Id].getIncludedPoints();
+      const std::vector<std::string>& points1 = circles[circle1Id].getIncludedPoints();
+      const std::vector<std::string>& points2 = circles[circle2Id].getIncludedPoints();
 
       unsigned int counter = 0;
-      for (const unsigned int point1Id : points1) {
-        if (std::any_of(points2.begin(), points2.end(), [point1Id](unsigned int otherPoint) { return otherPoint == point1Id; })) {
-          const unsigned int commonPointId = point1Id;
+      for (const std::string& point1Id : points1) {
+        if (std::any_of(points2.begin(), points2.end(), [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
+          const std::string& commonPointId = point1Id;
           intersectionPointsOfCircles[circle1Id][circle2Id].push_back(commonPointId);
           intersectionPointsOfCircles[circle2Id][circle1Id].push_back(commonPointId);
-          pointsOnCirclesIntersections[commonPointId].push_back({circle1Id, circle2Id});
+          pointsOnCirclesIntersections[shapesBank.getPointPositionInVector(commonPointId)].push_back({circles[circle1Id].getId(), circles[circle2Id].getId()});
           counter++;
           if (counter == 2) {
             break;
@@ -403,15 +396,15 @@ void Expert::findIntersectionPointsOfLinesCircles() {
 
   for (unsigned int lineId = 0; lineId < linesNumber; lineId++) {
     for (unsigned int circleId = 0; circleId < circlesNumber; circleId++) {
-      const std::vector<unsigned int>& points1 = lines[lineId].getIncludedPoints();
-      const std::vector<unsigned int>& points2 = circles[circleId].getIncludedPoints();
+      const std::vector<std::string>& points1 = lines[lineId].getIncludedPoints();
+      const std::vector<std::string>& points2 = circles[circleId].getIncludedPoints();
 
       unsigned int counter = 0;
-      for (const unsigned int point1Id : points1) {
-        if (std::any_of(points2.begin(), points2.end(), [point1Id](unsigned int otherPoint) { return otherPoint == point1Id; })) {
-          const unsigned int commonPointId = point1Id;
+      for (const std::string& point1Id : points1) {
+        if (std::any_of(points2.begin(), points2.end(), [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
+          const std::string& commonPointId = point1Id;
           intersectionPointsOfLinesAndCircles[lineId][circleId].push_back(commonPointId);
-          pointsOnLineAndCircleIntersections[commonPointId].push_back({lineId, circleId});
+          pointsOnLineAndCircleIntersections[shapesBank.getPointPositionInVector(commonPointId)].push_back({lines[lineId].getId(), circles[circleId].getId()});
           counter++;
           if (counter == 2) {
             break;
@@ -423,19 +416,15 @@ void Expert::findIntersectionPointsOfLinesCircles() {
 }
 
 void Expert::checkPointsOnShapes() {
-  std::vector<unsigned int> pointsOn;
-
-  for (unsigned int lineId = 0; lineId < linesNumber; lineId++) {
-    pointsOn = shapesBank.getLine(lineId).getIncludedPoints();
-    for (const unsigned int pointId : pointsOn) {
-      pointsOnShapes[pointId][0] = true;
+  for (const expertBackground::LineModel& line: shapesBank.getLinesVector()) {
+    for (const std::string& pointId: line.getIncludedPoints()) {
+      pointsOnShapes[shapesBank.getPointPositionInVector(pointId)][0] = true;
     }
   }
 
-  for (unsigned int circleId = 0; circleId < circlesNumber; circleId++) {
-    pointsOn = shapesBank.getCircle(circleId).getIncludedPoints();
-    for (const unsigned int pointId : pointsOn) {
-      pointsOnShapes[pointId][0] = true;
+  for (const expertBackground::CircleModel& circle: shapesBank.getCirclesVector()) {
+    for (const std::string& pointId: circle.getIncludedPoints()) {
+      pointsOnShapes[shapesBank.getPointPositionInVector(pointId)][0] = true;
     }
   }
 }

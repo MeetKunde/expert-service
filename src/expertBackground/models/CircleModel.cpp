@@ -1,15 +1,15 @@
 #include "CircleModel.h"
 
 namespace expertBackground {
-CircleModel::CircleModel(unsigned int identifier, unsigned int centerId, float centerX, float centerY, float radius,
-                         std::vector<unsigned int> includedPoints)
-    : id(identifier), centerPoint(centerId, centerX, centerY), radius(radius), includedPointIds(std::move(includedPoints)) {}
+CircleModel::CircleModel(std::string identifier, std::string centerId, float centerX, float centerY, std::string centerName, float radius,
+                         std::vector<std::string> includedPoints)
+    : id{std::move(identifier)}, centerPoint{std::move(centerId), centerX, centerY, std::move(centerName)}, radius{radius}, includedPointIds{std::move(includedPoints)} {}
 
 CircleModel::CircleModel(const CircleModel& circleModel)
-    : id(circleModel.id),
-      centerPoint(circleModel.centerPoint),
-      radius(circleModel.radius),
-      includedPointIds(circleModel.includedPointIds) {}
+    : id{circleModel.id},
+      centerPoint{circleModel.centerPoint},
+      radius{circleModel.radius},
+      includedPointIds{circleModel.includedPointIds} {}
 
 CircleModel& CircleModel::operator=(const CircleModel& circleModel) {
   id = circleModel.id;

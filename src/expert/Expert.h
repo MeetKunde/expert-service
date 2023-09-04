@@ -63,17 +63,17 @@ class Expert {
 
   expertBackground::Graph schemeGraph;
 
-  unsigned int pointsNumber;
-  unsigned int linesNumber;
-  unsigned int circlesNumber;
+  size_t pointsNumber;
+  size_t linesNumber;
+  size_t circlesNumber;
 
-  std::vector<std::vector<std::vector<unsigned int>>> intersectionPointsOfLines;
-  std::vector<std::vector<std::vector<unsigned int>>> intersectionPointsOfCircles;
-  std::vector<std::vector<std::vector<unsigned int>>> intersectionPointsOfLinesAndCircles;
+  std::vector<std::vector<std::vector<std::string>>> intersectionPointsOfLines;
+  std::vector<std::vector<std::vector<std::string>>> intersectionPointsOfCircles;
+  std::vector<std::vector<std::vector<std::string>>> intersectionPointsOfLinesAndCircles;
 
-  std::vector<std::vector<std::pair<unsigned int, unsigned int>>> pointsOnLinesIntersections;
-  std::vector<std::vector<std::pair<unsigned int, unsigned int>>> pointsOnCirclesIntersections;
-  std::vector<std::vector<std::pair<unsigned int, unsigned int>>> pointsOnLineAndCircleIntersections;
+  std::vector<std::vector<std::pair<std::string, std::string>>> pointsOnLinesIntersections;
+  std::vector<std::vector<std::pair<std::string, std::string>>> pointsOnCirclesIntersections;
+  std::vector<std::vector<std::pair<std::string, std::string>>> pointsOnLineAndCircleIntersections;
 
   std::vector<std::vector<bool>> pointsOnShapes;
 
@@ -87,6 +87,7 @@ class Expert {
   void useKnowledge();
 
  private:
+  /*
   void addValues(json lengths, json angleValues);
   void addLinesDependencies(json perpendicular, json parallel);
   void addEqualismDependencies(json segments, json angles);
@@ -96,11 +97,12 @@ class Expert {
   void addMidPerpendiculars(json midPerpendicularLines);
   void addPolygonTypes(json types);
   void addSpecialSegments(json medians, json altitudes, json midSegments);
+  */
 
-  static std::vector<unsigned int> parseUnsignedIntVector(json inputVector);
   static LineType parseLineType(unsigned int lineType);
   static AngleType parseAngleType(unsigned int angleType);
   static PolygonType parsePolygonType(unsigned int polygonType);
+
 
   void findIntersectionPointsOfLines();
   void findIntersectionPointsOfCircles();
@@ -108,6 +110,7 @@ class Expert {
   void checkPointsOnShapes();
   json getIntersectionPointsAsJson();
 
+  /*
   //Tools.cpp
   static void printUnsignedIntVector(const std::vector<unsigned int>& vec);
   bool pointsLiesOnOneLine(const std::vector<unsigned int>& points);
@@ -169,6 +172,7 @@ class Expert {
   unsigned int findParallelLinesBasedOnPerpendicularLines();
   unsigned int findPerpendicularLinesBasedOnLines();
   unsigned int findPerpendicularLinesBasedOnRightAngles();
+   */
 };
 
 }  // namespace expert

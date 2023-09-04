@@ -122,11 +122,11 @@ class IDependency {
   enum class UsefulnessLevel { LOW, MEDIUM, HIGH };
 
   virtual json getObjectAsJson() const = 0;
-  virtual inline unsigned int getId() const = 0;
+  virtual inline size_t getId() const = 0;
   virtual inline Category getCategory() const = 0;
   virtual inline Type getType() const = 0;
   virtual inline Reason getReason() const = 0;
-  virtual inline const std::vector<unsigned int>& getDependentDependencies() const = 0;
+  virtual inline const std::vector<size_t>& getDependentDependencies() const = 0;
   virtual inline UsefulnessLevel getUsefulnessLevel() const = 0;
 
   virtual ~IDependency() {}

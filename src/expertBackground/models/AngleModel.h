@@ -34,7 +34,7 @@ class AngleModel : public IModel {
   /**
    * @brief Angle vertex ID
    */
-  unsigned int vertexId;
+  std::string vertexId;
 
   /**
    * @brief IDs of points which lies on ends of angle arms
@@ -55,7 +55,7 @@ class AngleModel : public IModel {
    * @param point2Id ID of point on second angle arm
    * @param type type of angle
    */
-  explicit AngleModel(unsigned int vertexId, unsigned int point1Id, unsigned int point2Id, AngleType type);
+  explicit AngleModel(std::string vertexId, std::string point1Id, std::string point2Id, AngleType type);
 
   /**
    * @brief Constructor of a new AngleModel object
@@ -77,21 +77,21 @@ class AngleModel : public IModel {
    *
    * @return ID of point on first arm
    */
-  inline unsigned int getPoint1Id() const { return pointsOnArms.getPoint1Id(); }
+  inline std::string getPoint1Id() const { return pointsOnArms.getPoint1Id(); }
 
   /**
    * @brief ID of point on second arm getter
    *
    * @return ID of point on second arm
    */
-  inline unsigned int getPoint2Id() const { return pointsOnArms.getPoint2Id(); }
+  inline std::string getPoint2Id() const { return pointsOnArms.getPoint2Id(); }
 
   /**
    * @brief ID of angle vertex getter
    *
    * @return ID of angle vertex
    */
-  inline unsigned int getVertexId() const { return vertexId; }
+  inline std::string getVertexId() const { return vertexId; }
 
   /**
    * @brief Angle type getter

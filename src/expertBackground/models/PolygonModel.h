@@ -27,15 +27,15 @@ class PolygonModel : public IModel {
   };
 
  private:
-  std::vector<unsigned int> verticesIds;
+  std::vector<std::string> verticesIds;
 
  public:
-  explicit PolygonModel(std::vector<unsigned int> vertices);
+  explicit PolygonModel(std::vector<std::string> vertices);
   PolygonModel(const PolygonModel& polygonModel);
 
   PolygonModel& operator=(const PolygonModel& polygonModel);
 
-  const std::vector<unsigned int>& getVerticesIds() const { return verticesIds; }
+  const std::vector<std::string>& getVerticesIds() const { return verticesIds; }
 
   friend bool operator==(const PolygonModel& lhs, const PolygonModel& rhs);
   friend bool operator!=(const PolygonModel& lhs, const PolygonModel& rhs);

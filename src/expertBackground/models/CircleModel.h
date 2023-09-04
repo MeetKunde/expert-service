@@ -14,7 +14,7 @@ class CircleModel : public IModel {
   /**
    * @brief Circle ID getter
    */
-  unsigned int id;
+  std::string id;
 
   /**
    * @brief Circle center point
@@ -29,7 +29,7 @@ class CircleModel : public IModel {
   /**
    * @brief IDs of included in circle points
    */
-  std::vector<unsigned int> includedPointIds;
+  std::vector<std::string> includedPointIds;
 
  public:
   /**
@@ -42,8 +42,8 @@ class CircleModel : public IModel {
    * @param radius radius of circle
    * @param includedPoints IDs of points inluded in circle
    */
-  explicit CircleModel(unsigned int identifier, unsigned int centerId, float centerX, float centerY, float radius,
-                       std::vector<unsigned int> includedPoints);
+  explicit CircleModel(std::string identifier, std::string centerId, float centerX, float centerY, std::string centerName, float radius,
+                       std::vector<std::string> includedPoints);
 
   /**
    * @brief Constructor of a new CircleModel object
@@ -65,14 +65,14 @@ class CircleModel : public IModel {
    *
    * @return circle ID
    */
-  inline unsigned int getId() const { return id; }
+  inline const std::string& getId() const { return id; }
 
   /**
    * @brief Circle center ID getter
    *
    * @return circle center ID
    */
-  inline unsigned int getCenterId() const { return centerPoint.getId(); }
+  inline const std::string& getCenterId() const { return centerPoint.getId(); }
 
   /**
    * @brief Circle center X coordinate getter
@@ -100,7 +100,7 @@ class CircleModel : public IModel {
    *
    * @return reference to set of included points IDs
    */
-  inline const std::vector<unsigned int>& getIncludedPoints() const { return includedPointIds; }
+  inline const std::vector<std::string>& getIncludedPoints() const { return includedPointIds; }
 
   /**
    * @brief Override of equality operator

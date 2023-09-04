@@ -1,10 +1,10 @@
 #include "PointModel.h"
 
 namespace expertBackground {
-PointModel::PointModel(unsigned int identifier, float xCoordinate, float yCoordinate)
-    : id{identifier}, x{xCoordinate}, y{yCoordinate} {}
+PointModel::PointModel(std::string identifier, float xCoordinate, float yCoordinate, std::string name)
+    : id{std::move(identifier)}, x{xCoordinate}, y{yCoordinate}, name{std::move(name)} {}
 
-PointModel::PointModel(const PointModel& pointModel) : id{pointModel.id}, x{pointModel.x}, y{pointModel.y} {}
+PointModel::PointModel(const PointModel& pointModel) : id{pointModel.id}, x{pointModel.x}, y{pointModel.y}, name{pointModel.name} {}
 
 PointModel& PointModel::operator=(const PointModel& pointModel) {
   id = pointModel.id;

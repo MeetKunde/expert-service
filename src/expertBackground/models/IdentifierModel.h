@@ -6,14 +6,14 @@
 namespace expertBackground {
 class IdentifierModel : public IModel {
  private:
-  unsigned int id;
+  std::string id;
 
  public:
-  explicit IdentifierModel(unsigned int identifier);
+  explicit IdentifierModel(std::string identifier);
   IdentifierModel(const IdentifierModel& identifierModel);
   IdentifierModel& operator=(const IdentifierModel& identifierModel);
 
-  inline unsigned int getId() const { return id; }
+  inline const std::string& getId() const { return id; }
 
   friend bool operator==(const IdentifierModel& lhs, const IdentifierModel& rhs);
   friend bool operator!=(const IdentifierModel& lhs, const IdentifierModel& rhs);

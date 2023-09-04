@@ -1,5 +1,5 @@
 #include "Expert.h"
-
+/*
 namespace expert {
 void Expert::printUnsignedIntVector(const std::vector<unsigned int>& vec) {
   for (const unsigned int element : vec) {
@@ -53,7 +53,7 @@ unsigned int Expert::setEqualSides(unsigned int segment1End1, unsigned int segme
 
 unsigned int Expert::setEqualAngles(unsigned int angle1Point1, unsigned int angle1Vertex, unsigned int angle1Point2,
                                     unsigned int angle2Point1, unsigned int angle2Vertex, unsigned int angle2Point2,
-                                    AngleType /*anglesType*/, IDependency::Reason reason,
+                                    AngleType anglesType, IDependency::Reason reason,
                                     IDependency::UsefulnessLevel usefulness) {
 
   const Variable var1(dependenciesBank.getConvexAngleVariable(angle1Point1, angle1Vertex, angle1Point2));
@@ -64,7 +64,7 @@ unsigned int Expert::setEqualAngles(unsigned int angle1Point1, unsigned int angl
 
 unsigned int Expert::setEqualAngles(unsigned int angle1Point1, unsigned int angle1Vertex, unsigned int angle1Point2,
                                     unsigned int angle2Point1, unsigned int angle2Vertex, unsigned int angle2Point2,
-                                    AngleType /*anglesType*/, IDependency::Reason reason, std::vector<unsigned int> basedOn,
+                                    AngleType anglesType, IDependency::Reason reason, std::vector<unsigned int> basedOn,
                                     IDependency::UsefulnessLevel usefulness) {
 
   const Variable var1(dependenciesBank.getConvexAngleVariable(angle1Point1, angle1Vertex, angle1Point2));
@@ -106,3 +106,4 @@ unsigned int Expert::setSidesPerpendicularity(unsigned int segment1End1, unsigne
 }
 
 }  // namespace expert
+*/

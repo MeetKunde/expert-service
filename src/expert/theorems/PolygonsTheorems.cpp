@@ -1,5 +1,5 @@
 #include "../Expert.h"
-
+/*
 namespace expert {
 unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::PolygonModel& polygon, PolygonType type,
                                                      unsigned int dependencyId) {
@@ -725,3 +725,4 @@ unsigned int Expert::findSpecificShapesDependencies() {
   return sumOfNewDependencies;
 }
 }  // namespace expert
+*/
