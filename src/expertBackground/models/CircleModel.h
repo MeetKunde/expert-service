@@ -89,6 +89,13 @@ class CircleModel : public IModel {
   inline float getCenterY() const { return centerPoint.getY(); }
 
   /**
+   * @brief Circle center name getter
+   *
+   * @return circle center name
+   */
+  inline const std::string& getCenterName() const { return centerPoint.getName(); }
+
+  /**
    * @brief Circle radius length getter
    *
    * @return circle radius length

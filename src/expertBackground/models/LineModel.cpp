@@ -26,8 +26,8 @@ json LineModel::getJsonObject() const {
           {"type", lineType},
           {"a", lineA},
           {"b", lineB},
-          {"end1ID", includedPointIds.front()},
-          {"end2ID", includedPointIds.back()},
+          {"end1Id", includedPointIds.front()},
+          {"end2Id", includedPointIds.back()},
           {"pointsOn", json(includedPointIds)}};
 }
 

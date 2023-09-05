@@ -5,4 +5,6 @@
 
 #include <expertBackground.h>
 
+constexpr float EPSILON = 0.00001;
+
 #endif  //EXPERT_BACKGROUND_TEST_BASE_H

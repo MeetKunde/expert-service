@@ -106,12 +106,13 @@ class ShapesBank {
    *
    * @return JSON object representing all PointModel objects
    */
-  json getPointsAsJsonObjects();
+  json getPointsAsJsonObjects() const;
 
   /**
    * Getting point position in vector
    * @param pointId point ID
    * @return position of point
+   * @throws std::out_of_range if point with given ID does not exist
    */
   inline size_t getPointPositionInVector(const std::string& pointId) const { return pointIdsConverter.at(pointId); }
 
@@ -141,10 +142,10 @@ class ShapesBank {
    *
    * @param point1Id ID of first point on line
    * @param point2Id ID of second point on line
-   * @return reference to LineModel
-   * @throws std::out_of_range if line with given ID does not exist
+   * @return id of LineModel which pass throw given points
+   * @throws std::out_of_range if line does not exist
    */
-  std::string getLineIdThrowTwoPoints(std::string& point1Id, std::string& point2Id) const;
+  std::string getLineIdThrowTwoPoints(const std::string& point1Id, const std::string& point2Id) const;
 
   /**
    * @brief Number of lines getter
@@ -165,12 +166,13 @@ class ShapesBank {
    *
    * @return JSON object representing all LineModel objects
    */
-  json getLinesAsJsonObjects();
+  json getLinesAsJsonObjects() const;
 
   /**
    * Getting line position in vector
    * @param lineId line ID
    * @return position of line
+   * @throws std::out_of_range if point with given ID does not exist
    */
   inline size_t getLinePositionInVector(const std::string& lineId) const { return lineIdsConverter.at(lineId); }
 
@@ -197,6 +199,16 @@ class ShapesBank {
   inline const CircleModel& getCircle(const std::string& identifier) const { return circles.at(circleIdsConverter.at(identifier)); }
 
   /**
+   * @brief ID of CircleModel object with given center id and point on id
+   *
+   * @param centerPointId ID of first point on line
+   * @param pointOnCircleId ID of second point on line
+   * @return id of CircleModel with given points
+   * @throws std::out_of_range if circle does not exist
+   */
+  std::string getCircleIdWithTwoPoints(const std::string& centerPointId, const std::string& pointOnCircleId) const;
+
+  /**
    * @brief Number of circles getter
    *
    * @return number of circles
@@ -215,12 +227,13 @@ class ShapesBank {
    *
    * @return JSON object representing all CircleModel objects
    */
-  json getCirclesAsJsonObjects();
+  json getCirclesAsJsonObjects() const;
 
   /**
    * Getting circle position in vector
    * @param circleId circle ID
    * @return position of circle
+   * @throws std::out_of_range if point with given ID does not exist
    */
   inline size_t getCirclePositionInVector(const std::string& circleId) const { return circleIdsConverter.at(circleId); }
 

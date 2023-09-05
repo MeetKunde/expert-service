@@ -15,7 +15,7 @@ PointModel& PointModel::operator=(const PointModel& pointModel) {
 }
 
 json PointModel::getJsonObject() const {
-  return {{"id", id}, {"x", x}, {"y", y}};
+  return {{"id", id}, {"x", x}, {"y", y}, {"name", name}};
 }
 
 bool operator==(const PointModel& pointModel1, const PointModel& pointModel2) {

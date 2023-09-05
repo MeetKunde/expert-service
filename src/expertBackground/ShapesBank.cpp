@@ -13,15 +13,15 @@ ShapesBank::ShapesBank()
 
 void ShapesBank::addPoint(std::string identifier, float xCoordinate, float yCoordinate, std::string name) {
   points.emplace_back(identifier, xCoordinate, yCoordinate, name);
-  pointIdsConverter.at(identifier) = pointIdCounter;
+  pointIdsConverter.insert(std::make_pair(identifier, pointIdCounter));
   pointIdCounter++;
 }
 
-json ShapesBank::getPointsAsJsonObjects() {
+json ShapesBank::getPointsAsJsonObjects() const {
   json result;
   unsigned int idCounter = 0;
 
-  std::vector<PointModel>::iterator iter;
+  std::vector<PointModel>::const_iterator iter;
   for (iter = points.begin(); iter != points.end(); ++iter) {
     result.push_back({{"position", idCounter}, {"object", iter->getJsonObject()}});
     idCounter++;
@@ -60,11 +60,11 @@ void ShapesBank::addLine(std::string identifier, LineModel::LineType lineType, f
   }
 
   lines.emplace_back(identifier, lineType, lineA, lineB, includedPoints);
-  lineIdsConverter.at(identifier) = lineIdCounter;
+  lineIdsConverter.insert(std::make_pair(identifier, lineIdCounter));
   lineIdCounter++;
 }
 
-std::string ShapesBank::getLineIdThrowTwoPoints(std::string& point1Id, std::string& point2Id) const {
+std::string ShapesBank::getLineIdThrowTwoPoints(const std::string& point1Id, const std::string& point2Id) const {
   for (unsigned int lineId = 0; lineId < lines.size(); lineId++) {
     std::vector<std::string> linePoints = lines[lineId].getIncludedPoints();
     if (std::find(linePoints.begin(), linePoints.end(), point1Id) != linePoints.end() &&
@@ -77,11 +77,11 @@ std::string ShapesBank::getLineIdThrowTwoPoints(std::string& point1Id, std::stri
   throw std::invalid_argument("Does not exist line which is throw given 2 points!");
 }
 
-json ShapesBank::getLinesAsJsonObjects() {
+json ShapesBank::getLinesAsJsonObjects() const {
   json result;
   unsigned int idCounter = 0;
 
-  std::vector<LineModel>::iterator iter;
+  std::vector<LineModel>::const_iterator iter;
   for (iter = lines.begin(); iter != lines.end(); ++iter) {
     result.push_back({{"position", idCounter}, {"object", iter->getJsonObject()}});
     idCounter++;
@@ -105,15 +105,31 @@ void ShapesBank::addCircle(std::string identifier, std::string centerId, float c
   }
 
   circles.emplace_back(identifier, centerId, centerX, centerY, centerName, radius, includedPoints);
-  circleIdsConverter.at(identifier) = circleIdCounter;
+  circleIdsConverter.insert(std::make_pair(identifier, circleIdCounter));
   circleIdCounter++;
 }
 
-json ShapesBank::getCirclesAsJsonObjects() {
+std::string ShapesBank::getCircleIdWithTwoPoints(const std::string& centerPointId, const std::string& pointOnCircleId) const {
+  for (unsigned int circleId = 0; circleId < circles.size(); circleId++) {
+    if(circles[circleId].getCenterId() != centerPointId) {
+      continue ;
+    }
+
+    std::vector<std::string> circlePoints = circles[circleId].getIncludedPoints();
+    if (std::find(circlePoints.begin(), circlePoints.end(), pointOnCircleId) != circlePoints.end()) {
+
+      return circles[circleId].getId();
+    }
+  }
+
+  throw std::invalid_argument("Does not exist circle with given center on point on!");
+}
+
+json ShapesBank::getCirclesAsJsonObjects() const {
   json result;
   unsigned int idCounter = 0;
 
-  std::vector<CircleModel>::iterator iter;
+  std::vector<CircleModel>::const_iterator iter;
   for (iter = circles.begin(); iter != circles.end(); ++iter) {
     result.push_back({{"position", idCounter}, {"object", iter->getJsonObject()}});
     idCounter++;
