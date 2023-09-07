@@ -8,23 +8,12 @@ namespace expertBackground {
 /**
  * @brief Representing geometric dependency
  */
-template <class T, class U>
 class Dependency : public IDependency {
- private:
+ public:
   /**
    * @brief Dependency ID
    */
   size_t dependencyId;
-
-  /**
-   * @brief First dependency element of T type
-   */
-  T firstObject;
-
-  /**
-   * @brief Second dependency element of U type
-   */
-  U secondObject;
 
   /**
    * @brief Dependency category
@@ -44,70 +33,58 @@ class Dependency : public IDependency {
   /**
    * @brief IDs of dependencies from which this dependency is implied
    */
-  std::vector<size_t> dependencyBasedOn;
+  std::vector<size_t> basedOn;
 
   /**
-   * @brief Usefulness of dependency
+   * @brief Importance of dependency
    */
-  UsefulnessLevel usefulness;
+  ImportanceLevel importance;
 
- public:
   /**
    * @brief Constructor of a new Dependency object
    *
-   * @param first
-   * @param second
-   * @param id
+   * @param identifier
    * @param category
    * @param type
    * @param reason
    * @param basedOn
+   * @param importanceLevel
    */
-  Dependency(T first, U second, size_t identifier, Category category, Type type,
-             Reason reason, std::vector<size_t> basedOn, UsefulnessLevel usefulnessLevel)
+  Dependency(size_t identifier, Category category, Type type, Reason reason,
+                 std::vector<size_t> basedOn, ImportanceLevel importanceLevel)
       : dependencyId(identifier),
-        firstObject(first),
-        secondObject(second),
         dependencyCategory(category),
         dependencyType(type),
         dependencyReason(reason),
-        dependencyBasedOn(std::move(basedOn)),
-        usefulness(usefulnessLevel) {
-
-    static_assert(std::is_convertible<T*, IModel*>::value, "Class T must inherit IModel as public");
-    static_assert(std::is_convertible<U*, IModel*>::value, "Class U must inherit IModel as public");
-  }
+        basedOn(std::move(basedOn)),
+        importance(importanceLevel) { }
 
   /**
    * @brief Constructor of a new Dependency object
    *
-   * @param dependencyModel other Dependency object
+   * @param dependency other Dependency object
    */
-  Dependency(const Dependency& dependencyModel)
-      : dependencyId(dependencyModel.dependencyId),
-        firstObject(dependencyModel.firstObject),
-        secondObject(dependencyModel.secondObject),
-        dependencyCategory(dependencyModel.dependencyCategory),
-        dependencyType(dependencyModel.dependencyType),
-        dependencyReason(dependencyModel.dependencyReason),
-        dependencyBasedOn(dependencyModel.dependencyBasedOn),
-        usefulness(dependencyModel.usefullness) {}
+  Dependency(const Dependency& dependency)
+      : dependencyId(dependency.dependencyId),
+        dependencyCategory(dependency.dependencyCategory),
+        dependencyType(dependency.dependencyType),
+        dependencyReason(dependency.dependencyReason),
+        basedOn(dependency.basedOn),
+        importance(dependency.importance) {}
 
   /**
    * @brief Override of the assignment operator
    *
-   * @param dependencyModel object to be assigned
+   * @param dependency object to be assigned
    * @return new Dependency object
    */
-  Dependency& operator=(const Dependency& dependencyModel) {
-    dependencyId = dependencyModel.dependencyId;
-    firstObject = dependencyModel.firstObject;
-    secondObject = dependencyModel.secondObject;
-    dependencyCategory = dependencyModel.dependencyCategory;
-    dependencyType = dependencyModel.dependencyType;
-    dependencyReason = dependencyModel.dependencyReason;
-    dependencyBasedOn = dependencyModel.dependencyBasedOn;
-    usefulness = dependencyModel.usefullness;
+  Dependency& operator=(const Dependency& dependency) {
+    dependencyId = dependency.dependencyId;
+    dependencyCategory = dependency.dependencyCategory;
+    dependencyType = dependency.dependencyType;
+    dependencyReason = dependency.dependencyReason;
+    basedOn = dependency.basedOn;
+    importance = dependency.importance;
 
     return *this;
   }
@@ -118,10 +95,6 @@ class Dependency : public IDependency {
    * @return dependency ID
    */
   inline size_t getId() const override { return dependencyId; }
-
-  inline const T& getFirstElement() const { return firstObject; }
-
-  inline const U& getSecondElement() const { return secondObject; }
 
   /**
    * @brief Dependency category getter
@@ -149,38 +122,33 @@ class Dependency : public IDependency {
    *
    * @return reference to vector of included dependencies on which this is implied IDs
    */
-  inline const std::vector<size_t>& getDependentDependencies() const override { return dependencyBasedOn; }
-
-  inline UsefulnessLevel getUsefulnessLevel() const override { return usefulness; }
+  inline const std::vector<size_t>& getDependentDependencies() const override { return basedOn; }
 
   /**
-   * @brief Getting JSON object representing DependencyModel object
+   * @brief Dependency importance getter
    *
-   * @return JSON object representing DependencyModel object
+   * @return dependency reason
+   */
+  inline ImportanceLevel getImportanceLevel() const override { return importance; }
+
+  /**
+   * @brief Getting JSON object representing Dependency object
+   *
+   * @return JSON object representing Dependency object
    */
   virtual json getObjectAsJson() const override {
-    return {{"object1", firstObject.getJsonObject()},
-            {"object2", secondObject.getJsonObject()},
-            {"id", dependencyId},
-            {"category", dependencyCategory},
-            {"type", dependencyType},
-            {"reason", dependencyReason},
-            {"basedOn", dependencyBasedOn},
-            {"usefulness", usefulness}};
+    return {
+        {"id", dependencyId},
+        {"category", dependencyCategory},
+        {"type", dependencyType},
+        {"reason", dependencyReason},
+        {"basedOn", basedOn},
+        {"importance", importance}
+    };
   }
 
-  friend bool operator==(const Dependency& lhs, const Dependency& rhs) {
-    if (lhs.getReason() != rhs.getReason()) {
-      return false;
-    }
-
-    if constexpr (std::is_same_v<T, U>) {
-      return (lhs.getFirstElement() == rhs.getFirstElement() && lhs.getSecondElement() == rhs.getSecondElement()) ||
-             (lhs.getFirstElement() == rhs.getSecondElement() && lhs.getSecondElement() == rhs.getFirstElement());
-    }
-    else {
-      return lhs.getFirstElement() == rhs.getFirstElement() && lhs.getSecondElement() == rhs.getSecondElement();
-    }
+  friend std::ostream& operator<< (std::ostream& stream, const Dependency& /*dependency*/) {
+    return stream;
   }
 
   ~Dependency() { }

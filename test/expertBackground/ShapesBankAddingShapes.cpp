@@ -1,7 +1,7 @@
 #include "ExpertBackgroundTestBase.h"
 
 TEST_CASE("Creating empty ShapesBank", "[expertBackground]") {
-  const expertBackground::ShapesBank emptyShapesBank;
+  const ShapesBank emptyShapesBank;
 
   const std::string shapeId{"some-id"};
 
@@ -27,7 +27,7 @@ TEST_CASE("Creating empty ShapesBank", "[expertBackground]") {
 }
 
 TEST_CASE("Adding point to ShapesBank", "[expertBackground]") {
-  expertBackground::ShapesBank shapesBank;
+  ShapesBank shapesBank;
 
   const std::string pointId{"point id"};
   const float pointXCoord{10.0F};
@@ -54,7 +54,7 @@ TEST_CASE("Adding point to ShapesBank", "[expertBackground]") {
 }
 
 TEST_CASE("Adding line to ShapesBank", "[expertBackground]") {
-  expertBackground::ShapesBank shapesBank;
+  ShapesBank shapesBank;
 
   const std::string point1Id{"point 1 id"};
   const float point1CoordX{3.0F};
@@ -94,7 +94,7 @@ TEST_CASE("Adding line to ShapesBank", "[expertBackground]") {
   const size_t pointsNumber{7};
 
   const std::string line1Id{"line 1 id"};
-  const expertBackground::LineModel::LineType line1Type{expertBackground::LineModel::LineType::SLANTED};
+  const LineModel::LineType line1Type{LineModel::LineType::SLANTED};
   const float line1A{0.75F};
   const float line1B{1.25F};
   const std::vector<std::string> line1Points{point4Id, point5Id, point6Id, point7Id};
@@ -106,14 +106,14 @@ TEST_CASE("Adding line to ShapesBank", "[expertBackground]") {
   };
 
   const std::string line2Id{"line 2 id"};
-  const expertBackground::LineModel::LineType line2Type{expertBackground::LineModel::LineType::HORIZONTAL};
+  const LineModel::LineType line2Type{LineModel::LineType::HORIZONTAL};
   const float line2A{0.0F};
   const float line2B{2.0F};
   const std::vector<std::string> line2Points{point1Id, point2Id, point5Id};
   const std::vector<std::string> line2PointsOrder{point2Id, point5Id, point1Id};
 
   const std::string line3Id{"line 3 id"};
-  const expertBackground::LineModel::LineType line3Type{expertBackground::LineModel::LineType::VERTICAL};
+  const LineModel::LineType line3Type{LineModel::LineType::VERTICAL};
   const float line3A{0.0F};
   const float line3B{-3.0F};
   const std::vector<std::string> line3Points{point2Id, point3Id, point4Id};
@@ -162,7 +162,7 @@ TEST_CASE("Adding line to ShapesBank", "[expertBackground]") {
 }
 
 TEST_CASE("Adding circle to ShapesBank", "[expertBackground]") {
-  expertBackground::ShapesBank shapesBank;
+  ShapesBank shapesBank;
 
   const std::string point1Id{"point 1 id"};
   const float point1CoordX{-4.0F};

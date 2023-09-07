@@ -34,7 +34,7 @@ class IDependency {
    */
   enum class Type {
     SEGMENT_LENGTH,
-    ANGLE_VALUE,
+    ANGLE_MEASURE,
     EQUATION,
     POLYGON_TYPE,
     EQUAL_SEGMENTS,
@@ -119,7 +119,11 @@ class IDependency {
     EQUATION_EXTRACTION
   };
 
-  enum class UsefulnessLevel { LOW, MEDIUM, HIGH };
+  enum class ImportanceLevel {
+    LOW,
+    MEDIUM,
+    HIGH
+  };
 
   virtual json getObjectAsJson() const = 0;
   virtual inline size_t getId() const = 0;
@@ -127,7 +131,7 @@ class IDependency {
   virtual inline Type getType() const = 0;
   virtual inline Reason getReason() const = 0;
   virtual inline const std::vector<size_t>& getDependentDependencies() const = 0;
-  virtual inline UsefulnessLevel getUsefulnessLevel() const = 0;
+  virtual inline ImportanceLevel getImportanceLevel() const = 0;
 
   virtual ~IDependency() {}
 };

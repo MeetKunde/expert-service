@@ -3,12 +3,12 @@
 namespace expertBackground {
 PointsPairModel::PointsPairModel(std::string point1, std::string point2) {
   if (point1 < point2) {
-    point1Id = point1;
-    point2Id = point2;
+    point1Id = std::move(point1);
+    point2Id = std::move(point2);
   }
   else {
-    point1Id = point2;
-    point2Id = point1;
+    point1Id = std::move(point2);
+    point2Id = std::move(point1);
   }
 }
 

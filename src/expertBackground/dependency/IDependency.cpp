@@ -17,7 +17,7 @@ const std::vector<IDependency::Category> IDependency::dependencyCategories = {
 
 const std::vector<IDependency::Type> IDependency::dependencyTypes = {
     IDependency::Type::SEGMENT_LENGTH,
-    IDependency::Type::ANGLE_VALUE,
+    IDependency::Type::ANGLE_MEASURE,
     IDependency::Type::EQUATION,
     IDependency::Type::POLYGON_TYPE,
     IDependency::Type::EQUAL_SEGMENTS,
