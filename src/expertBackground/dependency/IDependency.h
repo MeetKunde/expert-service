@@ -24,7 +24,7 @@ class IDependency {
     OF_LINE_AND_POINTS_PAIR,
     OF_CIRCLE_AND_POLYGON,
     OF_POINTS_PAIRS_PAIR_AND_POINTS_PAIR,
-    OF_POLYGONS
+    OF_POLYGONS,
   };
 
   static const std::vector<Category> dependencyCategories;

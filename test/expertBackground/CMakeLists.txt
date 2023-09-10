@@ -7,7 +7,7 @@ find_package(Catch2 REQUIRED PATHS ${CMAKE_BINARY_DIR})
 
 file(GLOB_RECURSE _SRCS "*.cpp" "*.h")
 
-add_executable(expertBackgroundTests ${_SRCS})
+add_executable(expertBackgroundTests ${_SRCS} DependenciesBankAddingDependencies.cpp)
 
 target_link_libraries(expertBackgroundTests expertBackground Catch2::Catch2)
 

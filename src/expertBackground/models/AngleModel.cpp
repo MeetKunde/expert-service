@@ -2,7 +2,8 @@
 
 namespace expertBackground {
 AngleModel::AngleModel(std::string vertexId, std::string point1Id, std::string point2Id, AngleType type)
-    : vertexId{std::move(vertexId)}, pointsOnArms{std::move(point1Id), std::move(point2Id)}, angleType(type) {}
+    : vertexId{std::move(vertexId)}, pointsOnArms{std::move(point1Id), std::move(point2Id)}, angleType(type) {
+}
 
 AngleModel::AngleModel(const AngleModel& angleModel)
     : vertexId{angleModel.vertexId}, pointsOnArms{PointsPairModel{angleModel.pointsOnArms}}, angleType{angleModel.angleType} {}

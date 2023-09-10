@@ -80,11 +80,13 @@ DependenciesBank::DependenciesBank(const ShapesBank* generatedShapesBank)
 }
 
 unsigned int DependenciesBank::addEquation(const symbolicAlgebra::Expression& leftSide,
-                                           const symbolicAlgebra::Expression& rightSide, IDependency::Reason reason,
-                                           std::vector<size_t> basedOn, IDependency::ImportanceLevel importanceLevel) {
+                                           const symbolicAlgebra::Expression& rightSide,
+                                           IDependency::Reason reason,
+                                           std::vector<size_t> basedOn,
+                                           IDependency::ImportanceLevel importanceLevel) {
 
   const std::shared_ptr<EquationDependency> dependency = std::make_shared<EquationDependency>(
-      ExpressionModel(rightSide), ExpressionModel(leftSide), dependencyIdCounter, IDependency::Category::FORMULA,
+      ExpressionModel(rightSide), ExpressionModel(leftSide), true, dependencyIdCounter, IDependency::Category::FORMULA,
       IDependency::Type::EQUATION, reason, std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
@@ -110,15 +112,16 @@ unsigned int DependenciesBank::addEquation(const symbolicAlgebra::Expression& le
   return 1;
 }
 
-unsigned int DependenciesBank::addLength(const std::string& point1Id, const std::string& point2Id, const symbolicAlgebra::Expression& length,
+unsigned int DependenciesBank::addLength(const std::string& point1Id, const std::string& point2Id,
+                                         const symbolicAlgebra::Expression& length,
                                          IDependency::Reason reason, std::vector<size_t> basedOn,
                                          IDependency::ImportanceLevel importanceLevel) {
   const std::pair<std::string, std::vector<std::string>> name =
       getLengthName(shapesBank->getPoint(point1Id), shapesBank->getPoint(point2Id));
 
   const std::shared_ptr<EquationDependency> dependency = std::make_shared<EquationDependency>(
-      ExpressionModel(Var(name.first)), ExpressionModel(length), dependencyIdCounter, IDependency::Category::FORMULA,
-      IDependency::Type::SEGMENT_LENGTH, reason, std::move(basedOn), importanceLevel);
+      ExpressionModel(Var(name.first)), ExpressionModel(length), true, dependencyIdCounter,
+      IDependency::Category::FORMULA, IDependency::Type::SEGMENT_LENGTH, reason, std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
     return 0;
@@ -143,20 +146,18 @@ unsigned int DependenciesBank::addLength(const std::string& point1Id, const std:
   return 1;
 }
 
-unsigned int DependenciesBank::addConvexAngle(const std::string& point1Id, const std::string& vertexId, const std::string& point2Id,
-                                              const symbolicAlgebra::Expression& value, IDependency::Reason reason,
-                                              std::vector<size_t> basedOn, IDependency::ImportanceLevel importanceLevel) {
+unsigned int DependenciesBank::addConvexAngle(const std::string& point1Id, const std::string& vertexId,
+                                              const std::string& point2Id,const symbolicAlgebra::Expression& value,
+                                              IDependency::Reason reason,std::vector<size_t> basedOn,
+                                              IDependency::ImportanceLevel importanceLevel) {
 
-  std::string point1IdTmp{point1Id};
-  std::string vertexIdTmp{vertexId};
-  std::string point2IdTmp{point2Id};
-  changeAngleEnds(point1IdTmp, vertexIdTmp, point2IdTmp);
+  const std::vector<std::string> angle = changeAngleEnds(point1Id, vertexId, point2Id);
   const std::pair<std::string, std::vector<std::string>> name =
-      getAngleName(shapesBank->getPoint(point1IdTmp), shapesBank->getPoint(vertexIdTmp), shapesBank->getPoint(point2IdTmp), true);
+      getAngleName(shapesBank->getPoint(angle[0]), shapesBank->getPoint(angle[1]), shapesBank->getPoint(angle[2]), true);
 
   const std::shared_ptr<EquationDependency> dependency = std::make_shared<EquationDependency>(
-      ExpressionModel(Var(name.first)), ExpressionModel(value), dependencyIdCounter, IDependency::Category::FORMULA,
-      IDependency::Type::ANGLE_MEASURE, reason, std::move(basedOn), importanceLevel);
+      ExpressionModel(Var(name.first)), ExpressionModel(value), true, dependencyIdCounter,
+      IDependency::Category::FORMULA, IDependency::Type::ANGLE_MEASURE, reason, std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
     return 0;
@@ -181,19 +182,18 @@ unsigned int DependenciesBank::addConvexAngle(const std::string& point1Id, const
   return 1;
 }
 
-unsigned int DependenciesBank::addConcaveAngle(const std::string& point1Id, const std::string& vertexId, const std::string& point2Id,
-                                               const symbolicAlgebra::Expression& value, IDependency::Reason reason,
-                                               std::vector<size_t> basedOn, IDependency::ImportanceLevel importanceLevel) {
-  std::string point1IdTmp{point1Id};
-  std::string vertexIdTmp{vertexId};
-  std::string point2IdTmp{point2Id};
-  changeAngleEnds(point1IdTmp, vertexIdTmp, point2IdTmp);
+unsigned int DependenciesBank::addConcaveAngle(const std::string& point1Id, const std::string& vertexId,
+                                               const std::string& point2Id, const symbolicAlgebra::Expression& value,
+                                               IDependency::Reason reason, std::vector<size_t> basedOn,
+                                               IDependency::ImportanceLevel importanceLevel) {
+
+  const std::vector<std::string> angle = changeAngleEnds(point1Id, vertexId, point2Id);
   const std::pair<std::string, std::vector<std::string>> name =
-      getAngleName(shapesBank->getPoint(point1IdTmp), shapesBank->getPoint(vertexIdTmp), shapesBank->getPoint(point2IdTmp), false);
+      getAngleName(shapesBank->getPoint(angle[0]), shapesBank->getPoint(angle[1]), shapesBank->getPoint(angle[2]), false);
 
   const std::shared_ptr<EquationDependency> dependency = std::make_shared<EquationDependency>(
-      ExpressionModel(Var(name.first)), ExpressionModel(value), dependencyIdCounter, IDependency::Category::FORMULA,
-      IDependency::Type::ANGLE_MEASURE, reason, std::move(basedOn), importanceLevel);
+      ExpressionModel(Var(name.first)), ExpressionModel(value), true, dependencyIdCounter,
+      IDependency::Category::FORMULA, IDependency::Type::ANGLE_MEASURE, reason, std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
     return 0;
@@ -218,20 +218,22 @@ unsigned int DependenciesBank::addConcaveAngle(const std::string& point1Id, cons
   return 1;
 }
 
-unsigned int DependenciesBank::addLinesDependency(const std::string& id1, const std::string& id2, IDependency::Type type,
-                                                  IDependency::Reason reason, std::vector<size_t> basedOn,
+unsigned int DependenciesBank::addLinesDependency(const std::string& id1, const std::string& id2,
+                                                  LinesDependencies type, IDependency::Reason reason,
+                                                  std::vector<size_t> basedOn,
                                                   IDependency::ImportanceLevel importanceLevel) {
 
   std::string index1{id1};
   std::string index2{id2};
-  if (id1 < id2) {
+  if (id1 > id2) {
     index1 = id2;
     index2 = id1;
   }
 
   const std::shared_ptr<LinesDependency> dependency =
-      std::make_shared<LinesDependency>(IdentifierModel(index1), IdentifierModel(index2), dependencyIdCounter,
-                                        IDependency::Category::OF_LINES, type, reason, std::move(basedOn), importanceLevel);
+      std::make_shared<LinesDependency>(IdentifierModel(index1), IdentifierModel(index2), true, dependencyIdCounter,
+                                        IDependency::Category::OF_LINES, static_cast<IDependency::Type>(type),
+                                        reason, std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
     return 0;
@@ -241,20 +243,22 @@ unsigned int DependenciesBank::addLinesDependency(const std::string& id1, const 
   return 1;
 }
 
-unsigned int DependenciesBank::addCirclesDependency(const std::string& id1, const std::string& id2, IDependency::Type type,
-                                                    IDependency::Reason reason, std::vector<size_t> basedOn,
+unsigned int DependenciesBank::addCirclesDependency(const std::string& id1, const std::string& id2,
+                                                    CirclesDependencies type, IDependency::Reason reason,
+                                                    std::vector<size_t> basedOn,
                                                     IDependency::ImportanceLevel importanceLevel) {
 
   std::string index1{id1};
   std::string index2{id2};
-  if (id1 < id2) {
+  if (id1 > id2) {
     index1 = id2;
     index2 = id1;
   }
 
   const std::shared_ptr<CirclesDependency> dependency =
-      std::make_shared<CirclesDependency>(IdentifierModel(index1), IdentifierModel(index2), dependencyIdCounter,
-                                          IDependency::Category::OF_CIRCLES, type, reason, std::move(basedOn), importanceLevel);
+      std::make_shared<CirclesDependency>(IdentifierModel(index1), IdentifierModel(index2), true, dependencyIdCounter,
+                                          IDependency::Category::OF_CIRCLES, static_cast<IDependency::Type>(type),
+                                          reason, std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
     return 0;
@@ -264,14 +268,16 @@ unsigned int DependenciesBank::addCirclesDependency(const std::string& id1, cons
   return 1;
 }
 
-unsigned int DependenciesBank::addPointPairsDependency(const std::string& pair1End1, const std::string& pair1End2,
+unsigned int DependenciesBank::addPointsPairsDependency(const std::string& pair1End1, const std::string& pair1End2,
                                                        const std::string& pair2End1, const std::string& pair2End2,
-                                                       IDependency::Type type, IDependency::Reason reason,
-                                                       std::vector<size_t> basedOn, IDependency::ImportanceLevel importanceLevel) {
+                                                       PointsPairsDependencies type, IDependency::Reason reason,
+                                                       std::vector<size_t> basedOn,
+                                                       IDependency::ImportanceLevel importanceLevel) {
 
   const std::shared_ptr<PointsPairsDependency> dependency = std::make_shared<PointsPairsDependency>(
-      PointsPairModel{pair1End1, pair1End2}, PointsPairModel{pair2End1, pair2End2},
-      dependencyIdCounter, IDependency::Category::OF_POINTS_PAIRS, type, reason, std::move(basedOn), importanceLevel);
+      PointsPairModel{pair1End1, pair1End2}, PointsPairModel{pair2End1, pair2End2}, true,
+      dependencyIdCounter, IDependency::Category::OF_POINTS_PAIRS, static_cast<IDependency::Type>(type),
+      reason, std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
     return 0;
@@ -285,56 +291,17 @@ unsigned int DependenciesBank::addAnglesDependency(const std::string& angle1Poin
                                                    const std::string& angle1Point2Id, AngleModel::AngleType angle1Type,
                                                    const std::string& angle2Point1Id, const std::string& angle2VertexId,
                                                    const std::string& angle2Point2Id, AngleModel::AngleType angle2Type,
-                                                   IDependency::Type type, IDependency::Reason reason,
-                                                   std::vector<size_t> basedOn, IDependency::ImportanceLevel importanceLevel) {
+                                                   AnglesDependencies type, IDependency::Reason reason,
+                                                   std::vector<size_t> basedOn,
+                                                   IDependency::ImportanceLevel importanceLevel) {
 
-  std::string angle1Point1IdTmp{angle1Point1Id};
-  std::string angle1VertexIdTmp{angle1VertexId};
-  std::string angle1Point2IdTmp{angle1Point2Id};
-
-  std::string angle2Point1IdTmp{angle2Point1Id};
-  std::string angle2VertexIdTmp{angle2VertexId};
-  std::string angle2Point2IdTmp{angle2Point2Id};
-
-  changeAngleEnds(angle1Point1IdTmp, angle1VertexIdTmp, angle1Point2IdTmp);
-  changeAngleEnds(angle2Point1IdTmp, angle2VertexIdTmp, angle2Point2IdTmp);
+  const std::vector<std::string> angle1 = changeAngleEnds(angle1Point1Id, angle1VertexId, angle1Point2Id);
+  const std::vector<std::string> angle2 = changeAngleEnds(angle2Point1Id, angle2VertexId, angle2Point2Id);
 
   const std::shared_ptr<AnglesDependency> dependency = std::make_shared<AnglesDependency>(
-      AngleModel{angle1VertexIdTmp, angle1Point1IdTmp, angle1Point2IdTmp, angle1Type},
-      AngleModel{angle2VertexIdTmp, angle2Point1IdTmp, angle2Point2IdTmp, angle2Type},
-      dependencyIdCounter, IDependency::Category::OF_ANGLES, type, reason, std::move(basedOn), importanceLevel);
-
-  if (checkIfDependencyExist(dependency)) {
-    return 0;
-  }
-
-  add(dependency);
-  return 1;
-}
-
-unsigned int DependenciesBank::addPolygonsDependency(const std::vector<std::string>& polygon1VerticesIds,
-                                                     const std::vector<std::string>& polygon2VerticesIds, IDependency::Type type,
-                                                     IDependency::Reason reason, std::vector<size_t> basedOn,
-                                                     IDependency::ImportanceLevel importanceLevel) {
-
-  const std::shared_ptr<PolygonsDependency> dependency = std::make_shared<PolygonsDependency>(
-      PolygonModel(polygon1VerticesIds), PolygonModel(polygon2VerticesIds), dependencyIdCounter,
-      IDependency::Category::OF_POLYGONS, type, reason, std::move(basedOn), importanceLevel);
-
-  if (checkIfDependencyExist(dependency)) {
-    return 0;
-  }
-
-  add(dependency);
-  return 1;
-}
-
-unsigned int DependenciesBank::addLineCircleDependency(const std::string& lineId, const std::string& circleId, IDependency::Type type,
-                                                       IDependency::Reason reason, std::vector<size_t> basedOn,
-                                                       IDependency::ImportanceLevel importanceLevel) {
-
-  const std::shared_ptr<LineCircleDependency> dependency = std::make_shared<LineCircleDependency>(
-      IdentifierModel(lineId), IdentifierModel(circleId), dependencyIdCounter, IDependency::Category::OF_LINE_AND_CIRCLE, type,
+      AngleModel{angle1[1], angle1[0], angle1[2], angle1Type},
+      AngleModel{angle2[1], angle2[0], angle2[2], angle2Type}, true,
+      dependencyIdCounter, IDependency::Category::OF_ANGLES, static_cast<IDependency::Type>(type),
       reason, std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
@@ -345,14 +312,53 @@ unsigned int DependenciesBank::addLineCircleDependency(const std::string& lineId
   return 1;
 }
 
-unsigned int DependenciesBank::addLinePointPairDependency(const std::string& lineId, const std::string& pairEnd1Id, const std::string& pairEnd2Id,
-                                                          IDependency::Type type, IDependency::Reason reason,
+unsigned int DependenciesBank::addPolygonsDependency(const std::vector<std::string>& polygon1VerticesIds,
+                                                     const std::vector<std::string>& polygon2VerticesIds,
+                                                     PolygonsDependencies type, IDependency::Reason reason,
+                                                     std::vector<size_t> basedOn,
+                                                     IDependency::ImportanceLevel importanceLevel) {
+
+  const std::shared_ptr<PolygonsDependency> dependency = std::make_shared<PolygonsDependency>(
+      PolygonModel(polygon1VerticesIds), PolygonModel(polygon2VerticesIds), true, dependencyIdCounter,
+      IDependency::Category::OF_POLYGONS, static_cast<IDependency::Type>(type), reason,
+      std::move(basedOn), importanceLevel);
+
+  if (checkIfDependencyExist(dependency)) {
+    return 0;
+  }
+
+  add(dependency);
+  return 1;
+}
+
+unsigned int DependenciesBank::addLineCircleDependency(const std::string& lineId, const std::string& circleId,
+                                                       LineCircleDependencies type, IDependency::Reason reason,
+                                                       std::vector<size_t> basedOn,
+                                                       IDependency::ImportanceLevel importanceLevel) {
+
+  const std::shared_ptr<LineCircleDependency> dependency = std::make_shared<LineCircleDependency>(
+      IdentifierModel(lineId), IdentifierModel(circleId), false, dependencyIdCounter,
+      IDependency::Category::OF_LINE_AND_CIRCLE, static_cast<IDependency::Type>(type),
+      reason, std::move(basedOn), importanceLevel);
+
+  if (checkIfDependencyExist(dependency)) {
+    return 0;
+  }
+
+  add(dependency);
+  return 1;
+}
+
+unsigned int DependenciesBank::addLinePointPairDependency(const std::string& lineId,
+                                                          const std::string& pairEnd1Id, const std::string& pairEnd2Id,
+                                                          LinePointPairDependencies type, IDependency::Reason reason,
                                                           std::vector<size_t> basedOn,
                                                           IDependency::ImportanceLevel importanceLevel) {
 
   const std::shared_ptr<LinePointPairDependency> dependency = std::make_shared<LinePointPairDependency>(
-      IdentifierModel{lineId}, PointsPairModel{pairEnd1Id, pairEnd2Id}, dependencyIdCounter,
-      IDependency::Category::OF_LINE_AND_POINTS_PAIR, type, reason, std::move(basedOn), importanceLevel);
+      IdentifierModel{lineId}, PointsPairModel{pairEnd1Id, pairEnd2Id}, false, dependencyIdCounter,
+      IDependency::Category::OF_LINE_AND_POINTS_PAIR, static_cast<IDependency::Type>(type), reason,
+      std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
     return 0;
@@ -362,22 +368,20 @@ unsigned int DependenciesBank::addLinePointPairDependency(const std::string& lin
   return 1;
 }
 
-unsigned int DependenciesBank::addLineAngleDependency(const std::string& lineId, const std::string& anglePoint1Id, const std::string& angleVertexId,
-                                                      const std::string& anglePoint2Id, AngleModel::AngleType angleType,
-                                                      IDependency::Type type, IDependency::Reason reason,
+unsigned int DependenciesBank::addLineAngleDependency(const std::string& lineId, const std::string& anglePoint1Id,
+                                                      const std::string& angleVertexId,const std::string& anglePoint2Id,
+                                                      AngleModel::AngleType angleType,
+                                                      LineAngleDependencies type, IDependency::Reason reason,
                                                       std::vector<size_t> basedOn,
                                                       IDependency::ImportanceLevel importanceLevel) {
 
-  std::string anglePoint1IdTmp{anglePoint1Id};
-  std::string angleVertexIdTmp{angleVertexId};
-  std::string anglePoint2IdTmp{anglePoint2Id};
-
-  changeAngleEnds(anglePoint1IdTmp, angleVertexIdTmp, anglePoint2IdTmp);
+  const std::vector<std::string> angle = changeAngleEnds(anglePoint1Id, angleVertexId, anglePoint2Id);
 
   const std::shared_ptr<LineAngleDependency> dependency = std::make_shared<LineAngleDependency>(
       IdentifierModel(lineId),
-      AngleModel{angleVertexIdTmp, anglePoint1IdTmp, anglePoint2IdTmp, angleType},
-      dependencyIdCounter, IDependency::Category::OF_LINE_AND_ANGLE, type, reason, std::move(basedOn), importanceLevel);
+      AngleModel{angle[1], angle[0], angle[2], angleType}, false,
+      dependencyIdCounter, IDependency::Category::OF_LINE_AND_ANGLE, static_cast<IDependency::Type>(type),
+      reason, std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
     return 0;
@@ -387,14 +391,16 @@ unsigned int DependenciesBank::addLineAngleDependency(const std::string& lineId,
   return 1;
 }
 
-unsigned int DependenciesBank::addCirclePolygonDependency(const std::string& circleId, const std::vector<std::string>& polygonVerticesIds,
-                                                          IDependency::Type type, IDependency::Reason reason,
+unsigned int DependenciesBank::addCirclePolygonDependency(const std::string& circleId,
+                                                          const std::vector<std::string>& polygonVerticesIds,
+                                                          CirclePolygonDependencies type, IDependency::Reason reason,
                                                           std::vector<size_t> basedOn,
                                                           IDependency::ImportanceLevel importanceLevel) {
 
   const std::shared_ptr<CirclePolygonDependency> dependency = std::make_shared<CirclePolygonDependency>(
-      IdentifierModel{circleId}, PolygonModel{polygonVerticesIds}, dependencyIdCounter,
-      IDependency::Category::OF_CIRCLE_AND_POLYGON, type, reason, std::move(basedOn), importanceLevel);
+      IdentifierModel{circleId}, PolygonModel{polygonVerticesIds}, false, dependencyIdCounter,
+      IDependency::Category::OF_CIRCLE_AND_POLYGON, static_cast<IDependency::Type>(type), reason,
+      std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
     return 0;
@@ -405,13 +411,15 @@ unsigned int DependenciesBank::addCirclePolygonDependency(const std::string& cir
 }
 
 unsigned int DependenciesBank::addPolygonTypeDependency(const std::vector<std::string>& polygonVerticesIds,
-                                                        PolygonModel::PolygonType polygonType, IDependency::Type type,
-                                                        IDependency::Reason reason, std::vector<size_t> basedOn,
+                                                        PolygonModel::PolygonType polygonType,
+                                                        PolygonTypeDependencies type, IDependency::Reason reason,
+                                                        std::vector<size_t> basedOn,
                                                         IDependency::ImportanceLevel importanceLevel) {
 
   const std::shared_ptr<PolygonTypeDependency> dependency = std::make_shared<PolygonTypeDependency>(
-      IdentifierModel{std::to_string(static_cast<size_t>(polygonType))}, PolygonModel{polygonVerticesIds}, dependencyIdCounter,
-      IDependency::Category::POLYGON_TYPE, type, reason, std::move(basedOn), importanceLevel);
+      IdentifierModel{std::to_string(static_cast<size_t>(polygonType))}, PolygonModel{polygonVerticesIds}, false,
+      dependencyIdCounter,IDependency::Category::POLYGON_TYPE, static_cast<IDependency::Type>(type), reason,
+      std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
     return 0;
@@ -421,17 +429,23 @@ unsigned int DependenciesBank::addPolygonTypeDependency(const std::vector<std::s
   return 1;
 }
 
-unsigned int DependenciesBank::addPointsPairsPairPointsPairDependency(const std::string& arm1End1, const std::string& arm1End2,
-                                                                      const std::string& arm2End1, const std::string& arm2End2,
-                                                                      const std::string& segmentEnd1, const std::string& segmentEnd2,
-                                                                      IDependency::Type type, IDependency::Reason reason,
-                                                                      std::vector<size_t> basedOn,
-                                                                      IDependency::ImportanceLevel importanceLevel) {
+unsigned int DependenciesBank::addPointsPairPairPointsPairDependency(const std::string& arm1End1,
+                                                                     const std::string& arm1End2,
+                                                                     const std::string& arm2End1,
+                                                                     const std::string& arm2End2,
+                                                                     const std::string& segmentEnd1,
+                                                                     const std::string& segmentEnd2,
+                                                                     PointsPairPairPointsPairDependencies type,
+                                                                     IDependency::Reason reason,
+                                                                     std::vector<size_t> basedOn,
+                                                                     IDependency::ImportanceLevel importanceLevel) {
 
-  const std::shared_ptr<TriplePointsPairsDependency> dependency = std::make_shared<TriplePointsPairsDependency>(
-      PointsPairModel{arm1End1, arm1End2}, PointsPairModel{arm2End1, arm2End2}, PointsPairModel{segmentEnd1, segmentEnd2},
+  const std::shared_ptr<PointsPairPairPointsPairDependency> dependency =
+      std::make_shared<PointsPairPairPointsPairDependency>(ModelsPairModel{PointsPairModel{arm1End1, arm1End2},
+                                                                           PointsPairModel{arm2End1, arm2End2}},
+                                                           PointsPairModel{segmentEnd1, segmentEnd2}, false,
        dependencyIdCounter, IDependency::Category::OF_POINTS_PAIRS_PAIR_AND_POINTS_PAIR,
-      type, reason, std::move(basedOn), importanceLevel);
+      static_cast<IDependency::Type>(type), reason, std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
     return 0;
@@ -542,37 +556,45 @@ std::pair<std::string, std::vector<std::string>> DependenciesBank::getAngleName(
   return std::make_pair("|<" + point3Name + point2Name + point1Name + "|", pointsOrder);
 }
 
-void DependenciesBank::changeAngleEnds(std::string& point1Id, std::string& vertexId, std::string& point2Id) {
+std::vector<std::string> DependenciesBank::changeAngleEnds(const std::string& point1Id, const std::string& vertexId, const std::string& point2Id) {
+  if(shapesBank == nullptr) {
+    return std::vector<std::string>{point1Id, vertexId, point2Id};
+  }
+
+  std::string point1IdTmp{point1Id};
+  std::string point2IdTmp{point2Id};
+
   try {
-    const std::string arm1Id = shapesBank->getLineIdThrowTwoPoints(point1Id, vertexId);
+    const std::string arm1Id = shapesBank->getLineIdThrowTwoPoints(point1IdTmp, vertexId);
     const std::vector<std::string>& arm1Points = shapesBank->getLine(arm1Id).getIncludedPoints();
 
-    const unsigned int indexOfPoint2OnArm1 =
-        std::distance(arm1Points.begin(), std::find(arm1Points.begin(), arm1Points.end(), vertexId));
-    const unsigned int indexOfId1 = std::distance(arm1Points.begin(), std::find(arm1Points.begin(), arm1Points.end(), point1Id));
+    const auto iterOfVertexOnArm1 = std::find(arm1Points.begin(), arm1Points.end(), vertexId) - arm1Points.begin();
+    const auto iterOfPoint1OnArm1 = std::find(arm1Points.begin(), arm1Points.end(), point1IdTmp) - arm1Points.begin();
 
-    if (indexOfId1 > indexOfPoint2OnArm1) {
-      point1Id = arm1Points.back();
+    if (iterOfPoint1OnArm1 > iterOfVertexOnArm1) {
+      point1IdTmp = arm1Points.back();
     }
     else {
-      point1Id = arm1Points.front();
+      point1IdTmp = arm1Points.front();
     }
   } catch (std::invalid_argument const& exception) {}
 
   try {
-    const std::string arm2Id = shapesBank->getLineIdThrowTwoPoints(vertexId, point2Id);
-    const std::vector<std::string>& arm2Points =shapesBank->getLine(arm2Id).getIncludedPoints();
-    const unsigned int indexOfVertexOnArm2 =
-        std::distance(arm2Points.begin(), std::find(arm2Points.begin(), arm2Points.end(), vertexId));
-    const unsigned int indexOfId2 = std::distance(arm2Points.begin(), std::find(arm2Points.begin(), arm2Points.end(), point2Id));
+    const std::string arm2Id = shapesBank->getLineIdThrowTwoPoints(vertexId, point2IdTmp);
+    const std::vector<std::string>& arm2Points = shapesBank->getLine(arm2Id).getIncludedPoints();
 
-    if (indexOfId2 > indexOfVertexOnArm2) {
-      point2Id = arm2Points.back();
+    const auto iterOfVertexOnArm2 = std::find(arm2Points.begin(), arm2Points.end(), vertexId) - arm2Points.begin();
+    const auto iterOfPoint2OnArm2 = std::find(arm2Points.begin(), arm2Points.end(), point2IdTmp) - arm2Points.begin();
+
+    if (iterOfPoint2OnArm2 > iterOfVertexOnArm2) {
+      point2IdTmp = arm2Points.back();
     }
     else {
-      point2Id = arm2Points.front();
+      point2IdTmp = arm2Points.front();
     }
   } catch (std::invalid_argument const& exception) {}
+
+  return std::vector<std::string>{point1IdTmp, vertexId, point2IdTmp};
 }
 
 void DependenciesBank::add(std::shared_ptr<IDependency> dependencyModel) {

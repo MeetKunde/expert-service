@@ -8,8 +8,15 @@ namespace expertBackground {
 /**
  * @brief Representing geometric dependency
  */
+template <class T1, class T2>
 class Dependency : public IDependency {
- public:
+ private:
+  T1 object1;
+
+  T2 object2;
+
+  bool sameMeaningOfModels;
+
   /**
    * @brief Dependency ID
    */
@@ -40,9 +47,12 @@ class Dependency : public IDependency {
    */
   ImportanceLevel importance;
 
+ public:
   /**
    * @brief Constructor of a new Dependency object
    *
+   * @param object1
+   * @param object2
    * @param identifier
    * @param category
    * @param type
@@ -50,14 +60,17 @@ class Dependency : public IDependency {
    * @param basedOn
    * @param importanceLevel
    */
-  Dependency(size_t identifier, Category category, Type type, Reason reason,
+  Dependency(T1 object1, T2 object2, bool sameMeaningOfModels, size_t identifier, Category category, Type type, Reason reason,
                  std::vector<size_t> basedOn, ImportanceLevel importanceLevel)
-      : dependencyId(identifier),
-        dependencyCategory(category),
-        dependencyType(type),
-        dependencyReason(reason),
-        basedOn(std::move(basedOn)),
-        importance(importanceLevel) { }
+      : object1{object1},
+        object2{object2},
+        sameMeaningOfModels{sameMeaningOfModels},
+        dependencyId{identifier},
+        dependencyCategory{category},
+        dependencyType{type},
+        dependencyReason{reason},
+        basedOn{std::move(basedOn)},
+        importance{importanceLevel} { }
 
   /**
    * @brief Constructor of a new Dependency object
@@ -65,12 +78,15 @@ class Dependency : public IDependency {
    * @param dependency other Dependency object
    */
   Dependency(const Dependency& dependency)
-      : dependencyId(dependency.dependencyId),
-        dependencyCategory(dependency.dependencyCategory),
-        dependencyType(dependency.dependencyType),
-        dependencyReason(dependency.dependencyReason),
-        basedOn(dependency.basedOn),
-        importance(dependency.importance) {}
+      : object1{object1},
+        object2{object2},
+        sameMeaningOfModels{sameMeaningOfModels},
+        dependencyId{dependency.dependencyId},
+        dependencyCategory{dependency.dependencyCategory},
+        dependencyType{dependency.dependencyType},
+        dependencyReason{dependency.dependencyReason},
+        basedOn{dependency.basedOn},
+        importance{dependency.importance} {}
 
   /**
    * @brief Override of the assignment operator
@@ -79,6 +95,9 @@ class Dependency : public IDependency {
    * @return new Dependency object
    */
   Dependency& operator=(const Dependency& dependency) {
+    object1 = dependency.object1;
+    object2 = dependency.object2;
+    sameMeaningOfModels = dependency.sameMeaningOfModels;
     dependencyId = dependency.dependencyId;
     dependencyCategory = dependency.dependencyCategory;
     dependencyType = dependency.dependencyType;
@@ -88,6 +107,20 @@ class Dependency : public IDependency {
 
     return *this;
   }
+
+  /**
+   * @brief Dependency first object getter
+   *
+   * @return dependency first object
+   */
+  inline const T1& getFirstObject() const { return object1; }
+
+  /**
+   * @brief Dependency second object getter
+   *
+   * @return dependency second object
+   */
+  inline const T2& getSecondObject() const { return object2; }
 
   /**
    * @brief Dependency ID getter
@@ -138,6 +171,8 @@ class Dependency : public IDependency {
    */
   virtual json getObjectAsJson() const override {
     return {
+        {"object1", object1.getJsonObject()},
+        {"object2", object2.getJsonObject()},
         {"id", dependencyId},
         {"category", dependencyCategory},
         {"type", dependencyType},
@@ -149,6 +184,24 @@ class Dependency : public IDependency {
 
   friend std::ostream& operator<< (std::ostream& stream, const Dependency& /*dependency*/) {
     return stream;
+  }
+
+  friend bool operator==(const Dependency& lhs, const Dependency& rhs) {
+    if (lhs.getReason() != rhs.getReason()) {
+      return false;
+    }
+
+    if constexpr (std::is_same_v<T1, T2>) {
+      if(lhs.sameMeaningOfModels && rhs.sameMeaningOfModels) {
+        return (lhs.getFirstObject() == rhs.getFirstObject() && lhs.getSecondObject() == rhs.getSecondObject()) ||
+               (lhs.getFirstObject() == rhs.getSecondObject() && lhs.getSecondObject() == rhs.getFirstObject());
+      }
+
+      return lhs.getFirstObject() == rhs.getFirstObject() && lhs.getSecondObject() == rhs.getSecondObject();
+    }
+    else {
+      return lhs.getFirstObject() == rhs.getFirstObject() && lhs.getSecondObject() == rhs.getSecondObject();
+    }
   }
 
   ~Dependency() { }
