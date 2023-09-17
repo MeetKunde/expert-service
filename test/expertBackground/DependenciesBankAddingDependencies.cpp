@@ -642,7 +642,6 @@ TEST_CASE("Adding PointsPairsDependencies to DependenciesBank", "[expertBackgrou
   const std::string pointF{"pointF"};
 
   const DependenciesBank::PointsPairsDependencies type1{DependenciesBank::PointsPairsDependencies::EQUAL_SEGMENTS};
-  const DependenciesBank::PointsPairsDependencies type2{DependenciesBank::PointsPairsDependencies::MEDIAN};
 
   const IDependency::Reason reason1{IDependency::Reason::ARMS_ARE_THE_SAME};
   const IDependency::Reason reason2{IDependency::Reason::BISECTOR};
@@ -659,7 +658,6 @@ TEST_CASE("Adding PointsPairsDependencies to DependenciesBank", "[expertBackgrou
   const size_t dependency1Id{baseDependenciesNumber};
   const size_t dependency2Id{baseDependenciesNumber + 1};
   const size_t dependency3Id{baseDependenciesNumber + 2};
-  const size_t dependency4Id{baseDependenciesNumber + 3};
 
   const json dependency1Json = {
       {"object1", {
@@ -673,23 +671,6 @@ TEST_CASE("Adding PointsPairsDependencies to DependenciesBank", "[expertBackgrou
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_POINTS_PAIRS},
       {"type", type1},
-      {"reason", reason1},
-      {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
-  };
-
-  const json dependency4Json = {
-      {"object1", {
-        {"end1Id", pointA},
-        {"end2Id", pointB}
-      }},
-      {"object2", {
-        {"end1Id", pointC},
-        {"end2Id", pointD}
-      }},
-      {"id", dependency4Id},
-      {"category", IDependency::Category::OF_POINTS_PAIRS},
-      {"type", type2},
       {"reason", reason1},
       {"basedOn", basedOn1},
       {"importance", importanceLevel1}
@@ -739,23 +720,14 @@ TEST_CASE("Adding PointsPairsDependencies to DependenciesBank", "[expertBackgrou
                                                     importanceLevel1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
-  // new dependency = other type
-  REQUIRE(dependenciesBank.addPointsPairsDependency(pointA, pointB, pointC, pointD, type2, reason1, basedOn1,
-                                                    importanceLevel1) == 1);
-  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   const std::vector<std::shared_ptr<PointsPairsDependency>> equalSegments =
       dependenciesBank.getPointsPairsDependencies(DependenciesBank::PointsPairsDependencies::EQUAL_SEGMENTS);
 
-  const std::vector<std::shared_ptr<PointsPairsDependency>> medians =
-      dependenciesBank.getPointsPairsDependencies(DependenciesBank::PointsPairsDependencies::MEDIAN);
-
   REQUIRE(equalSegments.size() == 3);
-  REQUIRE(medians.size() == 1);
 
   REQUIRE(dependenciesBank.getDependencyById(dependency1Id)->getId() == equalSegments.front()->getId());
   REQUIRE(dependenciesBank.getDependencyById(dependency3Id)->getId() == equalSegments.back()->getId());
-  REQUIRE(dependenciesBank.getDependencyById(dependency4Id)->getId() == medians.front()->getId());
 
   REQUIRE(equalSegments.front()->getCategory() == IDependency::Category::OF_POINTS_PAIRS);
   REQUIRE(equalSegments.front()->getType() == static_cast<IDependency::Type>(type1));
@@ -766,16 +738,6 @@ TEST_CASE("Adding PointsPairsDependencies to DependenciesBank", "[expertBackgrou
   }
   REQUIRE(equalSegments.front()->getImportanceLevel() == importanceLevel1);
   REQUIRE(equalSegments.front()->getObjectAsJson() == dependency1Json);
-
-  REQUIRE(medians.front()->getCategory() == IDependency::Category::OF_POINTS_PAIRS);
-  REQUIRE(medians.front()->getType() == static_cast<IDependency::Type>(type2));
-  REQUIRE(medians.front()->getReason() == reason1);
-  REQUIRE(medians.front()->getDependentDependencies().size() == basedOn1.size());
-  for(size_t i = 0; i < basedOn1.size(); i++) {
-    REQUIRE(medians.front()->getDependentDependencies().at(i) == basedOn1.at(i));
-  }
-  REQUIRE(medians.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(medians.front()->getObjectAsJson() == dependency4Json);
 }
 
 TEST_CASE("Adding AnglesDependencies to DependenciesBank", "[expertBackground]") {
@@ -947,6 +909,8 @@ TEST_CASE("Adding PolygonsDependencies to DependenciesBank", "[expertBackground]
   const std::vector<std::string> rectangleBADC{"pointB", "pointA", "pointD", "pointC"};
   const std::vector<std::string> rectangleACBD{"pointA", "pointC", "pointB", "pointD"};
 
+  const bool fixedPointsOrder = false;
+
   const DependenciesBank::PolygonsDependencies type1{DependenciesBank::PolygonsDependencies::SIMILAR_TRIANGLES};
   const DependenciesBank::PolygonsDependencies type2{DependenciesBank::PolygonsDependencies::CONGRUENT_TRIANGLES};
 
@@ -999,57 +963,57 @@ TEST_CASE("Adding PolygonsDependencies to DependenciesBank", "[expertBackground]
   };
 
   // add new dependency
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // add the same dependency
   // but with other polygons order
-  REQUIRE(dependenciesBank.addPolygonsDependency(rectangleABCD, triangleABC, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(rectangleABCD, triangleABC, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // add the same dependency
   // but with other first polygon vertices permutation
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleBCA, rectangleABCD, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleBCA, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // add the same dependency
   // but with other first polygon vertices permutation
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleCAB, rectangleABCD, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleCAB, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // add the same dependency
   // but with other second polygon vertices permutation
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleBADC, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleBADC, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // add the same dependency
   // but with other second polygon vertices permutation
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleDCBA, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleDCBA, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other second polygon vertices permutation
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleACBD, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleACBD, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // add the same dependency
   // but with other dependent dependencies and importance
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, type1, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn2, importanceLevel2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency = other reason
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, type1, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type1, reason2, basedOn1, importanceLevel1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency = other second polygon
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, triangleCDE, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, triangleCDE, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // new dependency = other type
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, type2, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type2, reason1, basedOn1, importanceLevel1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 5));
 
   const std::vector<std::shared_ptr<PolygonsDependency>> similarTriangles =
@@ -1179,8 +1143,7 @@ TEST_CASE("Adding LinePointPairDependencies to DependenciesBank", "[expertBackgr
   const std::string pointB{"pointB"};
   const std::string pointC{"pointC"};
 
-  const DependenciesBank::LinePointPairDependencies type1{DependenciesBank::LinePointPairDependencies::ALTITUDE};
-  const DependenciesBank::LinePointPairDependencies type2{DependenciesBank::LinePointPairDependencies::MID_PERPENDICULAR_LINE};
+  const DependenciesBank::LinePointsPairDependencies type1{DependenciesBank::LinePointsPairDependencies::MID_PERPENDICULAR_LINE};
 
   const IDependency::Reason reason1{IDependency::Reason::ANGLE_SIDE_ANGLE};
   const IDependency::Reason reason2{IDependency::Reason::PERPENDICULAR_LINES};
@@ -1198,7 +1161,6 @@ TEST_CASE("Adding LinePointPairDependencies to DependenciesBank", "[expertBackgr
   const size_t dependency2Id{baseDependenciesNumber + 1};
   const size_t dependency3Id{baseDependenciesNumber + 2};
   const size_t dependency4Id{baseDependenciesNumber + 3};
-  const size_t dependency5Id{baseDependenciesNumber + 4};
 
   const json dependency1Json = {
       {"object1", {
@@ -1216,83 +1178,48 @@ TEST_CASE("Adding LinePointPairDependencies to DependenciesBank", "[expertBackgr
       {"importance", importanceLevel1}
   };
 
-  const json dependency5Json = {
-      {"object1", {
-        {"id", lineA},
-      }},
-      {"object2", {
-          {"end1Id", pointA},
-          {"end2Id", pointB},
-      }},
-      {"id", dependency5Id},
-      {"category", IDependency::Category::OF_LINE_AND_POINTS_PAIR},
-      {"type", type2},
-      {"reason", reason1},
-      {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
-  };
-
   // new dependency
-  REQUIRE(dependenciesBank.addLinePointPairDependency(lineA, pointA, pointB, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointA, pointB, type1, reason1, basedOn1, importanceLevel1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
-  REQUIRE(dependenciesBank.addLinePointPairDependency(lineA, pointA, pointB, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointA, pointB, type1, reason1, basedOn1, importanceLevel1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other line
-  REQUIRE(dependenciesBank.addLinePointPairDependency(lineB, pointA, pointB, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineB, pointA, pointB, type1, reason1, basedOn1, importanceLevel1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency = other points pair
-  REQUIRE(dependenciesBank.addLinePointPairDependency(lineA, pointC, pointB, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointC, pointB, type1, reason1, basedOn1, importanceLevel1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // attempt to add the same dependency
   // but with other dependent dependencies and importance
-  REQUIRE(dependenciesBank.addLinePointPairDependency(lineA, pointA, pointB, type1, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointA, pointB, type1, reason1, basedOn2, importanceLevel2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency = other reason
-  REQUIRE(dependenciesBank.addLinePointPairDependency(lineA, pointA, pointB, type1, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointA, pointB, type1, reason2, basedOn1, importanceLevel1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
-  // new dependency = other type
-  REQUIRE(dependenciesBank.addLinePointPairDependency(lineA, pointA, pointB, type2, reason1, basedOn1, importanceLevel1) == 1);
-  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 5));
-
-  const std::vector<std::shared_ptr<LinePointPairDependency>> altitudes =
-      dependenciesBank.getLinePointPairDependencies(DependenciesBank::LinePointPairDependencies::ALTITUDE);
-
   const std::vector<std::shared_ptr<LinePointPairDependency>> midPerpendiculars =
-      dependenciesBank.getLinePointPairDependencies(DependenciesBank::LinePointPairDependencies::MID_PERPENDICULAR_LINE);
+      dependenciesBank.getLinePointsPairDependencies(DependenciesBank::LinePointsPairDependencies::MID_PERPENDICULAR_LINE);
 
-  REQUIRE(altitudes.size() == 4);
-  REQUIRE(midPerpendiculars.size() == 1);
+  REQUIRE(midPerpendiculars.size() == 4);
 
-  REQUIRE(dependenciesBank.getDependencyById(dependency1Id)->getId() == altitudes.front()->getId());
-  REQUIRE(dependenciesBank.getDependencyById(dependency4Id)->getId() == altitudes.back()->getId());
-  REQUIRE(dependenciesBank.getDependencyById(dependency5Id)->getId() == midPerpendiculars.front()->getId());
-
-  REQUIRE(altitudes.front()->getCategory() == IDependency::Category::OF_LINE_AND_POINTS_PAIR);
-  REQUIRE(altitudes.front()->getType() == static_cast<IDependency::Type>(type1));
-  REQUIRE(altitudes.front()->getReason() == reason1);
-  REQUIRE(altitudes.front()->getDependentDependencies().size() == basedOn1.size());
-  for(size_t i = 0; i < basedOn1.size(); i++) {
-    REQUIRE(altitudes.front()->getDependentDependencies().at(i) == basedOn1.at(i));
-  }
-  REQUIRE(altitudes.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(altitudes.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(dependenciesBank.getDependencyById(dependency1Id)->getId() == midPerpendiculars.front()->getId());
+  REQUIRE(dependenciesBank.getDependencyById(dependency4Id)->getId() == midPerpendiculars.back()->getId());
 
   REQUIRE(midPerpendiculars.front()->getCategory() == IDependency::Category::OF_LINE_AND_POINTS_PAIR);
-  REQUIRE(midPerpendiculars.front()->getType() == static_cast<IDependency::Type>(type2));
+  REQUIRE(midPerpendiculars.front()->getType() == static_cast<IDependency::Type>(type1));
   REQUIRE(midPerpendiculars.front()->getReason() == reason1);
   REQUIRE(midPerpendiculars.front()->getDependentDependencies().size() == basedOn1.size());
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(midPerpendiculars.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
   REQUIRE(midPerpendiculars.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(midPerpendiculars.front()->getObjectAsJson() == dependency5Json);
+  REQUIRE(midPerpendiculars.front()->getObjectAsJson() == dependency1Json);
 }
 
 TEST_CASE("Adding LineAngleDependencies to DependenciesBank", "[expertBackground]") {
@@ -1406,6 +1333,7 @@ TEST_CASE("Adding LineAngleDependencies to DependenciesBank", "[expertBackground
   REQUIRE(bisectors.front()->getObjectAsJson() == dependency1Json);
 }
 
+/*
 TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBackground]") {
   const std::string pointA{"pointA"};
   const std::string pointB{"pointB"};
@@ -1554,4 +1482,255 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
   }
   REQUIRE(midSegments.front()->getImportanceLevel() == importanceLevel1);
   REQUIRE(midSegments.front()->getObjectAsJson() == dependency1Json);
+}
+*/
+
+TEST_CASE("Adding PolygonPointsPairDependency to DependenciesBank", "[expertBackground]") {
+  const std::vector<std::string> triangleABC{"pointA", "pointB", "pointC"};
+  const std::vector<std::string> triangleDEF{"pointD", "pointE", "pointF"};
+  const std::string pointG{"pointG"};
+  const std::string pointH{"pointH"};
+  const std::string pointI{"pointI"};
+
+  const bool fixedPointsOrder = true;
+
+  const DependenciesBank::PolygonPointsPairDependencies type1{DependenciesBank::PolygonPointsPairDependencies::ALTITUDE};
+  const DependenciesBank::PolygonPointsPairDependencies type2{DependenciesBank::PolygonPointsPairDependencies::MEDIAN};
+
+  const IDependency::Reason reason1{IDependency::Reason::ALTITUDE};
+  const IDependency::Reason reason2{IDependency::Reason::CIRCUMSCRIBED_CIRCLE};
+
+  const std::vector<size_t> basedOn1 = {21, 3, 1};
+  const std::vector<size_t> basedOn2 = {9, 7, 11, 3};
+
+  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
+  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::HIGH};
+
+  DependenciesBank dependenciesBank{};
+
+  const size_t baseDependenciesNumber = dependenciesBank.getDependenciesNumber();
+  const size_t dependency1Id{baseDependenciesNumber};
+  const size_t dependency2Id{baseDependenciesNumber + 1};
+  const size_t dependency3Id{baseDependenciesNumber + 2};
+  const size_t dependency4Id{baseDependenciesNumber + 3};
+  const size_t dependency5Id{baseDependenciesNumber + 4};
+
+  const json dependency1Json = {
+      {"object1", {
+        {"verticesIds", triangleABC},
+      }},
+      {"object2", {
+        {"end1Id", pointG},
+        {"end2Id", pointH},
+      }},
+      {"id", dependency1Id},
+      {"category", IDependency::Category::OF_POLYGON_AND_POINTS_PAIRS},
+      {"type", type1},
+      {"reason", reason1},
+      {"basedOn", basedOn1},
+      {"importance", importanceLevel1}
+  };
+
+  const json dependency5Json = {
+      {"object1", {
+        {"verticesIds", triangleABC},
+      }},
+      {"object2", {
+        {"end1Id", pointG},
+        {"end2Id", pointH}
+      }},
+      {"id", dependency5Id},
+      {"category", IDependency::Category::OF_POLYGON_AND_POINTS_PAIRS},
+      {"type", type2},
+      {"reason", reason1},
+      {"basedOn", basedOn1},
+      {"importance", importanceLevel1}
+  };
+
+  // new dependency
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
+
+  // attempt to add the same dependency
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
+
+  // new dependency = other polygon
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleDEF, fixedPointsOrder, pointG, pointH, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
+
+  // new dependency = other points pair
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointI, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
+
+  // attempt to add the same dependency
+  // but with other dependent dependencies and importance
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type1, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
+
+  // new dependency = other reason
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type1, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
+
+  // new dependency = other type
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type2, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 5));
+
+  const std::vector<std::shared_ptr<PolygonPointsPairDependency>> altitudes =
+      dependenciesBank.getPolygonPointsPairDependencies(DependenciesBank::PolygonPointsPairDependencies::ALTITUDE);
+
+  const std::vector<std::shared_ptr<PolygonPointsPairDependency>> medians =
+      dependenciesBank.getPolygonPointsPairDependencies(DependenciesBank::PolygonPointsPairDependencies::MEDIAN);
+
+  REQUIRE(altitudes.size() == 4);
+  REQUIRE(medians.size() == 1);
+
+  REQUIRE(dependenciesBank.getDependencyById(dependency1Id)->getId() == altitudes.front()->getId());
+  REQUIRE(dependenciesBank.getDependencyById(dependency4Id)->getId() == altitudes.back()->getId());
+  REQUIRE(dependenciesBank.getDependencyById(dependency5Id)->getId() == medians.front()->getId());
+
+  REQUIRE(altitudes.front()->getCategory() == IDependency::Category::OF_POLYGON_AND_POINTS_PAIRS);
+  REQUIRE(altitudes.front()->getType() == static_cast<IDependency::Type>(type1));
+  REQUIRE(altitudes.front()->getReason() == reason1);
+  REQUIRE(altitudes.front()->getDependentDependencies().size() == basedOn1.size());
+  for(size_t i = 0; i < basedOn1.size(); i++) {
+    REQUIRE(altitudes.front()->getDependentDependencies().at(i) == basedOn1.at(i));
+  }
+  REQUIRE(altitudes.front()->getImportanceLevel() == importanceLevel1);
+  REQUIRE(altitudes.front()->getObjectAsJson() == dependency1Json);
+
+  REQUIRE(medians.front()->getCategory() == IDependency::Category::OF_POLYGON_AND_POINTS_PAIRS);
+  REQUIRE(medians.front()->getType() == static_cast<IDependency::Type>(type2));
+  REQUIRE(medians.front()->getReason() == reason1);
+  REQUIRE(medians.front()->getDependentDependencies().size() == basedOn1.size());
+  for(size_t i = 0; i < basedOn1.size(); i++) {
+    REQUIRE(medians.front()->getDependentDependencies().at(i) == basedOn1.at(i));
+  }
+  REQUIRE(medians.front()->getImportanceLevel() == importanceLevel1);
+  REQUIRE(medians.front()->getObjectAsJson() == dependency5Json);
+}
+
+TEST_CASE("Adding PolygonExpressionDependency to DependenciesBank", "[expertBackground]") {
+  const std::vector<std::string> triangleABC{"pointA", "pointB", "pointC"};
+  const std::vector<std::string> triangleDEF{"pointD", "pointE", "pointF"};
+
+  const ExpressionModel expression1{"3*x + y"};
+  const ExpressionModel expression2{"165"};
+
+  const bool fixedPointsOrder = false;
+
+  const DependenciesBank::PolygonExpressionDependencies type1{DependenciesBank::PolygonExpressionDependencies::POLYGON_PERIMETER};
+  const DependenciesBank::PolygonExpressionDependencies type2{DependenciesBank::PolygonExpressionDependencies::POLYGON_AREA};
+
+  const IDependency::Reason reason1{IDependency::Reason::USER_DEFINED};
+  const IDependency::Reason reason2{IDependency::Reason::CONGRUENT_TRIANGLES};
+
+  const std::vector<size_t> basedOn1 = {21};
+  const std::vector<size_t> basedOn2 = {13, 11, 9};
+
+  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::MEDIUM};
+  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::LOW};
+
+  DependenciesBank dependenciesBank{};
+
+  const size_t baseDependenciesNumber = dependenciesBank.getDependenciesNumber();
+  const size_t dependency1Id{baseDependenciesNumber};
+  const size_t dependency2Id{baseDependenciesNumber + 1};
+  const size_t dependency3Id{baseDependenciesNumber + 2};
+  const size_t dependency4Id{baseDependenciesNumber + 3};
+  const size_t dependency5Id{baseDependenciesNumber + 4};
+
+  const json dependency1Json = {
+      {"object1", {
+        {"verticesIds", triangleABC},
+      }},
+      {"object2", {
+        {"value", "3*x+y"},
+        {"variables", std::vector<std::string>{"x", "y"}},
+      }},
+      {"id", dependency1Id},
+      {"category", IDependency::Category::OF_POLYGON_AND_EXPRESSION},
+      {"type", type1},
+      {"reason", reason1},
+      {"basedOn", basedOn1},
+      {"importance", importanceLevel1}
+  };
+
+  const json dependency5Json = {
+      {"object1", {
+        {"verticesIds", triangleABC},
+      }},
+      {"object2", {
+        {"value", "3*x+y"},
+        {"variables", std::vector<std::string>{"x", "y"}},
+      }},
+      {"id", dependency5Id},
+      {"category", IDependency::Category::OF_POLYGON_AND_EXPRESSION},
+      {"type", type2},
+      {"reason", reason1},
+      {"basedOn", basedOn1},
+      {"importance", importanceLevel1}
+  };
+
+  // new dependency
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
+
+  // attempt to add the same dependency
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
+
+  // new dependency = other polygon
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleDEF, fixedPointsOrder, expression1, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
+
+  // new dependency other expression
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression2, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
+
+  // attempt to add the same dependency
+  // but with other dependent dependencies and importance
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type1, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
+
+  // new dependency = other reason
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type1, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
+
+  // new dependency = other type
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type2, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 5));
+
+  const std::vector<std::shared_ptr<PolygonExpressionDependency>> perimeters =
+      dependenciesBank.getPolygonExpressionDependencies(DependenciesBank::PolygonExpressionDependencies::POLYGON_PERIMETER);
+
+  const std::vector<std::shared_ptr<PolygonExpressionDependency>> areas =
+      dependenciesBank.getPolygonExpressionDependencies(DependenciesBank::PolygonExpressionDependencies::POLYGON_AREA);
+
+  REQUIRE(perimeters.size() == 4);
+  REQUIRE(areas.size() == 1);
+
+  REQUIRE(dependenciesBank.getDependencyById(dependency1Id)->getId() == perimeters.front()->getId());
+  REQUIRE(dependenciesBank.getDependencyById(dependency4Id)->getId() == perimeters.back()->getId());
+  REQUIRE(dependenciesBank.getDependencyById(dependency5Id)->getId() == areas.back()->getId());
+
+  REQUIRE(perimeters.front()->getCategory() == IDependency::Category::OF_POLYGON_AND_EXPRESSION);
+  REQUIRE(perimeters.front()->getType() == static_cast<IDependency::Type>(type1));
+  REQUIRE(perimeters.front()->getReason() == reason1);
+  REQUIRE(perimeters.front()->getDependentDependencies().size() == basedOn1.size());
+  for(size_t i = 0; i < basedOn1.size(); i++) {
+    REQUIRE(perimeters.front()->getDependentDependencies().at(i) == basedOn1.at(i));
+  }
+  REQUIRE(perimeters.front()->getImportanceLevel() == importanceLevel1);
+  REQUIRE(perimeters.front()->getObjectAsJson() == dependency1Json);
+
+  REQUIRE(areas.front()->getCategory() == IDependency::Category::OF_POLYGON_AND_EXPRESSION);
+  REQUIRE(areas.front()->getType() == static_cast<IDependency::Type>(type2));
+  REQUIRE(areas.front()->getReason() == reason1);
+  REQUIRE(areas.front()->getDependentDependencies().size() == basedOn1.size());
+  for(size_t i = 0; i < basedOn1.size(); i++) {
+    REQUIRE(areas.front()->getDependentDependencies().at(i) == basedOn1.at(i));
+  }
+  REQUIRE(areas.front()->getImportanceLevel() == importanceLevel1);
+  REQUIRE(areas.front()->getObjectAsJson() == dependency5Json);
 }

@@ -17,22 +17,34 @@ typedef expertBackground::LineModel::LineType LineType;
 typedef expertBackground::AngleModel::AngleType AngleType;
 typedef expertBackground::PolygonModel::PolygonType PolygonType;
 
-typedef expertBackground::PolygonTypeDependency PolygonTypeDependency;
+typedef expertBackground::EquationDependency EquationDependency;
+typedef expertBackground::DependenciesBank::EquationDependencies EquationDependencies;
 typedef expertBackground::LinesDependency LinesDependency;
 typedef expertBackground::DependenciesBank::LinesDependencies LinesDependencies;
-typedef expertBackground::CirclePolygonDependency CirclePolygonDependency;
-typedef expertBackground::DependenciesBank::CirclePolygonDependencies CirclePolygonDependencies;
-typedef expertBackground::PointsPairsDependency PointsPairsDependency;
-typedef expertBackground::DependenciesBank::PointsPairsDependencies PointsPairsDependencies;
-typedef expertBackground::LinePointPairDependency LinePointPairDependency;
-typedef expertBackground::DependenciesBank::LinePointPairDependencies LinePointPairDependencies;
-typedef expertBackground::TriplePointsPairsDependency TriplePointsPairsDependency;
-typedef expertBackground::DependenciesBank::TriplePointsPairDependencies TriplePointsPairDependencies;
-typedef expertBackground::LineAngleDependency LineAngleDependency;
-typedef expertBackground::DependenciesBank::LineAngleDependencies LineAngleDependencies;
+typedef expertBackground::CirclesDependency CirclesDependency;
+typedef expertBackground::DependenciesBank::CirclesDependencies CirclesDependencies;
 typedef expertBackground::LineCircleDependency LineCircleDependency;
 typedef expertBackground::DependenciesBank::LineCircleDependencies LineCircleDependencies;
-
+typedef expertBackground::CirclePolygonDependency CirclePolygonDependency;
+typedef expertBackground::DependenciesBank::CirclePolygonDependencies CirclePolygonDependencies;
+typedef expertBackground::PolygonTypeDependency PolygonTypeDependency;
+typedef expertBackground::DependenciesBank::PolygonTypeDependencies PolygonTypeDependencies;
+typedef expertBackground::PointsPairsDependency PointsPairsDependency;
+typedef expertBackground::DependenciesBank::PointsPairsDependencies PointsPairsDependencies;
+typedef expertBackground::AnglesDependency AnglesDependency;
+typedef expertBackground::DependenciesBank::AnglesDependencies AnglesDependencies;
+typedef expertBackground::PolygonsDependency PolygonsDependency;
+typedef expertBackground::DependenciesBank::PolygonsDependencies PolygonsDependencies;
+typedef expertBackground::LinePointsPairDependency LinePointsPairDependency;
+typedef expertBackground::DependenciesBank::LinePointsPairDependencies LinePointsPairDependencies;
+typedef expertBackground::LineAngleDependency LineAngleDependency;
+typedef expertBackground::DependenciesBank::LineAngleDependencies LineAngleDependencies;
+typedef expertBackground::PointsPairPairPointsPairDependency PointsPairPairPointsPairDependency;
+typedef expertBackground::DependenciesBank::PointsPairPairPointsPairDependencies PointsPairPairPointsPairDependencies;
+typedef expertBackground::PolygonPointsPairDependency PolygonPointsPairDependency;
+typedef expertBackground::DependenciesBank::PolygonPointsPairDependencies PolygonPointsPairDependencies;
+typedef expertBackground::PolygonExpressionDependency PolygonExpressionDependency;
+typedef expertBackground::DependenciesBank::PolygonExpressionDependencies PolygonExpressionDependencies;
 
 class Expert {
  private:
@@ -63,17 +75,13 @@ class Expert {
 
   expertBackground::Graph schemeGraph;
 
-  size_t pointsNumber;
-  size_t linesNumber;
-  size_t circlesNumber;
+  std::vector<std::vector<std::vector<size_t>>> intersectionPointsOfLines;
+  std::vector<std::vector<std::vector<size_t>>> intersectionPointsOfCircles;
+  std::vector<std::vector<std::vector<size_t>>> intersectionPointsOfLinesAndCircles;
 
-  std::vector<std::vector<std::vector<std::string>>> intersectionPointsOfLines;
-  std::vector<std::vector<std::vector<std::string>>> intersectionPointsOfCircles;
-  std::vector<std::vector<std::vector<std::string>>> intersectionPointsOfLinesAndCircles;
-
-  std::vector<std::vector<std::pair<std::string, std::string>>> pointsOnLinesIntersections;
-  std::vector<std::vector<std::pair<std::string, std::string>>> pointsOnCirclesIntersections;
-  std::vector<std::vector<std::pair<std::string, std::string>>> pointsOnLineAndCircleIntersections;
+  std::vector<std::vector<std::pair<size_t, size_t>>> pointsOnLinesIntersections;
+  std::vector<std::vector<std::pair<size_t, size_t>>> pointsOnCirclesIntersections;
+  std::vector<std::vector<std::pair<size_t, size_t>>> pointsOnLineAndCircleIntersections;
 
   std::vector<std::vector<bool>> pointsOnShapes;
 
@@ -87,8 +95,7 @@ class Expert {
   void useKnowledge();
 
  private:
-  /*
-  void addValues(json lengths, json angleValues);
+  void addValues(json lengths, json angleValues, json formulas, json perimeters, json areas);
   void addLinesDependencies(json perpendicular, json parallel);
   void addEqualismDependencies(json segments, json angles);
   void addTangentLinesAndCircles(json lines, json circles);
@@ -97,7 +104,6 @@ class Expert {
   void addMidPerpendiculars(json midPerpendicularLines);
   void addPolygonTypes(json types);
   void addSpecialSegments(json medians, json altitudes, json midSegments);
-  */
 
   static LineType parseLineType(unsigned int lineType);
   static AngleType parseAngleType(unsigned int angleType);

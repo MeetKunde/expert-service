@@ -24,9 +24,11 @@ typedef Dependency<IdentifierModel, IdentifierModel> LineCircleDependency;
 typedef Dependency<IdentifierModel, PolygonModel> PolygonTypeDependency;
 typedef Dependency<IdentifierModel, PolygonModel> CirclePolygonDependency;
 typedef Dependency<PointsPairModel, PointsPairModel> PointsPairsDependency;
-typedef Dependency<IdentifierModel, PointsPairModel> LinePointPairDependency;
+typedef Dependency<IdentifierModel, PointsPairModel> LinePointsPairDependency;
 typedef Dependency<IdentifierModel, AngleModel> LineAngleDependency;
 typedef Dependency<ModelsPairModel<PointsPairModel>, PointsPairModel> PointsPairPairPointsPairDependency;
+typedef Dependency<PolygonModel, PointsPairModel> PolygonPointsPairDependency;
+typedef Dependency<PolygonModel, ExpressionModel> PolygonExpressionDependency;
 
 /**
  * @brief Class storing all dependencies
@@ -63,7 +65,6 @@ class DependenciesBank {
   };
 
   enum class PointsPairsDependencies {
-    MEDIAN = static_cast<unsigned int>(IDependency::Type::MEDIAN),
     EQUAL_SEGMENTS = static_cast<unsigned int>(IDependency::Type::EQUAL_SEGMENTS)
   };
 
@@ -76,9 +77,8 @@ class DependenciesBank {
     CONGRUENT_TRIANGLES = static_cast<unsigned int>(IDependency::Type::CONGRUENT_TRIANGLES)
   };
 
-  enum class LinePointPairDependencies {
+  enum class LinePointsPairDependencies {
     MID_PERPENDICULAR_LINE = static_cast<unsigned int>(IDependency::Type::MID_PERPENDICULAR_LINE),
-    ALTITUDE = static_cast<unsigned int>(IDependency::Type::ALTITUDE)
   };
 
   enum class LineAngleDependencies {
@@ -86,7 +86,18 @@ class DependenciesBank {
   };
 
   enum class PointsPairPairPointsPairDependencies {
+
+  };
+
+  enum class PolygonPointsPairDependencies {
+    MEDIAN = static_cast<unsigned int>(IDependency::Type::MEDIAN),
+    ALTITUDE = static_cast<unsigned int>(IDependency::Type::ALTITUDE),
     MID_SEGMENT = static_cast<unsigned int>(IDependency::Type::MID_SEGMENT)
+  };
+
+  enum class PolygonExpressionDependencies {
+    POLYGON_PERIMETER = static_cast<unsigned int>(IDependency::Type::POLYGON_PERIMETER),
+    POLYGON_AREA = static_cast<unsigned int>(IDependency::Type::POLYGON_AREA)
   };
 
  private:
@@ -183,6 +194,7 @@ class DependenciesBank {
 
   unsigned int addPolygonsDependency(const std::vector<std::string>& polygon1VerticesIds,
                                      const std::vector<std::string>& polygon2VerticesIds,
+                                     bool fixedPointsOrder,
                                      PolygonsDependencies type, IDependency::Reason reason,
                                      std::vector<size_t> basedOn, IDependency::ImportanceLevel importanceLevel);
 
@@ -198,12 +210,12 @@ class DependenciesBank {
     return getDependenciesWithType<IdentifierModel, IdentifierModel>(static_cast<IDependency::Type>(type));
   }
 
-  unsigned int addLinePointPairDependency(const std::string&lineId, const std::string& pairEnd1Id,
-                                          const std::string& pairEnd2Id, LinePointPairDependencies type,
+  unsigned int addLinePointsPairDependency(const std::string&lineId, const std::string& pairEnd1Id,
+                                          const std::string& pairEnd2Id, LinePointsPairDependencies type,
                                           IDependency::Reason reason, std::vector<size_t> basedOn,
                                           IDependency::ImportanceLevel importanceLevel);
 
-  std::vector<std::shared_ptr<LinePointPairDependency>> getLinePointPairDependencies(LinePointPairDependencies type) const {
+  std::vector<std::shared_ptr<LinePointsPairDependency>> getLinePointsPairDependencies(LinePointsPairDependencies type) const {
     return getDependenciesWithType<IdentifierModel, PointsPairModel>(static_cast<IDependency::Type>(type));
   }
 
@@ -244,6 +256,24 @@ class DependenciesBank {
 
   std::vector<std::shared_ptr<PointsPairPairPointsPairDependency>> getPointsPairPairPointsPairDependencies(PointsPairPairPointsPairDependencies type) const {
     return getDependenciesWithType<ModelsPairModel<PointsPairModel>, PointsPairModel>(static_cast<IDependency::Type>(type));
+  }
+
+  unsigned int addPolygonPointsPairDependency(const std::vector<std::string>& polygonVerticesIds, bool fixedPointsOrder,
+                                              const std::string& pairEnd1, const std::string& pairEnd2,
+                                              PolygonPointsPairDependencies type, IDependency::Reason reason, 
+                                              std::vector<size_t> basedOn, IDependency::ImportanceLevel importanceLevel);
+
+  std::vector<std::shared_ptr<PolygonPointsPairDependency>> getPolygonPointsPairDependencies(PolygonPointsPairDependencies type) const {
+    return getDependenciesWithType<PolygonModel, PointsPairModel>(static_cast<IDependency::Type>(type));
+  }
+
+  unsigned int addPolygonExpressionDependency(const std::vector<std::string>& polygonVerticesIds,
+                                              bool fixedPointsOrder, const symbolicAlgebra::Expression& expression,
+                                              PolygonExpressionDependencies type, IDependency::Reason reason,
+                                              std::vector<size_t> basedOn, IDependency::ImportanceLevel importanceLevel);
+
+  std::vector<std::shared_ptr<PolygonExpressionDependency>> getPolygonExpressionDependencies(PolygonExpressionDependencies type) const {
+    return getDependenciesWithType<PolygonModel, ExpressionModel>(static_cast<IDependency::Type>(type));
   }
 
   json getDependenciesAsJsonObjects() const;

@@ -25,6 +25,8 @@ class IDependency {
     OF_CIRCLE_AND_POLYGON,
     OF_POINTS_PAIRS_PAIR_AND_POINTS_PAIR,
     OF_POLYGONS,
+    OF_POLYGON_AND_POINTS_PAIRS,
+    OF_POLYGON_AND_EXPRESSION
   };
 
   static const std::vector<Category> dependencyCategories;
@@ -37,6 +39,8 @@ class IDependency {
     ANGLE_MEASURE,
     EQUATION,
     POLYGON_TYPE,
+    POLYGON_PERIMETER,
+    POLYGON_AREA,
     EQUAL_SEGMENTS,
     EQUAL_ANGLES,
     PERPENDICULAR_LINES,

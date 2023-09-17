@@ -76,7 +76,7 @@ class ShapesBank {
    * @param y point Y coordinate
    * @param name point name
    */
-  void addPoint(std::string identifier, float xCoordinate, float yCoordinate, std::string name);
+  void addPoint(const std::string& identifier, float xCoordinate, float yCoordinate, const std::string& name);
 
   /**
    * @brief PointModel object getter
@@ -125,8 +125,8 @@ class ShapesBank {
    * @param lineB constant term in line equation y = ax + b or y = b or x = b
    * @param includedPoints IDs of points included in line
    */
-  void addLine(std::string identifier, LineModel::LineType lineType, float lineA, float lineB,
-               std::vector<std::string> includedPoints);
+  void addLine(const std::string& identifier, LineModel::LineType lineType, float lineA, float lineB,
+               const std::vector<std::string>& includedPoints);
 
   /**
    * @brief LineModel object getter
@@ -186,8 +186,8 @@ class ShapesBank {
    * @param radius circle radius length
    * @param includedPoints IDs of points inluded in circle
    */
-  void addCircle(std::string identifier, std::string centerId, float centerX, float centerY, std::string centerName, float radius,
-                 std::vector<std::string> includedPoints);
+  void addCircle(const std::string& identifier, const std::string& centerId, float centerX, float centerY,
+                 const std::string& centerName, float radius, const std::vector<std::string>& includedPoints);
 
   /**
    * @brief CircleModel object getter

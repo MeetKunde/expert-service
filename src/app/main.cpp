@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include <Expert.h>
 #include <httplib/httplib.h>
@@ -10,7 +11,7 @@ int main() {
 
   std::cout << "Compute Service Started..." << std::endl;
 
-  server.Options("/(.*)", [&](const httplib::Request& /*req*/, httplib::Response& res) {
+  server.Options("/(.*)", [&](const httplib::Request& req, httplib::Response& res) {
     res.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
     res.set_header("Content-Type", "text/html; charset=utf-8");
     res.set_header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Accept, Authorization");

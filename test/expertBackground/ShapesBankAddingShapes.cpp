@@ -199,7 +199,7 @@ TEST_CASE("Adding circle to ShapesBank", "[expertBackground]") {
   const std::vector<std::string> circlePointsOrder{point5Id, point2Id, point4Id, point3Id};
   const size_t circlePositionInCirclesVector{0};
   const json circleJson{
-      {"object", {{"centerId", circleCenterId}, {"centerX", circleCenterCoordX}, {"centerY", circleCenterCoordY}, {"id", circleId}, {"pointsOn", json(circlePointsOrder)}, {"radius", circleRadius}}},
+      {"object", {{"centerId", circleCenterId}, {"cx", circleCenterCoordX}, {"cy", circleCenterCoordY}, {"id", circleId}, {"pointsOn", json(circlePointsOrder)}, {"r", circleRadius}}},
       {"position", 0}
   };
 

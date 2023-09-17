@@ -314,14 +314,15 @@ unsigned int DependenciesBank::addAnglesDependency(const std::string& angle1Poin
 
 unsigned int DependenciesBank::addPolygonsDependency(const std::vector<std::string>& polygon1VerticesIds,
                                                      const std::vector<std::string>& polygon2VerticesIds,
+                                                     bool fixedPointsOrder,
                                                      PolygonsDependencies type, IDependency::Reason reason,
                                                      std::vector<size_t> basedOn,
                                                      IDependency::ImportanceLevel importanceLevel) {
 
   const std::shared_ptr<PolygonsDependency> dependency = std::make_shared<PolygonsDependency>(
-      PolygonModel(polygon1VerticesIds), PolygonModel(polygon2VerticesIds), true, dependencyIdCounter,
-      IDependency::Category::OF_POLYGONS, static_cast<IDependency::Type>(type), reason,
-      std::move(basedOn), importanceLevel);
+      PolygonModel{polygon1VerticesIds, fixedPointsOrder}, PolygonModel{polygon2VerticesIds, fixedPointsOrder}, 
+      true, dependencyIdCounter, IDependency::Category::OF_POLYGONS, static_cast<IDependency::Type>(type), 
+      reason, std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {
     return 0;
@@ -349,13 +350,13 @@ unsigned int DependenciesBank::addLineCircleDependency(const std::string& lineId
   return 1;
 }
 
-unsigned int DependenciesBank::addLinePointPairDependency(const std::string& lineId,
+unsigned int DependenciesBank::addLinePointsPairDependency(const std::string& lineId,
                                                           const std::string& pairEnd1Id, const std::string& pairEnd2Id,
-                                                          LinePointPairDependencies type, IDependency::Reason reason,
+                                                          LinePointsPairDependencies type, IDependency::Reason reason,
                                                           std::vector<size_t> basedOn,
                                                           IDependency::ImportanceLevel importanceLevel) {
 
-  const std::shared_ptr<LinePointPairDependency> dependency = std::make_shared<LinePointPairDependency>(
+  const std::shared_ptr<LinePointsPairDependency> dependency = std::make_shared<LinePointsPairDependency>(
       IdentifierModel{lineId}, PointsPairModel{pairEnd1Id, pairEnd2Id}, false, dependencyIdCounter,
       IDependency::Category::OF_LINE_AND_POINTS_PAIR, static_cast<IDependency::Type>(type), reason,
       std::move(basedOn), importanceLevel);
@@ -398,7 +399,7 @@ unsigned int DependenciesBank::addCirclePolygonDependency(const std::string& cir
                                                           IDependency::ImportanceLevel importanceLevel) {
 
   const std::shared_ptr<CirclePolygonDependency> dependency = std::make_shared<CirclePolygonDependency>(
-      IdentifierModel{circleId}, PolygonModel{polygonVerticesIds}, false, dependencyIdCounter,
+      IdentifierModel{circleId}, PolygonModel{polygonVerticesIds, false}, false, dependencyIdCounter,
       IDependency::Category::OF_CIRCLE_AND_POLYGON, static_cast<IDependency::Type>(type), reason,
       std::move(basedOn), importanceLevel);
 
@@ -417,7 +418,7 @@ unsigned int DependenciesBank::addPolygonTypeDependency(const std::vector<std::s
                                                         IDependency::ImportanceLevel importanceLevel) {
 
   const std::shared_ptr<PolygonTypeDependency> dependency = std::make_shared<PolygonTypeDependency>(
-      IdentifierModel{std::to_string(static_cast<size_t>(polygonType))}, PolygonModel{polygonVerticesIds}, false,
+      IdentifierModel{std::to_string(static_cast<size_t>(polygonType))}, PolygonModel{polygonVerticesIds, false}, false,
       dependencyIdCounter,IDependency::Category::POLYGON_TYPE, static_cast<IDependency::Type>(type), reason,
       std::move(basedOn), importanceLevel);
 
@@ -445,6 +446,42 @@ unsigned int DependenciesBank::addPointsPairPairPointsPairDependency(const std::
                                                                            PointsPairModel{arm2End1, arm2End2}},
                                                            PointsPairModel{segmentEnd1, segmentEnd2}, false,
        dependencyIdCounter, IDependency::Category::OF_POINTS_PAIRS_PAIR_AND_POINTS_PAIR,
+      static_cast<IDependency::Type>(type), reason, std::move(basedOn), importanceLevel);
+
+  if (checkIfDependencyExist(dependency)) {
+    return 0;
+  }
+
+  add(dependency);
+  return 1;
+}
+
+unsigned int DependenciesBank::addPolygonPointsPairDependency(const std::vector<std::string>& polygonVerticesIds,
+                                              bool fixedPointsOrder, const std::string& pairEnd1, const std::string& pairEnd2,
+                                              PolygonPointsPairDependencies type, IDependency::Reason reason, 
+                                              std::vector<size_t> basedOn, IDependency::ImportanceLevel importanceLevel) {
+  
+  const std::shared_ptr<PolygonPointsPairDependency> dependency =
+      std::make_shared<PolygonPointsPairDependency>(PolygonModel{polygonVerticesIds, fixedPointsOrder}, PointsPairModel{pairEnd1, pairEnd2},
+       false, dependencyIdCounter, IDependency::Category::OF_POLYGON_AND_POINTS_PAIRS,
+      static_cast<IDependency::Type>(type), reason, std::move(basedOn), importanceLevel);
+
+  if (checkIfDependencyExist(dependency)) {
+    return 0;
+  }
+
+  add(dependency);
+  return 1;
+}
+
+unsigned int DependenciesBank::addPolygonExpressionDependency(const std::vector<std::string>& polygonVerticesIds,
+                                            bool fixedPointsOrder, const symbolicAlgebra::Expression& expression,
+                                            PolygonExpressionDependencies type, IDependency::Reason reason,
+                                            std::vector<size_t> basedOn, IDependency::ImportanceLevel importanceLevel) {
+  
+  const std::shared_ptr<PolygonExpressionDependency> dependency =
+      std::make_shared<PolygonExpressionDependency>(PolygonModel{polygonVerticesIds, fixedPointsOrder}, ExpressionModel{expression},
+       false, dependencyIdCounter, IDependency::Category::OF_POLYGON_AND_EXPRESSION,
       static_cast<IDependency::Type>(type), reason, std::move(basedOn), importanceLevel);
 
   if (checkIfDependencyExist(dependency)) {

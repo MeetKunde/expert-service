@@ -28,8 +28,10 @@ typedef expertBackground::LineCircleDependency LineCircleDependency;
 typedef expertBackground::PolygonTypeDependency PolygonTypeDependency;
 typedef expertBackground::CirclePolygonDependency CirclePolygonDependency;
 typedef expertBackground::PointsPairsDependency PointsPairsDependency;
-typedef expertBackground::LinePointPairDependency LinePointPairDependency;
+typedef expertBackground::LinePointsPairDependency LinePointPairDependency;
 typedef expertBackground::LineAngleDependency LineAngleDependency;
 typedef expertBackground::PointsPairPairPointsPairDependency PointsPairPairPointsPairDependency;
+typedef expertBackground::PolygonPointsPairDependency PolygonPointsPairDependency;
+typedef expertBackground::PolygonExpressionDependency PolygonExpressionDependency;
 
 #endif  //EXPERT_BACKGROUND_TEST_BASE_H

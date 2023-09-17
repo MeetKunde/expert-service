@@ -1,12 +1,15 @@
 #include "PolygonModel.h"
 
 namespace expertBackground {
-PolygonModel::PolygonModel(std::vector<std::string> vertices) : verticesIds{std::move(vertices)} {}
+PolygonModel::PolygonModel(std::vector<std::string> vertices, bool fixedPointsOrder) : 
+  verticesIds{std::move(vertices)}, fixedPointsOrder{fixedPointsOrder} {}
 
-PolygonModel::PolygonModel(const PolygonModel& polygonModel) : verticesIds{polygonModel.verticesIds} {}
+PolygonModel::PolygonModel(const PolygonModel& polygonModel) : 
+  verticesIds{polygonModel.verticesIds}, fixedPointsOrder{polygonModel.fixedPointsOrder} {}
 
 PolygonModel& PolygonModel::operator=(const PolygonModel& polygonModel) {
   verticesIds = std::vector<std::string>(polygonModel.verticesIds);
+  fixedPointsOrder = polygonModel.fixedPointsOrder;
 
   return *this;
 }
@@ -23,39 +26,50 @@ bool operator==(const PolygonModel& lhs, const PolygonModel& rhs) {
     return true;
   }
 
-  std::string lhsMinId = lhs.verticesIds[0];
-  std::string rhsMinId = rhs.verticesIds[0];
-  size_t lhsMinIdIndex = 0;
-  size_t rhsMinIdIndex = 0;
-  for (size_t i = 1; i < lhsSize; i++) {
-    if (lhsMinId > lhs.verticesIds[i]) {
-      lhsMinId = lhs.verticesIds[i];
-      lhsMinIdIndex = i;
+  if(lhs.fixedPointsOrder && rhs.fixedPointsOrder) {
+    for (size_t i = 0; i < lhsSize; i++) {
+      if(lhs.verticesIds[i] != rhs.verticesIds[i]) {
+        return false;
+      }
     }
 
-    if (rhsMinId > rhs.verticesIds[i]) {
-      rhsMinId = rhs.verticesIds[i];
-      rhsMinIdIndex = i;
-    }
+    return true;
   }
+  else {
+    std::string lhsMinId = lhs.verticesIds[0];
+    std::string rhsMinId = rhs.verticesIds[0];
+    size_t lhsMinIdIndex = 0;
+    size_t rhsMinIdIndex = 0;
+    for (size_t i = 1; i < lhsSize; i++) {
+      if (lhsMinId > lhs.verticesIds[i]) {
+        lhsMinId = lhs.verticesIds[i];
+        lhsMinIdIndex = i;
+      }
 
-  bool test1 = true;
-  bool test2 = true;
-  for (size_t i = 0; i < lhsSize; i++) {
-    if (lhs.verticesIds[(lhsMinIdIndex + i) % lhsSize] != rhs.verticesIds[(rhsMinIdIndex + i) % lhsSize]) {
-      test1 = false;
-      break;
+      if (rhsMinId > rhs.verticesIds[i]) {
+        rhsMinId = rhs.verticesIds[i];
+        rhsMinIdIndex = i;
+      }
     }
-  }
 
-  for (size_t i = 0; i < lhsSize; i++) {
-    if (lhs.verticesIds[(lhsMinIdIndex + i) % lhsSize] != rhs.verticesIds[(rhsMinIdIndex - i) % lhsSize]) {
-      test2 = false;
-      break;
+    bool test1 = true;
+    bool test2 = true;
+    for (size_t i = 0; i < lhsSize; i++) {
+      if (lhs.verticesIds[(lhsMinIdIndex + i) % lhsSize] != rhs.verticesIds[(rhsMinIdIndex + i) % lhsSize]) {
+        test1 = false;
+        break;
+      }
     }
-  }
 
-  return test1 || test2;
+    for (size_t i = 0; i < lhsSize; i++) {
+      if (lhs.verticesIds[(lhsMinIdIndex + i) % lhsSize] != rhs.verticesIds[(rhsMinIdIndex - i) % lhsSize]) {
+        test2 = false;
+        break;
+      }
+    }
+
+    return test1 || test2;
+  }
 }
 
 bool operator!=(const PolygonModel& lhs, const PolygonModel& rhs) {

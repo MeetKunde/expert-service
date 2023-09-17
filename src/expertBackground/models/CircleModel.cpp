@@ -22,8 +22,8 @@ CircleModel& CircleModel::operator=(const CircleModel& circleModel) {
 
 json CircleModel::getJsonObject() const {
   return {
-      {"id", id},         {"centerId", centerPoint.getId()},   {"centerX", centerPoint.getX()}, {"centerY", centerPoint.getY()},
-      {"radius", radius}, {"pointsOn", json(includedPointIds)}};
+      {"id", id},         {"centerId", centerPoint.getId()},   {"cx", centerPoint.getX()}, {"cy", centerPoint.getY()},
+      {"r", radius}, {"pointsOn", json(includedPointIds)}};
 }
 
 bool operator==(const CircleModel& circleModel1, const CircleModel& circleModel2) {

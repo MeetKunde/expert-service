@@ -34,21 +34,24 @@ TEST_CASE("Creating empty DependenciesBank", "[expertBackground]") {
 
   REQUIRE(emptyDependenciesBank.getLineCircleDependencies(DependenciesBank::LineCircleDependencies::TANGENT_LINE_TO_CIRCLE).empty());
 
-  REQUIRE(emptyDependenciesBank.getLinePointPairDependencies(DependenciesBank::LinePointPairDependencies::MID_PERPENDICULAR_LINE).empty());
-  REQUIRE(emptyDependenciesBank.getLinePointPairDependencies(DependenciesBank::LinePointPairDependencies::ALTITUDE).empty());
+  REQUIRE(emptyDependenciesBank.getLinePointsPairDependencies(DependenciesBank::LinePointsPairDependencies::MID_PERPENDICULAR_LINE).empty());
 
   REQUIRE(emptyDependenciesBank.getLinesDependencies(DependenciesBank::LinesDependencies::PERPENDICULAR_LINES).empty());
   REQUIRE(emptyDependenciesBank.getLinesDependencies(DependenciesBank::LinesDependencies::PARALLEL_LINES).empty());
 
   REQUIRE(emptyDependenciesBank.getPointsPairsDependencies(DependenciesBank::PointsPairsDependencies::EQUAL_SEGMENTS).empty());
-  REQUIRE(emptyDependenciesBank.getPointsPairsDependencies(DependenciesBank::PointsPairsDependencies::MEDIAN).empty());
-
-  REQUIRE(emptyDependenciesBank.getPointsPairPairPointsPairDependencies(DependenciesBank::PointsPairPairPointsPairDependencies::MID_SEGMENT).empty());
 
   REQUIRE(emptyDependenciesBank.getPolygonDependencies(DependenciesBank::PolygonsDependencies::CONGRUENT_TRIANGLES).empty());
   REQUIRE(emptyDependenciesBank.getPolygonDependencies(DependenciesBank::PolygonsDependencies::SIMILAR_TRIANGLES).empty());
 
   REQUIRE(emptyDependenciesBank.getPolygonTypeDependencies(DependenciesBank::PolygonTypeDependencies::POLYGON_TYPE).empty());
+
+  REQUIRE(emptyDependenciesBank.getPolygonPointsPairDependencies(DependenciesBank::PolygonPointsPairDependencies::MEDIAN).empty());
+  REQUIRE(emptyDependenciesBank.getPolygonPointsPairDependencies(DependenciesBank::PolygonPointsPairDependencies::ALTITUDE).empty());
+  REQUIRE(emptyDependenciesBank.getPolygonPointsPairDependencies(DependenciesBank::PolygonPointsPairDependencies::MID_SEGMENT).empty());
+
+  REQUIRE(emptyDependenciesBank.getPolygonExpressionDependencies(DependenciesBank::PolygonExpressionDependencies::POLYGON_PERIMETER).empty());
+  REQUIRE(emptyDependenciesBank.getPolygonExpressionDependencies(DependenciesBank::PolygonExpressionDependencies::POLYGON_AREA).empty());
 }
 
 TEST_CASE("Creating DependenciesBank based on ShapesBank", "[expertBackground]") {

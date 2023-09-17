@@ -1,7 +1,7 @@
 #include "Expert.h"
 
 namespace expert {
-Expert::Expert() : pointsNumber(0), linesNumber(0), circlesNumber(0) {}
+Expert::Expert() { }
 
 void Expert::importTask(json task) {
   localTimer.startMeasurement();
@@ -15,48 +15,36 @@ void Expert::importTask(json task) {
     shapesBank.addPoint((*iter)["id"], (*iter)["x"], (*iter)["y"], (*iter)["name"]);
   }
 
-  for (iter = circles.begin(); iter != circles.end(); ++iter) {
-    const std::string centerName = shapesBank.getPoint((*iter)["centerId"]).getName();
-
-    shapesBank.addCircle((*iter)["id"], (*iter)["centerId"], (*iter)["centerX"], (*iter)["centerY"],
-                         centerName, (*iter)["radius"], (*iter)["pointsOn"]);
-  }
-
   for (iter = lines.begin(); iter != lines.end(); ++iter) {
     shapesBank.addLine((*iter)["id"], parseLineType((*iter)["type"]), (*iter)["a"], (*iter)["b"], (*iter)["pointsOn"]);
   }
 
-  pointsNumber = shapesBank.getPointsNumber();
-  linesNumber = shapesBank.getLinesNumber();
-  circlesNumber = shapesBank.getCirclesNumber();
+  for (iter = circles.begin(); iter != circles.end(); ++iter) {
+    const std::string centerName = shapesBank.getPoint((*iter)["centerId"]).getName();
 
-  /*
+    shapesBank.addCircle((*iter)["id"], (*iter)["centerId"], (*iter)["cx"], (*iter)["cy"],
+                         centerName, (*iter)["r"], (*iter)["pointsOn"]);
+  }
+
   schemeGraph = expertBackground::Graph(shapesBank.getPointsNumber());
-  for (unsigned int lineId = 0; lineId < shapesBank.getLinesNumber(); lineId++) {
-    std::vector<unsigned int> includedPoints = shapesBank.getLine(lineId).getIncludedPoints();
-    for (unsigned firstPointOnLineId = 0; firstPointOnLineId < includedPoints.size(); firstPointOnLineId++) {
-      for (unsigned int secondPointOnLineId = firstPointOnLineId + 1; secondPointOnLineId < includedPoints.size();
-           secondPointOnLineId++) {
-        schemeGraph.addEdge(includedPoints[firstPointOnLineId], includedPoints[secondPointOnLineId]);
+  for(const auto& line: shapesBank.getLinesVector()) {
+    const auto& includedPoints = line.getIncludedPoints();
+    for (size_t firstPointOnLineId = 0; firstPointOnLineId < includedPoints.size(); firstPointOnLineId++) {
+      for (size_t secondPointOnLineId = firstPointOnLineId + 1; secondPointOnLineId < includedPoints.size(); secondPointOnLineId++) {
+        schemeGraph.addEdge(
+            shapesBank.getPointPositionInVector(includedPoints[firstPointOnLineId]),
+            shapesBank.getPointPositionInVector(includedPoints[secondPointOnLineId]));
       }
     }
   }
 
-  dependenciesBank = expertBackground::DependenciesBank(&shapesBank);
+  const size_t pointsNumber{shapesBank.getPointsNumber()};
+  const size_t linesNumber{shapesBank.getLinesNumber()};
+  const size_t circlesNumber{shapesBank.getCirclesNumber()};
 
-  addValues(task["lengths"], task["angleValues"]);
-  addLinesDependencies(task["perpendicular"], task["parallel"]);
-  addEqualismDependencies(task["equalSegments"], task["equalAngles"]);
-  addTangentLinesAndCircles(task["tangentLines"], task["tangentCircles"]);
-  addCirclePolygonDependencies(task["inscribedCircles"], task["circumscribedCircles"], task["escribedCircles"]);
-  addBisectors(task["bisectorLines"]);
-  addMidPerpendiculars(task["midPerpendicularLines"]);
-  addPolygonTypes(task["polygonTypes"]);
-  addSpecialSegments(task["medians"], task["altitudes"], task["midSegments"]);
-
-  intersectionPointsOfLines.resize(linesNumber, std::vector<std::vector<unsigned int>>(linesNumber));
-  intersectionPointsOfLinesAndCircles.resize(linesNumber, std::vector<std::vector<unsigned int>>(circlesNumber));
-  intersectionPointsOfCircles.resize(circlesNumber, std::vector<std::vector<unsigned int>>(circlesNumber));
+  intersectionPointsOfLines.resize(linesNumber, std::vector<std::vector<size_t>>(linesNumber));
+  intersectionPointsOfLinesAndCircles.resize(linesNumber, std::vector<std::vector<size_t>>(circlesNumber));
+  intersectionPointsOfCircles.resize(circlesNumber, std::vector<std::vector<size_t>>(circlesNumber));
 
   pointsOnLinesIntersections.resize(pointsNumber, {});
   pointsOnCirclesIntersections.resize(pointsNumber, {});
@@ -68,7 +56,18 @@ void Expert::importTask(json task) {
   findIntersectionPointsOfCircles();
   findIntersectionPointsOfLinesCircles();
   checkPointsOnShapes();
-  */
+
+  dependenciesBank = expertBackground::DependenciesBank(&shapesBank);
+
+  addValues(task["segmentLengths"], task["angleMeasures"], task["formulas"], task["perimeters"], task["areas"]);
+  addLinesDependencies(task["perpendicularLines"], task["parallelLines"]);
+  addEqualismDependencies(task["equalSegments"], task["equalAngles"]);
+  addTangentLinesAndCircles(task["tangentLines"], task["tangentCircles"]);
+  addCirclePolygonDependencies(task["inscribedCircles"], task["circumscribedCircles"], task["escribedCircles"]);
+  addBisectors(task["bisectors"]);
+  addMidPerpendiculars(task["midPerpendiculars"]);
+  addPolygonTypes(task["polygonTypes"]);
+  addSpecialSegments(task["medians"], task["altitudes"], task["midSegments"]);
 
   localTimer.takeMeasurement("Importing and parsing data", false, std::cout);
 }
@@ -89,7 +88,7 @@ json Expert::exportSolution() {
 }
 
 void Expert::useKnowledge() {
-  const unsigned int dependenciesFoundNumber = 0;
+  const size_t dependenciesFoundNumber = 0;
 
   localTimer.startMeasurement();
 
@@ -116,31 +115,70 @@ void Expert::useKnowledge() {
   localTimer.takeMeasurement("Using knowledge ended!\nFound " + std::to_string(dependenciesFoundNumber) + " new dependencies!",
                              false, std::cout);
 }
-/*
-void Expert::addValues(json lengths, json angleValues) {
+
+void Expert::addValues(json lengths, json angleValues, json formulas, json perimeters, json areas) {
   json::iterator iter;
 
   for (iter = lengths.begin(); iter != lengths.end(); ++iter) {
-    dependenciesBank.addLength(shapesBank.getUnifiedPointId((*iter)["end1Id"]), shapesBank.getUnifiedPointId((*iter)["end2Id"]),
-                               expertBackground::ExpressionModel(static_cast<std::string>((*iter)["value"])),
-                               IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addLength((*iter)["segmentEnd1Id"], (*iter)["segmentEnd2Id"],
+                               expertBackground::ExpressionModel(static_cast<std::string>((*iter)["length"])),
+                               IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
   }
 
   for (iter = angleValues.begin(); iter != angleValues.end(); ++iter) {
-    if (parseAngleType((*iter)["type"]) == AngleType::CONCAVE) {
-      dependenciesBank.addConcaveAngle(shapesBank.getUnifiedPointId((*iter)["end1Id"]),
-                                       shapesBank.getUnifiedPointId((*iter)["vertexId"]),
-                                       shapesBank.getUnifiedPointId((*iter)["end2Id"]),
-                                       expertBackground::ExpressionModel(static_cast<std::string>((*iter)["value"])),
-                                       IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
+    if (parseAngleType((*iter)["angleIsConvex"]) == AngleType::CONCAVE) {
+      dependenciesBank.addConcaveAngle((*iter)["angleEnd1Id"], (*iter)["angleVertexId"], (*iter)["angleEnd2Id"],
+                                       expertBackground::ExpressionModel(static_cast<std::string>((*iter)["measure"])),
+                                       IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
     }
-    else if (parseAngleType((*iter)["type"]) == AngleType::CONVEX) {
-      dependenciesBank.addConvexAngle(shapesBank.getUnifiedPointId((*iter)["end1Id"]),
-                                      shapesBank.getUnifiedPointId((*iter)["vertexId"]),
-                                      shapesBank.getUnifiedPointId((*iter)["end2Id"]),
-                                      expertBackground::ExpressionModel(static_cast<std::string>((*iter)["value"])),
-                                      IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
+    else if (parseAngleType((*iter)["angleIsConvex"]) == AngleType::CONVEX) {
+      dependenciesBank.addConvexAngle((*iter)["angleEnd1Id"], (*iter)["angleVertexId"], (*iter)["angleEnd2Id"],
+                                      expertBackground::ExpressionModel(static_cast<std::string>((*iter)["measure"])),
+                                      IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
     }
+  }
+
+  for (iter = formulas.begin(); iter != formulas.end(); ++iter) {
+    const std::string formula{*iter};
+
+    bool equalSignOccur = false;
+    size_t equalSignIndex{0};
+    for(size_t index = 0; index < formula.size(); index++) {
+      if(formula.at(index) == '=') {
+        equalSignOccur = true;
+        equalSignIndex = index;
+      }
+    }
+
+    if(!equalSignOccur) {
+      continue;
+    }
+
+    std::string leftSide{};
+    std::string rightSide{};
+
+    for(size_t index = 0; index < equalSignIndex; index++) {
+      leftSide += formula.at(index);
+    }
+    
+    for(size_t index = equalSignIndex + 1; index < formula.size(); index++) {
+      rightSide += formula.at(index);
+    }
+
+    dependenciesBank.addEquation(symbolicAlgebra::Expression(leftSide), symbolicAlgebra::Expression(rightSide),
+                                 IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+  }
+
+  for (iter = perimeters.begin(); iter != perimeters.end(); ++iter) {
+    dependenciesBank.addPolygonExpressionDependency((*iter)["polygonVerticesIds"], false, symbolicAlgebra::Expression{(*iter)["perimeter"]},
+                                                    PolygonExpressionDependencies::POLYGON_PERIMETER, 
+                                                    IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+  }
+
+  for (iter = areas.begin(); iter != areas.end(); ++iter) {
+    dependenciesBank.addPolygonExpressionDependency((*iter)["polygonVerticesIds"], false, symbolicAlgebra::Expression{(*iter)["area"]},
+                                                    PolygonExpressionDependencies::POLYGON_AREA, 
+                                                    IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
   }
 }
 
@@ -148,14 +186,13 @@ void Expert::addLinesDependencies(json perpendicular, json parallel) {
   json::iterator iter;
 
   for (iter = perpendicular.begin(); iter != perpendicular.end(); ++iter) {
-    dependenciesBank.addLinesDependency(shapesBank.getUnifiedLineId((*iter)["id1"]), shapesBank.getUnifiedLineId((*iter)["id2"]),
-                                        IDependency::Type::PERPENDICULAR_LINES, IDependency::Reason::USER_DEFINED, {},
-                                        IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addLinesDependency((*iter)["line1Id"], (*iter)["line2Id"], LinesDependencies::PERPENDICULAR_LINES,
+                                        IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
   }
 
   for (iter = parallel.begin(); iter != parallel.end(); ++iter) {
-    dependenciesBank.addLinesDependency(shapesBank.getUnifiedLineId((*iter)["id1"]), shapesBank.getUnifiedLineId((*iter)["id2"]),
-                                        IDependency::Type::PARALLEL_LINES, IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addLinesDependency((*iter)["line1Id"], (*iter)["line2Id"], LinesDependencies::PARALLEL_LINES,
+                                        IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
   }
 }
 
@@ -163,23 +200,21 @@ void Expert::addEqualismDependencies(json segments, json angles) {
   json::iterator iter;
 
   for (iter = segments.begin(); iter != segments.end(); ++iter) {
-    dependenciesBank.addPointPairsDependency(
-        shapesBank.getUnifiedPointId((*iter)["s1End1Id"]), shapesBank.getUnifiedPointId((*iter)["s1End2Id"]),
-        shapesBank.getUnifiedPointId((*iter)["s2End1Id"]), shapesBank.getUnifiedPointId((*iter)["s2End2Id"]),
-        IDependency::Type::EQUAL_SEGMENTS, IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addPointsPairsDependency((*iter)["segment1End1Id"], (*iter)["segment1End2Id"], (*iter)["segment2End1Id"], (*iter)["segment2End2Id"],
+                                              PointsPairsDependencies::EQUAL_SEGMENTS, IDependency::Reason::USER_DEFINED,
+                                              {}, IDependency::ImportanceLevel::HIGH);
   }
 
   for (iter = angles.begin(); iter != angles.end(); ++iter) {
-    dependenciesBank.addAnglesDependency(
-        shapesBank.getUnifiedPointId((*iter)["a1End1Id"]), shapesBank.getUnifiedPointId((*iter)["a1VertexId"]),
-        shapesBank.getUnifiedPointId((*iter)["a1End2Id"]), AngleType::CONVEX, shapesBank.getUnifiedPointId((*iter)["a2End1Id"]),
-        shapesBank.getUnifiedPointId((*iter)["a2VertexId"]), shapesBank.getUnifiedPointId((*iter)["a2End2Id"]), AngleType::CONVEX,
-        IDependency::Type::EQUAL_ANGLES, IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
-    dependenciesBank.addAnglesDependency(
-        shapesBank.getUnifiedPointId((*iter)["a1End1Id"]), shapesBank.getUnifiedPointId((*iter)["a1VertexId"]),
-        shapesBank.getUnifiedPointId((*iter)["a1End2Id"]), AngleType::CONCAVE, shapesBank.getUnifiedPointId((*iter)["a2End1Id"]),
-        shapesBank.getUnifiedPointId((*iter)["a2VertexId"]), shapesBank.getUnifiedPointId((*iter)["a2End2Id"]),
-        AngleType::CONCAVE, IDependency::Type::EQUAL_ANGLES, IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addAnglesDependency((*iter)["angle1End1Id"], (*iter)["angle1VertexId"], (*iter)["angle1End2Id"], AngleType::CONVEX,
+                                         (*iter)["angle2End1Id"], (*iter)["angle2VertexId"], (*iter)["angle2End2Id"], AngleType::CONVEX,
+                                         AnglesDependencies::EQUAL_ANGLES, IDependency::Reason::USER_DEFINED, {},
+                                         IDependency::ImportanceLevel::HIGH);
+
+    dependenciesBank.addAnglesDependency((*iter)["angle1End1Id"], (*iter)["angle1VertexId"], (*iter)["angle1End2Id"], AngleType::CONCAVE,
+                                         (*iter)["angle2End1Id"], (*iter)["angle2VertexId"], (*iter)["angle2End2Id"], AngleType::CONCAVE,
+                                         AnglesDependencies::EQUAL_ANGLES, IDependency::Reason::USER_DEFINED, {},
+                                         IDependency::ImportanceLevel::HIGH);
   }
 }
 
@@ -187,15 +222,14 @@ void Expert::addTangentLinesAndCircles(json lines, json circles) {
   json::iterator iter;
 
   for (iter = lines.begin(); iter != lines.end(); ++iter) {
-    dependenciesBank.addLineCircleDependency(
-        shapesBank.getUnifiedLineId((*iter)["lineId"]), shapesBank.getUnifiedCircleId((*iter)["circleId"]),
-        IDependency::Type::TANGENT_LINE_TO_CIRCLE, IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addLineCircleDependency((*iter)["lineId"], (*iter)["circleId"],
+                                             LineCircleDependencies::TANGENT_LINE_TO_CIRCLE, IDependency::Reason::USER_DEFINED,
+                                             {}, IDependency::ImportanceLevel::HIGH);
   }
 
   for (iter = circles.begin(); iter != circles.end(); ++iter) {
-    dependenciesBank.addCirclesDependency(shapesBank.getUnifiedCircleId((*iter)["id1"]),
-                                          shapesBank.getUnifiedCircleId((*iter)["id2"]), IDependency::Type::TANGENT_CIRCLE_TO_CIRCLE,
-                                          IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addCirclesDependency((*iter)["circle1Id"], (*iter)["circle2Id"], CirclesDependencies::TANGENT_CIRCLE_TO_CIRCLE,
+                                          IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
   }
 }
 
@@ -203,24 +237,21 @@ void Expert::addCirclePolygonDependencies(json inscribed, json circumscribed, js
   json::iterator iter;
 
   for (iter = inscribed.begin(); iter != inscribed.end(); ++iter) {
-    dependenciesBank.addCirclePolygonDependency(shapesBank.getUnifiedCircleId((*iter)["circleId"]),
-                                                shapesBank.getUnifiedPointsVector(parseUnsignedIntVector((*iter)["polygon"])),
-                                                IDependency::Type::INSCRIBED_CIRCLE, IDependency::Reason::USER_DEFINED, {},
-                                                IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addCirclePolygonDependency((*iter)["circleId"], (*iter)["polygonVerticesIds"],
+                                                CirclePolygonDependencies::INSCRIBED_CIRCLE, IDependency::Reason::USER_DEFINED,
+                                                {}, IDependency::ImportanceLevel::HIGH);
   }
 
   for (iter = circumscribed.begin(); iter != circumscribed.end(); ++iter) {
-    dependenciesBank.addCirclePolygonDependency(shapesBank.getUnifiedCircleId((*iter)["circleId"]),
-                                                shapesBank.getUnifiedPointsVector(parseUnsignedIntVector((*iter)["polygon"])),
-                                                IDependency::Type::CIRCUMSCRIBED_CIRCLE, IDependency::Reason::USER_DEFINED, {},
-                                                IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addCirclePolygonDependency((*iter)["circleId"], (*iter)["polygonVerticesIds"],
+                                                CirclePolygonDependencies::CIRCUMSCRIBED_CIRCLE, IDependency::Reason::USER_DEFINED,
+                                                {}, IDependency::ImportanceLevel::HIGH);
   }
 
   for (iter = escribed.begin(); iter != escribed.end(); ++iter) {
-    dependenciesBank.addCirclePolygonDependency(shapesBank.getUnifiedCircleId((*iter)["circleId"]),
-                                                shapesBank.getUnifiedPointsVector(parseUnsignedIntVector((*iter)["polygon"])),
-                                                IDependency::Type::ESCRIBED_CIRCLE, IDependency::Reason::USER_DEFINED, {},
-                                                IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addCirclePolygonDependency((*iter)["circleId"], (*iter)["polygonVerticesIds"],
+                                                CirclePolygonDependencies ::ESCRIBED_CIRCLE, IDependency::Reason::USER_DEFINED,
+                                                {}, IDependency::ImportanceLevel::HIGH);
   }
 }
 
@@ -228,11 +259,9 @@ void Expert::addBisectors(json bisectorLines) {
   json::iterator iter;
 
   for (iter = bisectorLines.begin(); iter != bisectorLines.end(); ++iter) {
-    dependenciesBank.addLineAngleDependency(
-        shapesBank.getUnifiedLineId((*iter)["lineId"]), shapesBank.getUnifiedPointId((*iter)["point1Id"]),
-        shapesBank.getUnifiedPointId((*iter)["vertexId"]), shapesBank.getUnifiedPointId((*iter)["point2Id"]),
-        parseAngleType((*iter)["angleType"]), IDependency::Type::BISECTOR_LINE, IDependency::Reason::USER_DEFINED, {},
-        IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addLineAngleDependency((*iter)["lineId"], (*iter)["angleEnd1Id"], (*iter)["angleVertexId"], (*iter)["angleEnd2Id"],
+                                            parseAngleType((*iter)["angleType"]), LineAngleDependencies::BISECTOR_LINE,
+                                            IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
   }
 }
 
@@ -240,10 +269,9 @@ void Expert::addMidPerpendiculars(json midPerpendicularLines) {
   json::iterator iter;
 
   for (iter = midPerpendicularLines.begin(); iter != midPerpendicularLines.end(); ++iter) {
-    dependenciesBank.addLinePointPairDependency(
-        shapesBank.getUnifiedLineId((*iter)["lineId"]), shapesBank.getUnifiedPointId((*iter)["end1Id"]),
-        shapesBank.getUnifiedPointId((*iter)["end2Id"]), IDependency::Type::MID_PERPENDICULAR_LINE, IDependency::Reason::USER_DEFINED,
-        {}, IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addLinePointsPairDependency((*iter)["lineId"], (*iter)["segmentEnd1Id"], (*iter)["segmentEnd2Id"],
+                                                 LinePointsPairDependencies::MID_PERPENDICULAR_LINE,
+                                                 IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
   }
 }
 
@@ -251,9 +279,8 @@ void Expert::addPolygonTypes(json types) {
   json::iterator iter;
 
   for (iter = types.begin(); iter != types.end(); ++iter) {
-    dependenciesBank.addPolygonTypeDependency(shapesBank.getUnifiedPointsVector(parseUnsignedIntVector((*iter)["polygon"])),
-                                              parsePolygonType((*iter)["type"]), IDependency::Type::POLYGON_TYPE,
-                                              IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addPolygonTypeDependency((*iter)["polygonVerticesIds"], (*iter)["polygonType"], PolygonTypeDependencies::POLYGON_TYPE,
+                                              IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
   }
 }
 
@@ -261,29 +288,24 @@ void Expert::addSpecialSegments(json medians, json altitudes, json midSegments) 
   json::iterator iter;
 
   for (iter = medians.begin(); iter != medians.end(); ++iter) {
-    dependenciesBank.addPointPairsDependency(
-        shapesBank.getUnifiedPointId((*iter)["s1End1Id"]), shapesBank.getUnifiedPointId((*iter)["s1End2Id"]),
-        shapesBank.getUnifiedPointId((*iter)["s2End1Id"]), shapesBank.getUnifiedPointId((*iter)["s2End2Id"]),
-        IDependency::Type::MEDIAN, IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addPolygonPointsPairDependency((*iter)["polygonVerticesIds"], true, (*iter)["segmentEnd1Id"], (*iter)["segmentEnd2Id"],
+                                              PolygonPointsPairDependencies::MEDIAN, IDependency::Reason::USER_DEFINED, {},
+                                              IDependency::ImportanceLevel::HIGH);
   }
 
   for (iter = altitudes.begin(); iter != altitudes.end(); ++iter) {
-    dependenciesBank.addLinePointPairDependency(shapesBank.getUnifiedLineId((*iter)["lineId"]),
-                                                shapesBank.getUnifiedPointId((*iter)["end1Id"]),
-                                                shapesBank.getUnifiedPointId((*iter)["end2Id"]), IDependency::Type::ALTITUDE,
-                                                IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addPolygonPointsPairDependency((*iter)["polygonVerticesIds"], true, (*iter)["segmentEnd1Id"], (*iter)["segmentEnd2Id"],
+                                                 PolygonPointsPairDependencies::ALTITUDE, IDependency::Reason::USER_DEFINED,
+                                                 {}, IDependency::ImportanceLevel::HIGH);
   }
 
   for (iter = midSegments.begin(); iter != midSegments.end(); ++iter) {
-    dependenciesBank.addPointsPairsPairPointsPairDependency(
-        shapesBank.getUnifiedPointId((*iter)["a1End1Id"]), shapesBank.getUnifiedPointId((*iter)["a1End2Id"]),
-        shapesBank.getUnifiedPointId((*iter)["a2End1Id"]), shapesBank.getUnifiedPointId((*iter)["a2End2Id"]),
-        shapesBank.getUnifiedPointId((*iter)["sEnd1"]), shapesBank.getUnifiedPointId((*iter)["sEnd2"]),
-        IDependency::Type::MID_SEGMENT, IDependency::Reason::USER_DEFINED, {}, IDependency::UsefulnessLevel::HIGH);
+    dependenciesBank.addPolygonPointsPairDependency((*iter)["polygonVerticesIds"], true, (*iter)["segmentEnd1Id"], (*iter)["segmentEnd2Id"],
+                                                    PolygonPointsPairDependencies::MID_SEGMENT,
+                                                    IDependency::Reason::USER_DEFINED, {},
+                                                    IDependency::ImportanceLevel::HIGH);
   }
 }
-
-*/
 
 LineType Expert::parseLineType(unsigned int lineType) {
   switch (lineType) {
@@ -345,19 +367,22 @@ PolygonType Expert::parsePolygonType(unsigned int polygonType) {
 }
 
 void Expert::findIntersectionPointsOfLines() {
-  std::vector<expertBackground::LineModel> lines = shapesBank.getLinesVector();
-
-  for (unsigned int line1Id = 0; line1Id < (linesNumber < 1 ? 0 : (linesNumber - 1)); line1Id++) {
-    for (unsigned int line2Id = line1Id + 1; line2Id < linesNumber; line2Id++) {
+  const std::vector<expertBackground::LineModel>& lines = shapesBank.getLinesVector();
+  const size_t linesNumber{lines.size()};
+  
+  for (size_t line1Id = 0; line1Id < (linesNumber < 1 ? 0 : (linesNumber - 1)); line1Id++) {
+    for (size_t line2Id = line1Id + 1; line2Id < linesNumber; line2Id++) {
       const std::vector<std::string>& points1 = lines[line1Id].getIncludedPoints();
       const std::vector<std::string>& points2 = lines[line2Id].getIncludedPoints();
 
       for (const std::string& point1Id : points1) {
         if (std::any_of(points2.begin(), points2.end(), [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
           const std::string& commonPointId = point1Id;
-          intersectionPointsOfLines[line1Id][line2Id] = {commonPointId};
-          intersectionPointsOfLines[line2Id][line1Id] = {commonPointId};
-          pointsOnLinesIntersections[shapesBank.getPointPositionInVector(commonPointId)].push_back({lines[line1Id].getId(), lines[line2Id].getId()});
+          intersectionPointsOfLines[line1Id][line2Id].push_back(shapesBank.getPointPositionInVector(commonPointId));
+          intersectionPointsOfLines[line2Id][line1Id].push_back(shapesBank.getPointPositionInVector(commonPointId));
+          pointsOnLinesIntersections[shapesBank.getPointPositionInVector(commonPointId)].push_back({
+              line1Id, line2Id
+          });
           break;
         }
       }
@@ -366,20 +391,23 @@ void Expert::findIntersectionPointsOfLines() {
 }
 
 void Expert::findIntersectionPointsOfCircles() {
-  std::vector<expertBackground::CircleModel> circles = shapesBank.getCirclesVector();
+  const std::vector<expertBackground::CircleModel>& circles = shapesBank.getCirclesVector();
+  const size_t circlesNumber{circles.size()};
 
-  for (unsigned int circle1Id = 0; circle1Id < (circlesNumber < 1 ? 0 : (circlesNumber - 1)); circle1Id++) {
-    for (unsigned int circle2Id = circle1Id + 1; circle2Id < circlesNumber; circle2Id++) {
+  for (size_t circle1Id = 0; circle1Id < (circlesNumber < 1 ? 0 : (circlesNumber - 1)); circle1Id++) {
+    for (size_t circle2Id = circle1Id + 1; circle2Id < circlesNumber; circle2Id++) {
       const std::vector<std::string>& points1 = circles[circle1Id].getIncludedPoints();
       const std::vector<std::string>& points2 = circles[circle2Id].getIncludedPoints();
 
-      unsigned int counter = 0;
+      size_t counter = 0;
       for (const std::string& point1Id : points1) {
         if (std::any_of(points2.begin(), points2.end(), [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
           const std::string& commonPointId = point1Id;
-          intersectionPointsOfCircles[circle1Id][circle2Id].push_back(commonPointId);
-          intersectionPointsOfCircles[circle2Id][circle1Id].push_back(commonPointId);
-          pointsOnCirclesIntersections[shapesBank.getPointPositionInVector(commonPointId)].push_back({circles[circle1Id].getId(), circles[circle2Id].getId()});
+          intersectionPointsOfCircles[circle1Id][circle2Id].push_back(shapesBank.getPointPositionInVector(commonPointId));
+          intersectionPointsOfCircles[circle2Id][circle1Id].push_back(shapesBank.getPointPositionInVector(commonPointId));
+          pointsOnCirclesIntersections[shapesBank.getPointPositionInVector(commonPointId)].push_back({
+              circle1Id, circle2Id
+          });
           counter++;
           if (counter == 2) {
             break;
@@ -391,20 +419,24 @@ void Expert::findIntersectionPointsOfCircles() {
 }
 
 void Expert::findIntersectionPointsOfLinesCircles() {
-  std::vector<expertBackground::LineModel> lines = shapesBank.getLinesVector();
-  std::vector<expertBackground::CircleModel> circles = shapesBank.getCirclesVector();
+  const std::vector<expertBackground::LineModel>& lines = shapesBank.getLinesVector();
+  const std::vector<expertBackground::CircleModel>& circles = shapesBank.getCirclesVector();
+  const size_t linesNumber{lines.size()};
+  const size_t circlesNumber{circles.size()};
 
-  for (unsigned int lineId = 0; lineId < linesNumber; lineId++) {
-    for (unsigned int circleId = 0; circleId < circlesNumber; circleId++) {
+  for (size_t lineId = 0; lineId < linesNumber; lineId++) {
+    for (size_t circleId = 0; circleId < circlesNumber; circleId++) {
       const std::vector<std::string>& points1 = lines[lineId].getIncludedPoints();
       const std::vector<std::string>& points2 = circles[circleId].getIncludedPoints();
 
-      unsigned int counter = 0;
+      size_t counter = 0;
       for (const std::string& point1Id : points1) {
         if (std::any_of(points2.begin(), points2.end(), [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
           const std::string& commonPointId = point1Id;
-          intersectionPointsOfLinesAndCircles[lineId][circleId].push_back(commonPointId);
-          pointsOnLineAndCircleIntersections[shapesBank.getPointPositionInVector(commonPointId)].push_back({lines[lineId].getId(), circles[circleId].getId()});
+          intersectionPointsOfLinesAndCircles[lineId][circleId].push_back(shapesBank.getPointPositionInVector(commonPointId));
+          pointsOnLineAndCircleIntersections[shapesBank.getPointPositionInVector(commonPointId)].push_back({
+              lineId, circleId
+          });
           counter++;
           if (counter == 2) {
             break;

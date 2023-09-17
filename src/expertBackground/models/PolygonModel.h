@@ -29,8 +29,10 @@ class PolygonModel : public IModel {
  private:
   std::vector<std::string> verticesIds;
 
+  bool fixedPointsOrder;
+
  public:
-  explicit PolygonModel(std::vector<std::string> vertices);
+  explicit PolygonModel(std::vector<std::string> vertices, bool fixedPointsOrder);
   PolygonModel(const PolygonModel& polygonModel);
 
   PolygonModel& operator=(const PolygonModel& polygonModel);
