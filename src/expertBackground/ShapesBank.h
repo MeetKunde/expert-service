@@ -14,17 +14,17 @@ class ShapesBank {
   /**
    * @brief Point IDs counter
    */
-  unsigned int pointIdCounter;
+  size_t pointIdCounter;
 
   /**
    * @brief Line IDs counter
    */
-  unsigned int lineIdCounter;
+  size_t lineIdCounter;
 
   /**
    * @brief Circle IDs counter
    */
-  unsigned int circleIdCounter;
+  size_t circleIdCounter;
 
   /**
    * @brief Vector with all point models
@@ -48,19 +48,19 @@ class ShapesBank {
   std::vector<CircleModel> circles;
 
   /**
-   * @brief Vector which converts ID of points given by user to ID set automatically in ShapesBank
+   * @brief Vector which converts ID of points given by user to position at points vector
    */
-  std::vector<unsigned int> pointIdsConverter;
+  std::map<std::string, size_t> pointIdsConverter;
 
   /**
-   * @brief Vector which converts ID of lines given by user to ID set automatically in ShapesBank
+   * @brief Vector which converts ID of lines given by user to position at lines vector
    */
-  std::vector<unsigned int> lineIdsConverter;
+  std::map<std::string, size_t> lineIdsConverter;
 
   /**
-   * @brief Vector which converts ID of circles given by user to ID set automatically in ShapesBank
+   * @brief Vector which converts ID of circles given by user to position at circles vector
    */
-  std::vector<unsigned int> circleIdsConverter;
+  std::map<std::string, size_t> circleIdsConverter;
 
  public:
   /**
@@ -69,22 +69,14 @@ class ShapesBank {
   explicit ShapesBank();
 
   /**
-   * @brief Constructor of a new ShapesBank object
-   *
-   * @param maxPointIdCounter maximal value of gived point ID
-   * @param maxLineIdCounter maximal value of gived line ID
-   * @param maxCircleIdCounter maximal value of gived circle ID
-   */
-  explicit ShapesBank(unsigned int maxPointIdCounter, unsigned int maxLineIdCounter, unsigned int maxCircleIdCounter);
-
-  /**
    * @brief Adding new PointModel to bank
    *
    * @param id point ID
    * @param x point X coordinate
    * @param y point Y coordinate
+   * @param name point name
    */
-  void addPoint(unsigned int identifier, float xCoordinate, float yCoordinate);
+  void addPoint(const std::string& identifier, float xCoordinate, float yCoordinate, const std::string& name);
 
   /**
    * @brief PointModel object getter
@@ -93,14 +85,14 @@ class ShapesBank {
    * @return reference to PointModel
    * @throws std::out_of_range if point with given ID does not exist
    */
-  inline const PointModel& getPoint(unsigned int identifier) const { return points.at(identifier); }
+  inline const PointModel& getPoint(const std::string& identifier) const { return points.at(pointIdsConverter.at(identifier)); }
 
   /**
    * @brief Number of points getter
    *
    * @return number of points
    */
-  inline unsigned int getPointsNumber() const { return points.size(); }
+  inline size_t getPointsNumber() const { return points.size(); }
 
   /**
    * @brief All point objects getter
@@ -114,19 +106,27 @@ class ShapesBank {
    *
    * @return JSON object representing all PointModel objects
    */
-  json getPointsAsJsonObjects();
+  json getPointsAsJsonObjects() const;
+
+  /**
+   * Getting point position in vector
+   * @param pointId point ID
+   * @return position of point
+   * @throws std::out_of_range if point with given ID does not exist
+   */
+  inline size_t getPointPositionInVector(const std::string& pointId) const { return pointIdsConverter.at(pointId); }
 
   /**
    * @brief Adding new LineModel to bank
    *
-   * @param id line ID
+   * @param identifier line ID
    * @param lineType line type
    * @param lineA coefficient of x in line equation y = ax + b
    * @param lineB constant term in line equation y = ax + b or y = b or x = b
-   * @param includedPoints IDs of points inluded in line
+   * @param includedPoints IDs of points included in line
    */
-  void addLine(unsigned int identifier, LineModel::LineType lineType, float lineA, float lineB,
-               std::vector<unsigned int> includedPoints);
+  void addLine(const std::string& identifier, LineModel::LineType lineType, float lineA, float lineB,
+               const std::vector<std::string>& includedPoints);
 
   /**
    * @brief LineModel object getter
@@ -135,16 +135,24 @@ class ShapesBank {
    * @return reference to LineModel
    * @throws std::out_of_range if line with given ID does not exist
    */
-  inline const LineModel& getLine(unsigned int identifier) const { return lines.at(identifier); }
+  inline const LineModel& getLine(const std::string& identifier) const { return lines.at(lineIdsConverter.at(identifier)); }
 
-  unsigned int getLineIdThrowTwoPoints(unsigned int point1Id, unsigned int point2Id) const;
+  /**
+   * @brief ID of LineModel object which pass throw given points
+   *
+   * @param point1Id ID of first point on line
+   * @param point2Id ID of second point on line
+   * @return id of LineModel which pass throw given points
+   * @throws std::out_of_range if line does not exist
+   */
+  std::string getLineIdThrowTwoPoints(const std::string& point1Id, const std::string& point2Id) const;
 
   /**
    * @brief Number of lines getter
    *
    * @return number of lines
    */
-  inline unsigned int getLinesNumber() const { return lines.size(); }
+  inline size_t getLinesNumber() const { return lines.size(); }
 
   /**
    * @brief All line objects getter
@@ -158,7 +166,15 @@ class ShapesBank {
    *
    * @return JSON object representing all LineModel objects
    */
-  json getLinesAsJsonObjects();
+  json getLinesAsJsonObjects() const;
+
+  /**
+   * Getting line position in vector
+   * @param lineId line ID
+   * @return position of line
+   * @throws std::out_of_range if point with given ID does not exist
+   */
+  inline size_t getLinePositionInVector(const std::string& lineId) const { return lineIdsConverter.at(lineId); }
 
   /**
    * @brief Adding new CircleModel to bank
@@ -170,8 +186,8 @@ class ShapesBank {
    * @param radius circle radius length
    * @param includedPoints IDs of points inluded in circle
    */
-  void addCircle(unsigned int identifier, unsigned int centerId, float centerX, float centerY, float radius,
-                 std::vector<unsigned int> includedPoints);
+  void addCircle(const std::string& identifier, const std::string& centerId, float centerX, float centerY,
+                 const std::string& centerName, float radius, const std::vector<std::string>& includedPoints);
 
   /**
    * @brief CircleModel object getter
@@ -180,14 +196,24 @@ class ShapesBank {
    * @return reference to CircleModel
    * @throws std::out_of_range if circle with given ID does not exist
    */
-  inline const CircleModel& getCircle(unsigned int identifier) const { return circles.at(identifier); }
+  inline const CircleModel& getCircle(const std::string& identifier) const { return circles.at(circleIdsConverter.at(identifier)); }
+
+  /**
+   * @brief ID of CircleModel object with given center id and point on id
+   *
+   * @param centerPointId ID of first point on line
+   * @param pointOnCircleId ID of second point on line
+   * @return id of CircleModel with given points
+   * @throws std::out_of_range if circle does not exist
+   */
+  std::string getCircleIdWithTwoPoints(const std::string& centerPointId, const std::string& pointOnCircleId) const;
 
   /**
    * @brief Number of circles getter
    *
    * @return number of circles
    */
-  inline unsigned int getCirclesNumber() const { return circles.size(); }
+  inline size_t getCirclesNumber() const { return circles.size(); }
 
   /**
    * @brief All circle objects getter
@@ -201,39 +227,15 @@ class ShapesBank {
    *
    * @return JSON object representing all CircleModel objects
    */
-  json getCirclesAsJsonObjects();
+  json getCirclesAsJsonObjects() const;
 
   /**
-   * @brief Translating the given point ID to the ID set in the bank
-   *
-   * @param id ID of shape to translate
-   * @return point ID in the bank
+   * Getting circle position in vector
+   * @param circleId circle ID
+   * @return position of circle
+   * @throws std::out_of_range if point with given ID does not exist
    */
-  unsigned int getUnifiedPointId(unsigned int identifier) const { return pointIdsConverter.at(identifier); }
-
-  /**
-   * @brief Translating the given line ID to the ID set in the bank
-   *
-   * @param id ID of shape to translate
-   * @return line ID in the bank
-   */
-  unsigned int getUnifiedLineId(unsigned int identifier) const { return lineIdsConverter.at(identifier); }
-
-  /**
-   * @brief Translating the given circle ID to the ID set in the bank
-   *
-   * @param id ID of shape to translate
-   * @return circle ID in the bank
-   */
-  unsigned int getUnifiedCircleId(unsigned int identifier) const { return circleIdsConverter.at(identifier); }
-
-  /**
-   * @brief Translating the given point IDs vector to the vector with IDs set in the bank
-   *
-   * @param pointIds IDs of point to translate
-   * @return vector with IDs set in the bank
-   */
-  std::vector<unsigned int> getUnifiedPointsVector(std::vector<unsigned int> pointIds);
+  inline size_t getCirclePositionInVector(const std::string& circleId) const { return circleIdsConverter.at(circleId); }
 
   /**
    * @brief Comparator used in sorting points counter-clockwise

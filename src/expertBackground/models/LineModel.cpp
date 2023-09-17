@@ -1,15 +1,15 @@
 #include "LineModel.h"
 
 namespace expertBackground {
-LineModel::LineModel(unsigned int identifier, LineType type, float lineA, float lineB, std::vector<unsigned int> includedPoints)
-    : id(identifier), lineType(type), lineA(lineA), lineB(lineB), includedPointIds(std::move(includedPoints)) {}
+LineModel::LineModel(std::string identifier, LineType type, float lineA, float lineB, std::vector<std::string> includedPoints)
+    : id{std::move(identifier)}, lineType{type}, lineA{lineA}, lineB{lineB}, includedPointIds{std::move(includedPoints)} {}
 
 LineModel::LineModel(const LineModel& lineModel)
-    : id(lineModel.id),
-      lineType(lineModel.lineType),
-      lineA(lineModel.lineA),
-      lineB(lineModel.lineB),
-      includedPointIds(lineModel.includedPointIds) {}
+    : id{lineModel.id},
+      lineType{lineModel.lineType},
+      lineA{lineModel.lineA},
+      lineB{lineModel.lineB},
+      includedPointIds{lineModel.includedPointIds} {}
 
 LineModel& LineModel::operator=(const LineModel& lineModel) {
   id = lineModel.id;
@@ -26,8 +26,8 @@ json LineModel::getJsonObject() const {
           {"type", lineType},
           {"a", lineA},
           {"b", lineB},
-          {"end1ID", includedPointIds.front()},
-          {"end2ID", includedPointIds.back()},
+          {"end1Id", includedPointIds.front()},
+          {"end2Id", includedPointIds.back()},
           {"pointsOn", json(includedPointIds)}};
 }
 

@@ -24,7 +24,9 @@ class IDependency {
     OF_LINE_AND_POINTS_PAIR,
     OF_CIRCLE_AND_POLYGON,
     OF_POINTS_PAIRS_PAIR_AND_POINTS_PAIR,
-    OF_POLYGONS
+    OF_POLYGONS,
+    OF_POLYGON_AND_POINTS_PAIRS,
+    OF_POLYGON_AND_EXPRESSION
   };
 
   static const std::vector<Category> dependencyCategories;
@@ -34,9 +36,11 @@ class IDependency {
    */
   enum class Type {
     SEGMENT_LENGTH,
-    ANGLE_VALUE,
+    ANGLE_MEASURE,
     EQUATION,
     POLYGON_TYPE,
+    POLYGON_PERIMETER,
+    POLYGON_AREA,
     EQUAL_SEGMENTS,
     EQUAL_ANGLES,
     PERPENDICULAR_LINES,
@@ -119,15 +123,19 @@ class IDependency {
     EQUATION_EXTRACTION
   };
 
-  enum class UsefulnessLevel { LOW, MEDIUM, HIGH };
+  enum class ImportanceLevel {
+    LOW,
+    MEDIUM,
+    HIGH
+  };
 
   virtual json getObjectAsJson() const = 0;
-  virtual inline unsigned int getId() const = 0;
+  virtual inline size_t getId() const = 0;
   virtual inline Category getCategory() const = 0;
   virtual inline Type getType() const = 0;
   virtual inline Reason getReason() const = 0;
-  virtual inline const std::vector<unsigned int>& getDependentDependencies() const = 0;
-  virtual inline UsefulnessLevel getUsefulnessLevel() const = 0;
+  virtual inline const std::vector<size_t>& getDependentDependencies() const = 0;
+  virtual inline ImportanceLevel getImportanceLevel() const = 0;
 
   virtual ~IDependency() {}
 };

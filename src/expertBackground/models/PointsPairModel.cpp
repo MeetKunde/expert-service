@@ -1,19 +1,19 @@
 #include "PointsPairModel.h"
 
 namespace expertBackground {
-PointsPairModel::PointsPairModel(unsigned int point1, unsigned int point2) {
+PointsPairModel::PointsPairModel(std::string point1, std::string point2) {
   if (point1 < point2) {
-    point1Id = point1;
-    point2Id = point2;
+    point1Id = std::move(point1);
+    point2Id = std::move(point2);
   }
   else {
-    point1Id = point2;
-    point2Id = point1;
+    point1Id = std::move(point2);
+    point2Id = std::move(point1);
   }
 }
 
 PointsPairModel::PointsPairModel(const PointsPairModel& pointsPair)
-    : point1Id(pointsPair.point1Id), point2Id(pointsPair.point2Id) {}
+    : point1Id{pointsPair.point1Id}, point2Id{pointsPair.point2Id} {}
 
 PointsPairModel& PointsPairModel::operator=(const PointsPairModel& pointsPair) {
   point1Id = pointsPair.point1Id;

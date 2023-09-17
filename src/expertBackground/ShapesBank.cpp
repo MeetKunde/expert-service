@@ -2,149 +2,140 @@
 
 namespace expertBackground {
 ShapesBank::ShapesBank()
-    : pointIdCounter(0),
-      lineIdCounter(0),
-      circleIdCounter(0),
-      points({}),
-      circles({}),
-      pointIdsConverter({}),
-      lineIdsConverter({}),
-      circleIdsConverter({}) {}
+    : pointIdCounter{0},
+      lineIdCounter{0},
+      circleIdCounter{0},
+      points{},
+      circles{},
+      pointIdsConverter{},
+      lineIdsConverter{},
+      circleIdsConverter{} {}
 
-ShapesBank::ShapesBank(unsigned int maxPointIdCounter, unsigned int maxLineIdCounter, unsigned int maxCircleIdCounter)
-    : pointIdCounter(0),
-      lineIdCounter(0),
-      circleIdCounter(0),
-      points({}),
-      lines({}),
-      circles({}),
-      pointIdsConverter(std::vector<unsigned int>(maxPointIdCounter + 1, 0)),
-      lineIdsConverter(std::vector<unsigned int>(maxLineIdCounter + 1, 0)),
-      circleIdsConverter(std::vector<unsigned int>(maxCircleIdCounter + 1, 0)) {}
-
-void ShapesBank::addPoint(unsigned int identifier, float xCoordinate, float yCoordinate) {
-  points.emplace_back(identifier, xCoordinate, yCoordinate);
-  pointIdsConverter.at(identifier) = pointIdCounter;
+void ShapesBank::addPoint(const std::string& identifier, float xCoordinate, float yCoordinate, const std::string& name) {
+  points.emplace_back(identifier, xCoordinate, yCoordinate, name);
+  pointIdsConverter.insert(std::make_pair(identifier, pointIdCounter));
   pointIdCounter++;
 }
 
-json ShapesBank::getPointsAsJsonObjects() {
+json ShapesBank::getPointsAsJsonObjects() const {
   json result;
   unsigned int idCounter = 0;
 
-  std::vector<PointModel>::iterator iter;
+  std::vector<PointModel>::const_iterator iter;
   for (iter = points.begin(); iter != points.end(); ++iter) {
-    result.push_back({{"ID", idCounter}, {"object", iter->getJsonObject()}});
+    result.push_back({{"position", idCounter}, {"object", iter->getJsonObject()}});
     idCounter++;
   }
 
   return result;
 }
 
-void ShapesBank::addLine(unsigned int identifier, LineModel::LineType lineType, float lineA, float lineB,
-                         std::vector<unsigned int> includedPoints) {
-  const unsigned int maxId = includedPoints.size();
+void ShapesBank::addLine(const std::string& identifier, LineModel::LineType lineType, float lineA, float lineB,
+                         const std::vector<std::string>& includedPoints) {
+  std::vector<std::string> includedPointsCopy{includedPoints};
+  const unsigned int includedPointsLength = includedPointsCopy.size();
 
   if (lineType == LineModel::LineType::VERTICAL) {
-    for (unsigned int point1Id = 0; point1Id < maxId; point1Id++) {
-      for (unsigned int point2Id = point1Id; point2Id < maxId; point2Id++) {
-        const PointModel point1 = points[includedPoints[point1Id]];
-        const PointModel point2 = points[includedPoints[point2Id]];
+    for (unsigned int point1Id = 0; point1Id < includedPointsLength; point1Id++) {
+      for (unsigned int point2Id = point1Id; point2Id < includedPointsLength; point2Id++) {
+        const PointModel point1 = points[pointIdsConverter.at(includedPointsCopy[point1Id])];
+        const PointModel point2 = points[pointIdsConverter.at(includedPointsCopy[point2Id])];
 
         if (point1.getY() > point2.getY()) {
-          const unsigned int tmp = includedPoints[point1Id];
-          includedPoints[point1Id] = includedPoints[point2Id];
-          includedPoints[point2Id] = tmp;
+          std::swap(includedPointsCopy[point1Id], includedPointsCopy[point2Id]);
         }
       }
     }
   }
   else {
-    for (unsigned int point1Id = 0; point1Id < maxId; point1Id++) {
-      for (unsigned int point2Id = point1Id; point2Id < maxId; point2Id++) {
-        const PointModel point1 = points[includedPoints[point1Id]];
-        const PointModel point2 = points[includedPoints[point2Id]];
+    for (unsigned int point1Id = 0; point1Id < includedPointsLength; point1Id++) {
+      for (unsigned int point2Id = point1Id; point2Id < includedPointsLength; point2Id++) {
+        const PointModel point1 = points[pointIdsConverter[includedPointsCopy[point1Id]]];
+        const PointModel point2 = points[pointIdsConverter[includedPointsCopy[point2Id]]];
 
         if (point1.getX() > point2.getX()) {
-          const unsigned int tmp = includedPoints[point1Id];
-          includedPoints[point1Id] = includedPoints[point2Id];
-          includedPoints[point2Id] = tmp;
+          std::swap(includedPointsCopy[point1Id], includedPointsCopy[point2Id]);
         }
       }
     }
   }
 
-  lines.emplace_back(identifier, lineType, lineA, lineB, includedPoints);
-  lineIdsConverter.at(identifier) = lineIdCounter;
+  lines.emplace_back(identifier, lineType, lineA, lineB, includedPointsCopy);
+  lineIdsConverter.insert(std::make_pair(identifier, lineIdCounter));
   lineIdCounter++;
 }
 
-unsigned int ShapesBank::getLineIdThrowTwoPoints(unsigned int point1Id, unsigned int point2Id) const {
+std::string ShapesBank::getLineIdThrowTwoPoints(const std::string& point1Id, const std::string& point2Id) const {
   for (unsigned int lineId = 0; lineId < lines.size(); lineId++) {
-    std::vector<unsigned int> linePoints = lines[lineId].getIncludedPoints();
+    std::vector<std::string> linePoints = lines[lineId].getIncludedPoints();
     if (std::find(linePoints.begin(), linePoints.end(), point1Id) != linePoints.end() &&
         std::find(linePoints.begin(), linePoints.end(), point2Id) != linePoints.end()) {
 
-      return lineId;
+      return lines[lineId].getId();
     }
   }
 
   throw std::invalid_argument("Does not exist line which is throw given 2 points!");
 }
 
-json ShapesBank::getLinesAsJsonObjects() {
+json ShapesBank::getLinesAsJsonObjects() const {
   json result;
   unsigned int idCounter = 0;
 
-  std::vector<LineModel>::iterator iter;
+  std::vector<LineModel>::const_iterator iter;
   for (iter = lines.begin(); iter != lines.end(); ++iter) {
-    result.push_back({{"ID", idCounter}, {"object", iter->getJsonObject()}});
+    result.push_back({{"position", idCounter}, {"object", iter->getJsonObject()}});
     idCounter++;
   }
 
   return result;
 }
 
-void ShapesBank::addCircle(unsigned int identifier, unsigned int centerId, float centerX, float centerY, float radius,
-                           std::vector<unsigned int> includedPoints) {
-  const unsigned int maxId = includedPoints.size();
-  for (int point1Id = 0; point1Id < maxId; point1Id++) {
-    for (int point2Id = point1Id; point2Id < maxId; point2Id++) {
-      const PointModel point1 = points[includedPoints[point1Id]];
-      const PointModel point2 = points[includedPoints[point2Id]];
+void ShapesBank::addCircle(const std::string& identifier, const std::string& centerId, float centerX, float centerY,
+                           const std::string& centerName, float radius, const std::vector<std::string>& includedPoints) {
+  std::vector<std::string> includedPointsCopy{includedPoints};
+  const unsigned int includedPointsLength = includedPointsCopy.size();
+
+  for (int point1Id = 0; point1Id < includedPointsLength; point1Id++) {
+    for (int point2Id = point1Id; point2Id < includedPointsLength; point2Id++) {
+      const PointModel point1 = points[pointIdsConverter[includedPointsCopy[point1Id]]];
+      const PointModel point2 = points[pointIdsConverter[includedPointsCopy[point2Id]]];
 
       if (ShapesBank::counterClockwiseComparator(point1, point2, centerX, centerY)) {
-        const unsigned int tmp = includedPoints[point1Id];
-        includedPoints[point1Id] = includedPoints[point2Id];
-        includedPoints[point2Id] = tmp;
+        std::swap(includedPointsCopy[point1Id], includedPointsCopy[point2Id]);
       }
     }
   }
 
-  circles.emplace_back(identifier, centerId, centerX, centerY, radius, includedPoints);
-  circleIdsConverter.at(identifier) = circleIdCounter;
+  circles.emplace_back(identifier, centerId, centerX, centerY, centerName, radius, includedPointsCopy);
+  circleIdsConverter.insert(std::make_pair(identifier, circleIdCounter));
   circleIdCounter++;
 }
 
-json ShapesBank::getCirclesAsJsonObjects() {
+std::string ShapesBank::getCircleIdWithTwoPoints(const std::string& centerPointId, const std::string& pointOnCircleId) const {
+  for (unsigned int circleId = 0; circleId < circles.size(); circleId++) {
+    if(circles[circleId].getCenterId() != centerPointId) {
+      continue ;
+    }
+
+    std::vector<std::string> circlePoints = circles[circleId].getIncludedPoints();
+    if (std::find(circlePoints.begin(), circlePoints.end(), pointOnCircleId) != circlePoints.end()) {
+
+      return circles[circleId].getId();
+    }
+  }
+
+  throw std::invalid_argument("Does not exist circle with given center on point on!");
+}
+
+json ShapesBank::getCirclesAsJsonObjects() const {
   json result;
   unsigned int idCounter = 0;
 
-  std::vector<CircleModel>::iterator iter;
+  std::vector<CircleModel>::const_iterator iter;
   for (iter = circles.begin(); iter != circles.end(); ++iter) {
-    result.push_back({{"ID", idCounter}, {"object", iter->getJsonObject()}});
+    result.push_back({{"position", idCounter}, {"object", iter->getJsonObject()}});
     idCounter++;
-  }
-
-  return result;
-}
-
-std::vector<unsigned int> ShapesBank::getUnifiedPointsVector(std::vector<unsigned int> pointIds) {
-  std::vector<unsigned int> result = {};
-
-  std::vector<unsigned int>::iterator iter;
-  for (iter = pointIds.begin(); iter != pointIds.end(); ++iter) {
-    result.push_back(pointIdsConverter.at(*iter));
   }
 
   return result;

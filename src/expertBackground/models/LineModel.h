@@ -34,7 +34,7 @@ class LineModel : public IModel {
   /**
    * @brief Line ID
    */
-  unsigned int id;
+  std::string id;
 
   /**
    * @brief Type of line
@@ -54,7 +54,7 @@ class LineModel : public IModel {
   /**
    * @brief IDs of included in line points
    */
-  std::vector<unsigned int> includedPointIds;
+  std::vector<std::string> includedPointIds;
 
  public:
   /**
@@ -64,9 +64,9 @@ class LineModel : public IModel {
    * @param type type of line
    * @param lineA A coefficient in line equation
    * @param lineB B coefficient in line equation
-   * @param includedPoints IDs of points inluded in line
+   * @param includedPoints IDs of points included in line
    */
-  explicit LineModel(unsigned int identifier, LineType type, float lineA, float lineB, std::vector<unsigned int> includedPoints);
+  explicit LineModel(std::string identifier, LineType type, float lineA, float lineB, std::vector<std::string> includedPoints);
 
   /**
    * @brief Constructor of a new LineModel object
@@ -88,7 +88,7 @@ class LineModel : public IModel {
    *
    * @return line ID
    */
-  inline unsigned int getId() const { return id; }
+  inline std::string getId() const { return id; }
 
   /**
    * @brief Line type getter
@@ -116,7 +116,7 @@ class LineModel : public IModel {
    *
    * @return reference to set of included points IDs
    */
-  inline const std::vector<unsigned int>& getIncludedPoints() const { return includedPointIds; }
+  inline const std::vector<std::string>& getIncludedPoints() const { return includedPointIds; }
 
   /**
    * @brief Override of equality operator

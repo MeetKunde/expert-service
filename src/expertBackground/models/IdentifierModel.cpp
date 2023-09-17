@@ -1,9 +1,9 @@
 #include "IdentifierModel.h"
 
 namespace expertBackground {
-IdentifierModel::IdentifierModel(unsigned int identifier) : id(identifier) {}
+IdentifierModel::IdentifierModel(std::string identifier) : id{std::move(identifier)} {}
 
-IdentifierModel::IdentifierModel(const IdentifierModel& identifierModel) : id(identifierModel.id) {}
+IdentifierModel::IdentifierModel(const IdentifierModel& identifierModel) : id{identifierModel.id} {}
 
 IdentifierModel& IdentifierModel::operator=(const IdentifierModel& identifierModel) {
   id = identifierModel.id;

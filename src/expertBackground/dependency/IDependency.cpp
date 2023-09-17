@@ -13,13 +13,17 @@ const std::vector<IDependency::Category> IDependency::dependencyCategories = {
     IDependency::Category::OF_LINE_AND_POINTS_PAIR,
     IDependency::Category::OF_CIRCLE_AND_POLYGON,
     IDependency::Category::OF_POINTS_PAIRS_PAIR_AND_POINTS_PAIR,
-    IDependency::Category::OF_POLYGONS};
+    IDependency::Category::OF_POLYGONS,
+    IDependency::Category::OF_POLYGON_AND_POINTS_PAIRS,
+    IDependency::Category::OF_POLYGON_AND_EXPRESSION};
 
 const std::vector<IDependency::Type> IDependency::dependencyTypes = {
     IDependency::Type::SEGMENT_LENGTH,
-    IDependency::Type::ANGLE_VALUE,
+    IDependency::Type::ANGLE_MEASURE,
     IDependency::Type::EQUATION,
     IDependency::Type::POLYGON_TYPE,
+    IDependency::Type::POLYGON_PERIMETER,
+    IDependency::Type::POLYGON_AREA,
     IDependency::Type::EQUAL_SEGMENTS,
     IDependency::Type::EQUAL_ANGLES,
     IDependency::Type::PERPENDICULAR_LINES,

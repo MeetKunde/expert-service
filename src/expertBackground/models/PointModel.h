@@ -13,7 +13,7 @@ class PointModel : public IModel {
   /**
    * @brief Point ID
    */
-  unsigned int id;
+  std::string id;
 
   /**
    * @brief Point X coordinate
@@ -25,6 +25,11 @@ class PointModel : public IModel {
    */
   float y;
 
+  /**
+   * @brief Point name
+   */
+   std::string name;
+
  public:
   /**
    * @brief Constructor of a new PointModel object
@@ -32,8 +37,9 @@ class PointModel : public IModel {
    * @param identifier ID of point
    * @param xCoordinate X coordinate of point
    * @param yCoordinate Y coordinate of point
+   * @param name point name
    */
-  explicit PointModel(unsigned int identifier, float xCoordinate, float yCoordinate);
+  explicit PointModel(std::string identifier, float xCoordinate, float yCoordinate, std::string name);
 
   /**
    * @brief Constructor of a new PointModel object
@@ -55,7 +61,7 @@ class PointModel : public IModel {
    *
    * @return point ID
    */
-  inline unsigned int getId() const { return id; }
+  inline const std::string& getId() const { return id; }
 
   /**
    * @brief Point X coordinate getter
@@ -70,6 +76,13 @@ class PointModel : public IModel {
    * @return point Y coordinate
    */
   inline float getY() const { return y; }
+
+  /**
+   * @brief Point name getter
+   *
+   * @return point name
+   */
+  inline const std::string& getName() const { return name; }
 
   inline MathHelper::Coordinates getCoordinates() const { return {x, y}; }
 

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include <Expert.h>
 #include <httplib/httplib.h>
@@ -10,7 +11,7 @@ int main() {
 
   std::cout << "Compute Service Started..." << std::endl;
 
-  server.Options("/(.*)", [&](const httplib::Request& /*req*/, httplib::Response& res) {
+  server.Options("/(.*)", [&](const httplib::Request& req, httplib::Response& res) {
     res.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
     res.set_header("Content-Type", "text/html; charset=utf-8");
     res.set_header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Accept, Authorization");
@@ -21,12 +22,19 @@ int main() {
   server.Post("/compute", [](const httplib::Request& req, httplib::Response& res) {
     try {
       const std::string inputString = req.body;
-      const json input = json::parse(inputString)["json"];
+      const json input = json::parse(inputString)["scheme"];
+
+      std::cout << input.dump(2) << std::endl;
 
       expert::Expert expert;
       expert.importTask(input);
       expert.useKnowledge();
       const json output = expert.exportSolution();
+
+      //const json output = {
+      //  { "internal-state", json() },
+      //  { "result",  json() }
+      //};
 
       res.set_header("Access-Control-Allow-Origin", " * ");
       res.set_header("Access-Control-Allow-Credentials", "true");
