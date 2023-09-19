@@ -1,18 +1,37 @@
 #include "../Expert.h"
 
-/*
 namespace expert {
-unsigned int Expert::findVerticalAngles() {
-  unsigned int result = 0;
+unsigned int Expert::exploreAngleBasedTheorems() {
+  unsigned int sumOfNewDependencies{0};
 
-  for (unsigned int intersectionPointId = 0; intersectionPointId < pointsNumber; intersectionPointId++) {
-    for (const std::pair<unsigned int, unsigned int> lineIdsPair : pointsOnLinesIntersections[intersectionPointId]) {
-      std::vector<unsigned int> line1Points = shapesBank.getLine(lineIdsPair.first).getIncludedPoints();
-      std::vector<unsigned int> line2Points = shapesBank.getLine(lineIdsPair.second).getIncludedPoints();
-      const unsigned int vertexIndexOnLine1 =
-          distance(line1Points.begin(), find(line1Points.begin(), line1Points.end(), intersectionPointId));
-      const unsigned int vertexIndexOnLine2 =
-          distance(line2Points.begin(), find(line2Points.begin(), line2Points.end(), intersectionPointId));
+  if(shapesBank.newPointLastAdded() || shapesBank.newLineLastAdded()) {
+    sumOfNewDependencies += findVerticalAngles();
+    sumOfNewDependencies += findSupplementaryAngles();
+  }
+
+  if(shapesBank.newPointLastAdded() || shapesBank.newLineLastAdded() || dependenciesBank.lastChange(IDependency::Type::PARALLEL_LINES)) {
+    sumOfNewDependencies += findAlternateAngles();
+    sumOfNewDependencies += findCorrespondingAngles();
+  }
+
+  return sumOfNewDependencies;
+}
+
+unsigned int Expert::findVerticalAngles() {
+  unsigned int sumOfNewDependencies{0};
+
+  const std::vector<PointModel>& points = shapesBank.getPointsVector();
+  const std::vector<LineModel>& lines = shapesBank.getLinesVector();
+  for (size_t intersectionPointPos = 0; intersectionPointPos < points.size(); intersectionPointPos++) {
+    for (const std::pair<size_t, size_t>& linePosesPair : pointsOnLinesIntersections[intersectionPointPos]) {
+      const std::vector<std::string>& line1Points = lines.at(linePosesPair.first).getIncludedPoints();
+      const std::vector<std::string>& line2Points = lines.at(linePosesPair.second).getIncludedPoints();
+      const size_t vertexIndexOnLine1 =
+          distance(line1Points.begin(), std::find(line1Points.begin(), line1Points.end(),
+                                                  points.at(intersectionPointPos).getId()));
+      const size_t vertexIndexOnLine2 =
+          distance(line2Points.begin(), std::find(line2Points.begin(), line2Points.end(),
+                                                  points.at(intersectionPointPos).getId()));
 
       if (vertexIndexOnLine1 == 0 || vertexIndexOnLine1 == (line1Points.size() - 1)) {
         continue;
@@ -21,122 +40,158 @@ unsigned int Expert::findVerticalAngles() {
         continue;
       }
 
-      result += setEqualAngles(line1Points.front(), intersectionPointId, line2Points.front(), line1Points.back(),
-                               intersectionPointId, line2Points.back(), AngleType::CONVEX, IDependency::Reason::VERTICAL_ANGLES,
-                               IDependency::UsefulnessLevel::MEDIUM);
+      sumOfNewDependencies += setEqualAngles(line1Points.front(), points.at(intersectionPointPos).getId(), line2Points.front(),
+                                             line1Points.back(), points.at(intersectionPointPos).getId(), line2Points.back(),
+                                             AngleType::UNKNOWN, IDependency::Reason::VERTICAL_ANGLES,
+                                             {}, IDependency::ImportanceLevel::MEDIUM);
 
-      result += setEqualAngles(line1Points.front(), intersectionPointId, line2Points.back(), line1Points.back(),
-                               intersectionPointId, line2Points.front(), AngleType::CONVEX, IDependency::Reason::VERTICAL_ANGLES,
-                               IDependency::UsefulnessLevel::MEDIUM);
+      sumOfNewDependencies += setEqualAngles(line1Points.front(), points.at(intersectionPointPos).getId(), line2Points.back(),
+                                             line1Points.back(),points.at(intersectionPointPos).getId(), line2Points.front(),
+                                             AngleType::UNKNOWN, IDependency::Reason::VERTICAL_ANGLES,
+                                             {}, IDependency::ImportanceLevel::MEDIUM);
     }
   }
 
-  return result;
+  return sumOfNewDependencies;
 }
 
 unsigned int Expert::findSupplementaryAngles() {
-  unsigned int result = 0;
+  unsigned int sumOfNewDependencies{0};
 
-  for (unsigned int lineId = 0; lineId < linesNumber; lineId++) {
-    std::vector<unsigned int> line1Points = shapesBank.getLine(lineId).getIncludedPoints();
+  const std::vector<LineModel>& lines = shapesBank.getLinesVector();
+  const std::vector<PointModel>& points = shapesBank.getPointsVector();
+  for (size_t linePos = 0; linePos < lines.size(); linePos++) {
+    const std::vector<std::string>& line1Points = lines.at(linePos).getIncludedPoints();
 
-    for (unsigned int vertexPointId = 1; vertexPointId < (line1Points.size() - 1); vertexPointId++) {
-      const unsigned int vertexPoint = line1Points[vertexPointId];
-      const unsigned int firstPoint = line1Points.front();
-      const unsigned int lastPoint = line1Points.back();
-      std::vector<unsigned int> justSelected(line1Points.size());
+    for (size_t vertexPointPos = 1; vertexPointPos < (line1Points.size() - 1); vertexPointPos++) {
+      const std::string& vertexPoint = line1Points.at(vertexPointPos);
+      const std::string& firstPoint = line1Points.front();
+      const std::string& lastPoint = line1Points.back();
 
+      std::vector<std::string> justSelected(line1Points.size());
       std::copy(line1Points.begin(), line1Points.end(), justSelected.begin());
 
-      std::set<unsigned int> lineIds = {};
-      for (const std::pair<unsigned int, unsigned int> linesPair : pointsOnLinesIntersections[vertexPoint]) {
-        lineIds.insert(linesPair.first);
-        lineIds.insert(linesPair.second);
+      std::set<size_t> linePoses = {};
+      for (const std::pair<size_t, size_t> linesPair : pointsOnLinesIntersections[shapesBank.getPointPositionInVector(vertexPoint)]) {
+        linePoses.insert(linesPair.first);
+        linePoses.insert(linesPair.second);
       }
-      lineIds.erase(lineId);
+      linePoses.erase(linePos);
 
-      for (const unsigned int otherLineId : lineIds) {
-        std::vector<unsigned int> line2Points = shapesBank.getLine(otherLineId).getIncludedPoints();
+      for (const size_t otherLinePos : linePoses) {
+        std::vector<std::string> line2Points = lines.at(otherLinePos).getIncludedPoints();
         std::copy(line2Points.begin(), line2Points.end(), std::back_inserter(justSelected));
 
         if (vertexPoint != line2Points.front()) {
-          result += dependenciesBank.addConvexAngle(
-              firstPoint, vertexPoint, line2Points.front(),
-              Integer(MathHelper::STRAIGHT_ANGLE_VALUE) -
-                  dependenciesBank.getConvexAngleVariable(line2Points.front(), vertexPoint, lastPoint),
-              IDependency::Reason::SUPPLEMENTARY_ANGLES, {}, IDependency::UsefulnessLevel::MEDIUM);
+          sumOfNewDependencies += dependenciesBank.addEquation(
+              DependenciesBank::getAngleMeasureVariable(
+                  shapesBank.getPoint(firstPoint),
+                  shapesBank.getPoint(vertexPoint),
+                  shapesBank.getPoint(line2Points.front()),
+                  true) +
+              DependenciesBank::getAngleMeasureVariable(
+                      shapesBank.getPoint(line2Points.front()),
+                      shapesBank.getPoint(vertexPoint),
+                      shapesBank.getPoint(lastPoint), false),
+              Integer(MathHelper::STRAIGHT_ANGLE_VALUE),
+              IDependency::Reason::SUPPLEMENTARY_ANGLES, {}, IDependency::ImportanceLevel::MEDIUM
+              );
         }
 
         if (vertexPoint != line2Points.back()) {
-          result += dependenciesBank.addConvexAngle(
-              firstPoint, vertexPoint, line2Points.back(),
-              Integer(MathHelper::STRAIGHT_ANGLE_VALUE) -
-                  dependenciesBank.getConvexAngleVariable(line2Points.back(), vertexPoint, lastPoint),
-              IDependency::Reason::SUPPLEMENTARY_ANGLES, {}, IDependency::UsefulnessLevel::MEDIUM);
+          sumOfNewDependencies += dependenciesBank.addEquation(
+              DependenciesBank::getAngleMeasureVariable(
+                  shapesBank.getPoint(firstPoint),
+                  shapesBank.getPoint(vertexPoint),
+                  shapesBank.getPoint(line2Points.back()),
+                  false) +
+                  DependenciesBank::getAngleMeasureVariable(
+                      shapesBank.getPoint(line2Points.back()),
+                      shapesBank.getPoint(vertexPoint),
+                      shapesBank.getPoint(lastPoint), true),
+              Integer(MathHelper::STRAIGHT_ANGLE_VALUE),
+              IDependency::Reason::SUPPLEMENTARY_ANGLES, {}, IDependency::ImportanceLevel::MEDIUM
+          );
         }
       }
 
-      for (unsigned int pointId = 0; pointId < pointsNumber; pointId++) {
-        if (find(justSelected.begin(), justSelected.end(), pointId) == justSelected.end()) {
-          result +=
-              dependenciesBank.addConvexAngle(firstPoint, vertexPoint, pointId,
-                                              Integer(MathHelper::STRAIGHT_ANGLE_VALUE) -
-                                                  dependenciesBank.getConvexAngleVariable(pointId, vertexPoint, lastPoint),
-                                              IDependency::Reason::SUPPLEMENTARY_ANGLES, {}, IDependency::UsefulnessLevel::LOW);
+      for (size_t pointPos = 0; pointPos < points.size(); pointPos++) {
+        if (std::find(justSelected.begin(), justSelected.end(), points.at(pointPos).getId()) == justSelected.end()) {
+          sumOfNewDependencies += dependenciesBank.addEquation(
+              DependenciesBank::getAngleMeasureVariable(
+                  shapesBank.getPoint(firstPoint),
+                  shapesBank.getPoint(vertexPoint),
+                  points.at(pointPos),
+                  true) +
+              DependenciesBank::getAngleMeasureVariable(
+                  points.at(pointPos),
+                  shapesBank.getPoint(vertexPoint),
+                  shapesBank.getPoint(lastPoint),
+                  false),
+              Integer(MathHelper::STRAIGHT_ANGLE_VALUE),
+              IDependency::Reason::SUPPLEMENTARY_ANGLES, {}, IDependency::ImportanceLevel::LOW
+              );
         }
       }
     }
   }
 
-  return result;
+  return sumOfNewDependencies;
 }
 
 unsigned int Expert::findAlternateAngles() {
-  unsigned int result = 0;
+  unsigned int sumOfNewDependencies{0};
 
   const std::vector<std::shared_ptr<LinesDependency>> parallelLines =
       dependenciesBank.getLinesDependencies(LinesDependencies::PARALLEL_LINES);
 
-  for (const auto& parallelLinesPair : parallelLines) {
-    const unsigned int line1Id = parallelLinesPair->getFirstElement().getId();
-    const unsigned int line2Id = parallelLinesPair->getSecondElement().getId();
+  const std::vector<LineModel>& lines = shapesBank.getLinesVector();
+  const std::vector<PointModel>& points = shapesBank.getPointsVector();
+
+  for (size_t index1 = 0; index1 < parallelLines.size(); index1++) {
+    const std::string& line1Id = parallelLines[index1]->getFirstObject().getId();
+    const std::string& line2Id = parallelLines[index1]->getSecondObject().getId();
 
     if (line1Id == line2Id) {
       continue;
     }
 
-    for (unsigned int otherLineId = 0; otherLineId < linesNumber; otherLineId++) {
+    for (size_t index2 = 0; index2 < lines.size(); index2++) {
+      const std::string& otherLineId = lines.at(index2).getId();
       if (line1Id == otherLineId || line2Id == otherLineId) {
         continue;
       }
 
-      if (intersectionPointsOfLines[line1Id][otherLineId].empty() || intersectionPointsOfLines[line2Id][otherLineId].empty()) {
+      if (intersectionPointsOfLines[shapesBank.getLinePositionInVector(line1Id)][shapesBank.getLinePositionInVector(otherLineId)].empty() ||
+          intersectionPointsOfLines[shapesBank.getLinePositionInVector(line2Id)][shapesBank.getLinePositionInVector(otherLineId)].empty()) {
         continue;
       }
 
-      std::vector<unsigned int> parallel1Points = shapesBank.getLine(line1Id).getIncludedPoints();
-      std::vector<unsigned int> parallel2Points = shapesBank.getLine(line2Id).getIncludedPoints();
-      std::vector<unsigned int> transversalPoints = shapesBank.getLine(otherLineId).getIncludedPoints();
+      const std::vector<std::string>& parallel1Points = shapesBank.getLine(line1Id).getIncludedPoints();
+      const std::vector<std::string>& parallel2Points = shapesBank.getLine(line2Id).getIncludedPoints();
+      const std::vector<std::string>& transversalPoints = shapesBank.getLine(otherLineId).getIncludedPoints();
 
       if (parallel1Points.size() < 2 || parallel2Points.size() < 2 || transversalPoints.size() < 2) {
         continue;
       }
 
-      const unsigned int vertex1Id = intersectionPointsOfLines[line1Id][otherLineId][0];
-      const unsigned int vertex2Id = intersectionPointsOfLines[line2Id][otherLineId][0];
+      const std::string& vertex1Id = points.at(intersectionPointsOfLines[shapesBank.getLinePositionInVector(line1Id)]
+                                                                        [shapesBank.getLinePositionInVector(otherLineId)][0]).getId();
+      const std::string& vertex2Id = points.at(intersectionPointsOfLines[shapesBank.getLinePositionInVector(line2Id)]
+                                                                        [shapesBank.getLinePositionInVector(otherLineId)][0]).getId();
 
-      const unsigned int vertex1IndexParallel1 =
-          distance(parallel1Points.begin(), find(parallel1Points.begin(), parallel1Points.end(), vertex1Id));
-      const unsigned int vertex2IndexParallel2 =
-          distance(parallel2Points.begin(), find(parallel2Points.begin(), parallel2Points.end(), vertex2Id));
-      const unsigned int vertex1IndexTransversal =
-          distance(transversalPoints.begin(), find(transversalPoints.begin(), transversalPoints.end(), vertex1Id));
-      const unsigned int vertex2IndexTransversal =
-          distance(transversalPoints.begin(), find(transversalPoints.begin(), transversalPoints.end(), vertex2Id));
+      const size_t vertex1IndexParallel1 =
+          distance(parallel1Points.begin(), std::find(parallel1Points.begin(), parallel1Points.end(), vertex1Id));
+      const size_t vertex2IndexParallel2 =
+          distance(parallel2Points.begin(), std::find(parallel2Points.begin(), parallel2Points.end(), vertex2Id));
+      const size_t vertex1IndexTransversal =
+          distance(transversalPoints.begin(), std::find(transversalPoints.begin(), transversalPoints.end(), vertex1Id));
+      const size_t vertex2IndexTransversal =
+          distance(transversalPoints.begin(), std::find(transversalPoints.begin(), transversalPoints.end(), vertex2Id));
 
-      const unsigned int topReferenceVertex =
+      const std::string& topReferenceVertex =
           vertex1IndexTransversal < vertex2IndexTransversal ? transversalPoints.front() : transversalPoints.back();
-      const unsigned int bottomReferenceVertex =
+      const std::string& bottomReferenceVertex =
           vertex2IndexTransversal < vertex1IndexTransversal ? transversalPoints.front() : transversalPoints.back();
 
       const double topDistance = MathHelper::getDistance(shapesBank.getPoint(topReferenceVertex).getCoordinates(),
@@ -145,11 +200,11 @@ unsigned int Expert::findAlternateAngles() {
       const double bottomDistance = MathHelper::getDistance(shapesBank.getPoint(bottomReferenceVertex).getCoordinates(),
                                                             shapesBank.getPoint(vertex2Id).getCoordinates());
 
-      std::vector<unsigned int> transversalPointsTop = {topReferenceVertex};
-      std::vector<unsigned int> transversalPointsBottom = {bottomReferenceVertex};
-      std::vector<unsigned int> transversalPointsMiddle = {};
+      std::vector<std::string> transversalPointsTop = {topReferenceVertex};
+      std::vector<std::string> transversalPointsBottom = {bottomReferenceVertex};
+      std::vector<std::string> transversalPointsMiddle = {};
 
-      for (unsigned int pointIdIndex = 1; pointIdIndex < (transversalPoints.size() - 1); pointIdIndex++) {
+      for (size_t pointIdIndex = 1; pointIdIndex < (transversalPoints.size() - 1); pointIdIndex++) {
         if (MathHelper::getDistance(shapesBank.getPoint(transversalPointsTop.front()).getCoordinates(),
                                     shapesBank.getPoint(transversalPoints[pointIdIndex]).getCoordinates()) < topDistance) {
           transversalPointsTop.push_back(transversalPoints[pointIdIndex]);
@@ -173,16 +228,16 @@ unsigned int Expert::findAlternateAngles() {
         transversalPointsMiddle.insert(transversalPointsMiddle.begin(), vertex2Id);
       }
 
-      std::vector<unsigned int> transversalPointsTopMiddle = {};
-      std::vector<unsigned int> transversalPointsBottomMiddle = {};
+      std::vector<std::string> transversalPointsTopMiddle = {};
+      std::vector<std::string> transversalPointsBottomMiddle = {};
 
-      for (unsigned int pointIdIndex = 0; pointIdIndex < transversalPointsTop.size(); pointIdIndex++) {
+      for (size_t pointIdIndex = 0; pointIdIndex < transversalPointsTop.size(); pointIdIndex++) {
         transversalPointsTopMiddle.push_back(transversalPointsTop[pointIdIndex]);
       }
-      for (unsigned int pointIdIndex = 0; pointIdIndex < transversalPointsBottom.size(); pointIdIndex++) {
+      for (size_t pointIdIndex = 0; pointIdIndex < transversalPointsBottom.size(); pointIdIndex++) {
         transversalPointsBottomMiddle.push_back(transversalPointsBottom[pointIdIndex]);
       }
-      for (unsigned int pointIdIndex = 0; pointIdIndex < transversalPointsMiddle.size(); pointIdIndex++) {
+      for (size_t pointIdIndex = 0; pointIdIndex < transversalPointsMiddle.size(); pointIdIndex++) {
         transversalPointsTopMiddle.push_back(transversalPointsMiddle[pointIdIndex]);
         transversalPointsBottomMiddle.push_back(transversalPointsMiddle[pointIdIndex]);
       }
@@ -192,10 +247,10 @@ unsigned int Expert::findAlternateAngles() {
       transversalPointsBottomMiddle.erase(
           std::find(transversalPointsBottomMiddle.begin(), transversalPointsBottomMiddle.end(), vertex1Id));
 
-      std::vector<unsigned int> leftTopPoints = {};
-      std::vector<unsigned int> rightTopPoints = {};
-      std::vector<unsigned int> leftBottomPoints = {};
-      std::vector<unsigned int> rightBottomPoints = {};
+      std::vector<std::string> leftTopPoints = {};
+      std::vector<std::string> rightTopPoints = {};
+      std::vector<std::string> leftBottomPoints = {};
+      std::vector<std::string> rightBottomPoints = {};
 
       double cosAngle1 = 0.0;
       if (vertex1Id != parallel1Points.front()) {
@@ -213,18 +268,18 @@ unsigned int Expert::findAlternateAngles() {
                                                                // problem: cannot conclude points orientation
       }
       else if (cosAngle1 > 0.0) {  // acute angle
-        for (unsigned int pointIdIndex = 0; pointIdIndex < vertex1IndexParallel1; pointIdIndex++) {
+        for (size_t pointIdIndex = 0; pointIdIndex < vertex1IndexParallel1; pointIdIndex++) {
           leftTopPoints.push_back(parallel1Points[pointIdIndex]);
         }
-        for (unsigned int pointIdIndex = vertex1IndexParallel1 + 1; pointIdIndex < parallel1Points.size(); pointIdIndex++) {
+        for (size_t pointIdIndex = vertex1IndexParallel1 + 1; pointIdIndex < parallel1Points.size(); pointIdIndex++) {
           rightTopPoints.push_back(parallel1Points[pointIdIndex]);
         }
       }
       else {  // obtuse angle
-        for (unsigned int pointIdIndex = 0; pointIdIndex < vertex1IndexParallel1; pointIdIndex++) {
+        for (size_t pointIdIndex = 0; pointIdIndex < vertex1IndexParallel1; pointIdIndex++) {
           rightTopPoints.push_back(parallel1Points[pointIdIndex]);
         }
-        for (unsigned int pointIdIndex = vertex1IndexParallel1 + 1; pointIdIndex < parallel1Points.size(); pointIdIndex++) {
+        for (size_t pointIdIndex = vertex1IndexParallel1 + 1; pointIdIndex < parallel1Points.size(); pointIdIndex++) {
           leftTopPoints.push_back(parallel1Points[pointIdIndex]);
         }
       }
@@ -245,30 +300,32 @@ unsigned int Expert::findAlternateAngles() {
                                                                // problem: cannot conclude points orientation
       }
       else if (cosAngle2 > 0.0) {  // acute angle
-        for (unsigned int pointIdIndex = 0; pointIdIndex < vertex2IndexParallel2; pointIdIndex++) {
+        for (size_t pointIdIndex = 0; pointIdIndex < vertex2IndexParallel2; pointIdIndex++) {
           rightBottomPoints.push_back(parallel2Points[pointIdIndex]);
         }
-        for (unsigned int pointIdIndex = vertex2IndexParallel2 + 1; pointIdIndex < parallel2Points.size(); pointIdIndex++) {
+        for (size_t pointIdIndex = vertex2IndexParallel2 + 1; pointIdIndex < parallel2Points.size(); pointIdIndex++) {
           leftBottomPoints.push_back(parallel2Points[pointIdIndex]);
         }
       }
       else {  // obtuse angle
-        for (unsigned int pointIdIndex = 0; pointIdIndex < vertex2IndexParallel2; pointIdIndex++) {
+        for (size_t pointIdIndex = 0; pointIdIndex < vertex2IndexParallel2; pointIdIndex++) {
           leftBottomPoints.push_back(parallel2Points[pointIdIndex]);
         }
-        for (unsigned int pointIdIndex = vertex2IndexParallel2 + 1; pointIdIndex < parallel2Points.size(); pointIdIndex++) {
+        for (size_t pointIdIndex = vertex2IndexParallel2 + 1; pointIdIndex < parallel2Points.size(); pointIdIndex++) {
           rightBottomPoints.push_back(parallel2Points[pointIdIndex]);
         }
       }
 
-      for (unsigned int point1Id = 0; point1Id < leftTopPoints.size(); point1Id++) {
-        for (unsigned int point2Id = 0; point2Id < rightBottomPoints.size(); point2Id++) {
-          for (unsigned int point3Id = 0; point3Id < transversalPointsBottomMiddle.size(); point3Id++) {
-            for (unsigned int point4Id = 0; point4Id < transversalPointsTopMiddle.size(); point4Id++) {
-              result +=
+      for (size_t point1Id = 0; point1Id < leftTopPoints.size(); point1Id++) {
+        for (size_t point2Id = 0; point2Id < rightBottomPoints.size(); point2Id++) {
+          for (size_t point3Id = 0; point3Id < transversalPointsBottomMiddle.size(); point3Id++) {
+            for (size_t point4Id = 0; point4Id < transversalPointsTopMiddle.size(); point4Id++) {
+              sumOfNewDependencies +=
                   setEqualAngles(leftTopPoints[point1Id], vertex1Id, transversalPointsBottomMiddle[point3Id],
-                                 rightBottomPoints[point2Id], vertex2Id, transversalPointsTopMiddle[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::ALTERNATE_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+                                 rightBottomPoints[point2Id], vertex2Id, transversalPointsTopMiddle[point4Id],
+                                 AngleType::CONVEX,
+                                 IDependency::Reason::ALTERNATE_ANGLES, {},
+                                 IDependency::ImportanceLevel::MEDIUM);
 
               goto exit1;
             }
@@ -278,14 +335,16 @@ unsigned int Expert::findAlternateAngles() {
 
     exit1 : {}
 
-      for (unsigned int point1Id = 0; point1Id < rightTopPoints.size(); point1Id++) {
-        for (unsigned int point2Id = 0; point2Id < leftBottomPoints.size(); point2Id++) {
-          for (unsigned int point3Id = 0; point3Id < transversalPointsBottomMiddle.size(); point3Id++) {
-            for (unsigned int point4Id = 0; point4Id < transversalPointsTopMiddle.size(); point4Id++) {
-              result +=
+      for (size_t point1Id = 0; point1Id < rightTopPoints.size(); point1Id++) {
+        for (size_t point2Id = 0; point2Id < leftBottomPoints.size(); point2Id++) {
+          for (size_t point3Id = 0; point3Id < transversalPointsBottomMiddle.size(); point3Id++) {
+            for (size_t point4Id = 0; point4Id < transversalPointsTopMiddle.size(); point4Id++) {
+              sumOfNewDependencies +=
                   setEqualAngles(rightTopPoints[point1Id], vertex1Id, transversalPointsBottomMiddle[point3Id],
-                                 leftBottomPoints[point2Id], vertex2Id, transversalPointsTopMiddle[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::ALTERNATE_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+                                 leftBottomPoints[point2Id], vertex2Id, transversalPointsTopMiddle[point4Id],
+                                 AngleType::CONVEX,
+                                 IDependency::Reason::ALTERNATE_ANGLES, {},
+                                 IDependency::ImportanceLevel::MEDIUM);
 
               goto exit2;
             }
@@ -295,14 +354,16 @@ unsigned int Expert::findAlternateAngles() {
 
     exit2 : {}
 
-      for (unsigned int point1Id = 0; point1Id < leftTopPoints.size(); point1Id++) {
-        for (unsigned int point2Id = 0; point2Id < rightBottomPoints.size(); point2Id++) {
-          for (unsigned int point3Id = 0; point3Id < transversalPointsTop.size(); point3Id++) {
-            for (unsigned int point4Id = 0; point4Id < transversalPointsBottom.size(); point4Id++) {
-              result +=
-                  setEqualAngles(leftTopPoints[point1Id], vertex1Id, transversalPointsTop[point3Id], rightBottomPoints[point2Id],
-                                 vertex2Id, transversalPointsBottom[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::ALTERNATE_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+      for (size_t point1Id = 0; point1Id < leftTopPoints.size(); point1Id++) {
+        for (size_t point2Id = 0; point2Id < rightBottomPoints.size(); point2Id++) {
+          for (size_t point3Id = 0; point3Id < transversalPointsTop.size(); point3Id++) {
+            for (size_t point4Id = 0; point4Id < transversalPointsBottom.size(); point4Id++) {
+              sumOfNewDependencies +=
+                  setEqualAngles(leftTopPoints[point1Id], vertex1Id, transversalPointsTop[point3Id],
+                                 rightBottomPoints[point2Id], vertex2Id, transversalPointsBottom[point4Id],
+                                 AngleType::CONVEX,
+                                 IDependency::Reason::ALTERNATE_ANGLES, {},
+                                 IDependency::ImportanceLevel::MEDIUM);
 
               goto exit3;
             }
@@ -312,14 +373,16 @@ unsigned int Expert::findAlternateAngles() {
 
     exit3 : {}
 
-      for (unsigned int point1Id = 0; point1Id < rightTopPoints.size(); point1Id++) {
-        for (unsigned int point2Id = 0; point2Id < leftBottomPoints.size(); point2Id++) {
-          for (unsigned int point3Id = 0; point3Id < transversalPointsTop.size(); point3Id++) {
-            for (unsigned int point4Id = 0; point4Id < transversalPointsBottom.size(); point4Id++) {
-              result +=
-                  setEqualAngles(rightTopPoints[point1Id], vertex1Id, transversalPointsTop[point3Id], leftBottomPoints[point2Id],
-                                 vertex2Id, transversalPointsBottom[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::ALTERNATE_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+      for (size_t point1Id = 0; point1Id < rightTopPoints.size(); point1Id++) {
+        for (size_t point2Id = 0; point2Id < leftBottomPoints.size(); point2Id++) {
+          for (size_t point3Id = 0; point3Id < transversalPointsTop.size(); point3Id++) {
+            for (size_t point4Id = 0; point4Id < transversalPointsBottom.size(); point4Id++) {
+              sumOfNewDependencies +=
+                  setEqualAngles(rightTopPoints[point1Id], vertex1Id, transversalPointsTop[point3Id], 
+                                 leftBottomPoints[point2Id], vertex2Id, transversalPointsBottom[point4Id], 
+                                 AngleType::CONVEX,
+                                 IDependency::Reason::ALTERNATE_ANGLES, {}, 
+                                 IDependency::ImportanceLevel::MEDIUM);
 
               goto exit4;
             }
@@ -331,55 +394,63 @@ unsigned int Expert::findAlternateAngles() {
     }
   }
 
-  return result;
+  return sumOfNewDependencies;
 }
 
 unsigned int Expert::findCorrespondingAngles() {
-  unsigned int result = 0;
+  unsigned int sumOfNewDependencies{0};
 
   const std::vector<std::shared_ptr<LinesDependency>> parallelLines =
       dependenciesBank.getLinesDependencies(LinesDependencies::PARALLEL_LINES);
 
-  for (const auto& parallelLinesPair : parallelLines) {
-    const unsigned int line1Id = parallelLinesPair->getFirstElement().getId();
-    const unsigned int line2Id = parallelLinesPair->getSecondElement().getId();
+  const std::vector<LineModel>& lines = shapesBank.getLinesVector();
+  const std::vector<PointModel>& points = shapesBank.getPointsVector();
+
+  for (size_t index1 = 0; index1 < parallelLines.size(); index1++) {
+    const std::string& line1Id = parallelLines[index1]->getFirstObject().getId();
+    const std::string& line2Id = parallelLines[index1]->getSecondObject().getId();
 
     if (line1Id == line2Id) {
       continue;
     }
 
-    for (unsigned int otherLineId = 0; otherLineId < linesNumber; otherLineId++) {
+    for (size_t index2 = 0; index2 < lines.size(); index2++) {
+      const std::string& otherLineId = lines[index2].getId();
+      
       if (line1Id == otherLineId || line2Id == otherLineId) {
         continue;
       }
 
-      if (intersectionPointsOfLines[line1Id][otherLineId].empty() || intersectionPointsOfLines[line2Id][otherLineId].empty()) {
+      if (intersectionPointsOfLines[shapesBank.getLinePositionInVector(line1Id)][shapesBank.getLinePositionInVector(otherLineId)].empty() ||
+          intersectionPointsOfLines[shapesBank.getLinePositionInVector(line2Id)][shapesBank.getLinePositionInVector(otherLineId)].empty()) {
         continue;
       }
 
-      std::vector<unsigned int> parallel1Points = shapesBank.getLine(line1Id).getIncludedPoints();
-      std::vector<unsigned int> parallel2Points = shapesBank.getLine(line2Id).getIncludedPoints();
-      std::vector<unsigned int> transversalPoints = shapesBank.getLine(otherLineId).getIncludedPoints();
+      std::vector<std::string> parallel1Points = shapesBank.getLine(line1Id).getIncludedPoints();
+      std::vector<std::string> parallel2Points = shapesBank.getLine(line2Id).getIncludedPoints();
+      std::vector<std::string> transversalPoints = shapesBank.getLine(otherLineId).getIncludedPoints();
 
       if (parallel1Points.size() < 2 || parallel2Points.size() < 2 || transversalPoints.size() < 2) {
         continue;
       }
 
-      const unsigned int vertex1Id = intersectionPointsOfLines[line1Id][otherLineId][0];
-      const unsigned int vertex2Id = intersectionPointsOfLines[line2Id][otherLineId][0];
+      const std::string& vertex1Id = points.at(intersectionPointsOfLines[shapesBank.getLinePositionInVector(line1Id)]
+                                                                        [shapesBank.getLinePositionInVector(otherLineId)][0]).getId();
+      const std::string& vertex2Id = points.at(intersectionPointsOfLines[shapesBank.getLinePositionInVector(line2Id)]
+                                                                        [shapesBank.getLinePositionInVector(otherLineId)][0]).getId();
 
-      const unsigned int vertex1IndexParallel1 =
-          distance(parallel1Points.begin(), find(parallel1Points.begin(), parallel1Points.end(), vertex1Id));
-      const unsigned int vertex2IndexParallel2 =
-          distance(parallel2Points.begin(), find(parallel2Points.begin(), parallel2Points.end(), vertex2Id));
-      const unsigned int vertex1IndexTransversal =
-          distance(transversalPoints.begin(), find(transversalPoints.begin(), transversalPoints.end(), vertex1Id));
-      const unsigned int vertex2IndexTransversal =
-          distance(transversalPoints.begin(), find(transversalPoints.begin(), transversalPoints.end(), vertex2Id));
+      const size_t vertex1IndexParallel1 =
+          distance(parallel1Points.begin(), std::find(parallel1Points.begin(), parallel1Points.end(), vertex1Id));
+      const size_t vertex2IndexParallel2 =
+          distance(parallel2Points.begin(), std::find(parallel2Points.begin(), parallel2Points.end(), vertex2Id));
+      const size_t vertex1IndexTransversal =
+          distance(transversalPoints.begin(), std::find(transversalPoints.begin(), transversalPoints.end(), vertex1Id));
+      const size_t vertex2IndexTransversal =
+          distance(transversalPoints.begin(), std::find(transversalPoints.begin(), transversalPoints.end(), vertex2Id));
 
-      const unsigned int topReferenceVertex =
+      const std::string& topReferenceVertex =
           vertex1IndexTransversal < vertex2IndexTransversal ? transversalPoints.front() : transversalPoints.back();
-      const unsigned int bottomReferenceVertex =
+      const std::string& bottomReferenceVertex =
           vertex2IndexTransversal < vertex1IndexTransversal ? transversalPoints.front() : transversalPoints.back();
 
       const double topDistance = MathHelper::getDistance(shapesBank.getPoint(topReferenceVertex).getCoordinates(),
@@ -388,11 +459,11 @@ unsigned int Expert::findCorrespondingAngles() {
       const double bottomDistance = MathHelper::getDistance(shapesBank.getPoint(bottomReferenceVertex).getCoordinates(),
                                                             shapesBank.getPoint(vertex2Id).getCoordinates());
 
-      std::vector<unsigned int> transversalPointsTop = {topReferenceVertex};
-      std::vector<unsigned int> transversalPointsBottom = {bottomReferenceVertex};
-      std::vector<unsigned int> transversalPointsMiddle = {};
+      std::vector<std::string> transversalPointsTop = {topReferenceVertex};
+      std::vector<std::string> transversalPointsBottom = {bottomReferenceVertex};
+      std::vector<std::string> transversalPointsMiddle = {};
 
-      for (unsigned int pointIdIndex = 1; pointIdIndex < (transversalPoints.size() - 1); pointIdIndex++) {
+      for (size_t pointIdIndex = 1; pointIdIndex < (transversalPoints.size() - 1); pointIdIndex++) {
         if (MathHelper::getDistance(shapesBank.getPoint(transversalPointsTop.front()).getCoordinates(),
                                     shapesBank.getPoint(transversalPoints[pointIdIndex]).getCoordinates()) < topDistance) {
           transversalPointsTop.push_back(transversalPoints[pointIdIndex]);
@@ -416,16 +487,16 @@ unsigned int Expert::findCorrespondingAngles() {
         transversalPointsMiddle.insert(transversalPointsMiddle.begin(), vertex2Id);
       }
 
-      std::vector<unsigned int> transversalPointsTopMiddle = {};
-      std::vector<unsigned int> transversalPointsBottomMiddle = {};
+      std::vector<std::string> transversalPointsTopMiddle = {};
+      std::vector<std::string> transversalPointsBottomMiddle = {};
 
-      for (unsigned int pointIdIndex = 0; pointIdIndex < transversalPointsTop.size(); pointIdIndex++) {
+      for (size_t pointIdIndex = 0; pointIdIndex < transversalPointsTop.size(); pointIdIndex++) {
         transversalPointsTopMiddle.push_back(transversalPointsTop[pointIdIndex]);
       }
-      for (unsigned int pointIdIndex = 0; pointIdIndex < transversalPointsBottom.size(); pointIdIndex++) {
+      for (size_t pointIdIndex = 0; pointIdIndex < transversalPointsBottom.size(); pointIdIndex++) {
         transversalPointsBottomMiddle.push_back(transversalPointsBottom[pointIdIndex]);
       }
-      for (unsigned int pointIdIndex = 0; pointIdIndex < transversalPointsMiddle.size(); pointIdIndex++) {
+      for (size_t pointIdIndex = 0; pointIdIndex < transversalPointsMiddle.size(); pointIdIndex++) {
         transversalPointsTopMiddle.push_back(transversalPointsMiddle[pointIdIndex]);
         transversalPointsBottomMiddle.push_back(transversalPointsMiddle[pointIdIndex]);
       }
@@ -435,10 +506,10 @@ unsigned int Expert::findCorrespondingAngles() {
       transversalPointsBottomMiddle.erase(
           std::find(transversalPointsBottomMiddle.begin(), transversalPointsBottomMiddle.end(), vertex1Id));
 
-      std::vector<unsigned int> leftTopPoints = {};
-      std::vector<unsigned int> rightTopPoints = {};
-      std::vector<unsigned int> leftBottomPoints = {};
-      std::vector<unsigned int> rightBottomPoints = {};
+      std::vector<std::string> leftTopPoints = {};
+      std::vector<std::string> rightTopPoints = {};
+      std::vector<std::string> leftBottomPoints = {};
+      std::vector<std::string> rightBottomPoints = {};
 
       double cosAngle1 = 0.0;
       if (vertex1Id != parallel1Points.front()) {
@@ -456,18 +527,18 @@ unsigned int Expert::findCorrespondingAngles() {
                                                                // problem: cannot conclude points orientation
       }
       else if (cosAngle1 > 0.0) {  // acute angle
-        for (unsigned int pointIdIndex = 0; pointIdIndex < vertex1IndexParallel1; pointIdIndex++) {
+        for (size_t pointIdIndex = 0; pointIdIndex < vertex1IndexParallel1; pointIdIndex++) {
           leftTopPoints.push_back(parallel1Points[pointIdIndex]);
         }
-        for (unsigned int pointIdIndex = vertex1IndexParallel1 + 1; pointIdIndex < parallel1Points.size(); pointIdIndex++) {
+        for (size_t pointIdIndex = vertex1IndexParallel1 + 1; pointIdIndex < parallel1Points.size(); pointIdIndex++) {
           rightTopPoints.push_back(parallel1Points[pointIdIndex]);
         }
       }
       else {  // obtuse angle
-        for (unsigned int pointIdIndex = 0; pointIdIndex < vertex1IndexParallel1; pointIdIndex++) {
+        for (size_t pointIdIndex = 0; pointIdIndex < vertex1IndexParallel1; pointIdIndex++) {
           rightTopPoints.push_back(parallel1Points[pointIdIndex]);
         }
-        for (unsigned int pointIdIndex = vertex1IndexParallel1 + 1; pointIdIndex < parallel1Points.size(); pointIdIndex++) {
+        for (size_t pointIdIndex = vertex1IndexParallel1 + 1; pointIdIndex < parallel1Points.size(); pointIdIndex++) {
           leftTopPoints.push_back(parallel1Points[pointIdIndex]);
         }
       }
@@ -488,30 +559,32 @@ unsigned int Expert::findCorrespondingAngles() {
                                                                // problem: cannot conclude points orientation
       }
       else if (cosAngle2 > 0.0) {  // acute angle
-        for (unsigned int pointIdIndex = 0; pointIdIndex < vertex2IndexParallel2; pointIdIndex++) {
+        for (size_t pointIdIndex = 0; pointIdIndex < vertex2IndexParallel2; pointIdIndex++) {
           rightBottomPoints.push_back(parallel2Points[pointIdIndex]);
         }
-        for (unsigned int pointIdIndex = vertex2IndexParallel2 + 1; pointIdIndex < parallel2Points.size(); pointIdIndex++) {
+        for (size_t pointIdIndex = vertex2IndexParallel2 + 1; pointIdIndex < parallel2Points.size(); pointIdIndex++) {
           leftBottomPoints.push_back(parallel2Points[pointIdIndex]);
         }
       }
       else {  // obtuse angle
-        for (unsigned int pointIdIndex = 0; pointIdIndex < vertex2IndexParallel2; pointIdIndex++) {
+        for (size_t pointIdIndex = 0; pointIdIndex < vertex2IndexParallel2; pointIdIndex++) {
           leftBottomPoints.push_back(parallel2Points[pointIdIndex]);
         }
-        for (unsigned int pointIdIndex = vertex2IndexParallel2 + 1; pointIdIndex < parallel2Points.size(); pointIdIndex++) {
+        for (size_t pointIdIndex = vertex2IndexParallel2 + 1; pointIdIndex < parallel2Points.size(); pointIdIndex++) {
           rightBottomPoints.push_back(parallel2Points[pointIdIndex]);
         }
       }
 
-      for (unsigned int point1Id = 0; point1Id < leftTopPoints.size(); point1Id++) {
-        for (unsigned int point2Id = 0; point2Id < leftBottomPoints.size(); point2Id++) {
-          for (unsigned int point3Id = 0; point3Id < transversalPointsTop.size(); point3Id++) {
-            for (unsigned int point4Id = 0; point4Id < transversalPointsTopMiddle.size(); point4Id++) {
-              result +=
-                  setEqualAngles(leftTopPoints[point1Id], vertex1Id, transversalPointsTop[point3Id], leftBottomPoints[point2Id],
-                                 vertex2Id, transversalPointsTopMiddle[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::CORRESPONDING_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+      for (size_t point1Id = 0; point1Id < leftTopPoints.size(); point1Id++) {
+        for (size_t point2Id = 0; point2Id < leftBottomPoints.size(); point2Id++) {
+          for (size_t point3Id = 0; point3Id < transversalPointsTop.size(); point3Id++) {
+            for (size_t point4Id = 0; point4Id < transversalPointsTopMiddle.size(); point4Id++) {
+              sumOfNewDependencies +=
+                  setEqualAngles(leftTopPoints[point1Id], vertex1Id, transversalPointsTop[point3Id],
+                                 leftBottomPoints[point2Id],vertex2Id, transversalPointsTopMiddle[point4Id],
+                                 AngleType::CONVEX,
+                                 IDependency::Reason::CORRESPONDING_ANGLES, {},
+                                 IDependency::ImportanceLevel::MEDIUM);
 
               goto exit1;
             }
@@ -521,14 +594,16 @@ unsigned int Expert::findCorrespondingAngles() {
 
     exit1 : {}
 
-      for (unsigned int point1Id = 0; point1Id < rightTopPoints.size(); point1Id++) {
-        for (unsigned int point2Id = 0; point2Id < rightBottomPoints.size(); point2Id++) {
-          for (unsigned int point3Id = 0; point3Id < transversalPointsTop.size(); point3Id++) {
-            for (unsigned int point4Id = 0; point4Id < transversalPointsTopMiddle.size(); point4Id++) {
-              result +=
-                  setEqualAngles(rightTopPoints[point1Id], vertex1Id, transversalPointsTop[point3Id], rightBottomPoints[point2Id],
-                                 vertex2Id, transversalPointsTopMiddle[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::CORRESPONDING_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+      for (size_t point1Id = 0; point1Id < rightTopPoints.size(); point1Id++) {
+        for (size_t point2Id = 0; point2Id < rightBottomPoints.size(); point2Id++) {
+          for (size_t point3Id = 0; point3Id < transversalPointsTop.size(); point3Id++) {
+            for (size_t point4Id = 0; point4Id < transversalPointsTopMiddle.size(); point4Id++) {
+              sumOfNewDependencies +=
+                  setEqualAngles(rightTopPoints[point1Id], vertex1Id, transversalPointsTop[point3Id],
+                                 rightBottomPoints[point2Id],vertex2Id, transversalPointsTopMiddle[point4Id],
+                                 AngleType::CONVEX,
+                                 IDependency::Reason::CORRESPONDING_ANGLES, {},
+                                 IDependency::ImportanceLevel::MEDIUM);
 
               goto exit2;
             }
@@ -538,14 +613,16 @@ unsigned int Expert::findCorrespondingAngles() {
 
     exit2 : {}
 
-      for (unsigned int point1Id = 0; point1Id < leftTopPoints.size(); point1Id++) {
-        for (unsigned int point2Id = 0; point2Id < leftBottomPoints.size(); point2Id++) {
-          for (unsigned int point3Id = 0; point3Id < transversalPointsBottomMiddle.size(); point3Id++) {
-            for (unsigned int point4Id = 0; point4Id < transversalPointsBottom.size(); point4Id++) {
-              result +=
+      for (size_t point1Id = 0; point1Id < leftTopPoints.size(); point1Id++) {
+        for (size_t point2Id = 0; point2Id < leftBottomPoints.size(); point2Id++) {
+          for (size_t point3Id = 0; point3Id < transversalPointsBottomMiddle.size(); point3Id++) {
+            for (size_t point4Id = 0; point4Id < transversalPointsBottom.size(); point4Id++) {
+              sumOfNewDependencies +=
                   setEqualAngles(leftTopPoints[point1Id], vertex1Id, transversalPointsBottomMiddle[point3Id],
-                                 leftBottomPoints[point2Id], vertex2Id, transversalPointsBottom[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::CORRESPONDING_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+                                 leftBottomPoints[point2Id], vertex2Id, transversalPointsBottom[point4Id],
+                                 AngleType::CONVEX,
+                                 IDependency::Reason::CORRESPONDING_ANGLES, {},
+                                 IDependency::ImportanceLevel::MEDIUM);
 
               goto exit3;
             }
@@ -555,14 +632,16 @@ unsigned int Expert::findCorrespondingAngles() {
 
     exit3 : {}
 
-      for (unsigned int point1Id = 0; point1Id < rightTopPoints.size(); point1Id++) {
-        for (unsigned int point2Id = 0; point2Id < rightBottomPoints.size(); point2Id++) {
-          for (unsigned int point3Id = 0; point3Id < transversalPointsBottomMiddle.size(); point3Id++) {
-            for (unsigned int point4Id = 0; point4Id < transversalPointsBottom.size(); point4Id++) {
-              result +=
+      for (size_t point1Id = 0; point1Id < rightTopPoints.size(); point1Id++) {
+        for (size_t point2Id = 0; point2Id < rightBottomPoints.size(); point2Id++) {
+          for (size_t point3Id = 0; point3Id < transversalPointsBottomMiddle.size(); point3Id++) {
+            for (size_t point4Id = 0; point4Id < transversalPointsBottom.size(); point4Id++) {
+              sumOfNewDependencies +=
                   setEqualAngles(rightTopPoints[point1Id], vertex1Id, transversalPointsBottomMiddle[point3Id],
-                                 rightBottomPoints[point2Id], vertex2Id, transversalPointsBottom[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::CORRESPONDING_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+                                 rightBottomPoints[point2Id], vertex2Id, transversalPointsBottom[point4Id],
+                                 AngleType::CONVEX,
+                                 IDependency::Reason::CORRESPONDING_ANGLES, {},
+                                 IDependency::ImportanceLevel::MEDIUM);
 
               goto exit4;
             }
@@ -574,7 +653,6 @@ unsigned int Expert::findCorrespondingAngles() {
     }
   }
 
-  return result;
+  return sumOfNewDependencies;
 }
 }  // namespace expert
-*/

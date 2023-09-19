@@ -10,12 +10,24 @@ typedef expertBackground::Rat Rational;
 typedef expertBackground::Var Variable;
 typedef expertBackground::Const Constant;
 
+typedef expertBackground::ShapesBank ShapesBank;
+typedef expertBackground::DependenciesBank DependenciesBank;
+
 typedef expertBackground::MathHelper MathHelper;
-typedef expertBackground::IDependency IDependency;
+
+typedef expertBackground::PointModel PointModel;
+typedef expertBackground::LineModel LineModel;
+typedef expertBackground::CircleModel CircleModel;
+typedef expertBackground::PolygonModel PolygonModel;
+typedef expertBackground::AngleModel AngleModel;
+typedef expertBackground::ExpressionModel ExpressionModel;
+typedef expertBackground::IdentifierModel IdentifierModel;
 
 typedef expertBackground::LineModel::LineType LineType;
 typedef expertBackground::AngleModel::AngleType AngleType;
 typedef expertBackground::PolygonModel::PolygonType PolygonType;
+
+typedef expertBackground::IDependency IDependency;
 
 typedef expertBackground::EquationDependency EquationDependency;
 typedef expertBackground::DependenciesBank::EquationDependencies EquationDependencies;
@@ -46,12 +58,14 @@ typedef expertBackground::DependenciesBank::PolygonPointsPairDependencies Polygo
 typedef expertBackground::PolygonExpressionDependency PolygonExpressionDependency;
 typedef expertBackground::DependenciesBank::PolygonExpressionDependencies PolygonExpressionDependencies;
 
+
 class Expert {
  private:
   static constexpr int VERTICAL_LINE_TYPE_ID = 0;
   static constexpr int HORIZONTAL_LINE_TYPE_ID = 1;
   static constexpr int SLANTED_LINE_TYPE_ID = 2;
 
+  static constexpr int UNKNOWN_ANGLE_TYPE_ID = 0;
   static constexpr int CONVEX_ANGLE_TYPE_ID = 1;
   static constexpr int CONCAVE_ANGLE_TYPE_ID = 2;
 
@@ -109,76 +123,83 @@ class Expert {
   static AngleType parseAngleType(unsigned int angleType);
   static PolygonType parsePolygonType(unsigned int polygonType);
 
-
   void findIntersectionPointsOfLines();
   void findIntersectionPointsOfCircles();
   void findIntersectionPointsOfLinesCircles();
   void checkPointsOnShapes();
   json getIntersectionPointsAsJson();
 
-  /*
-  //Tools.cpp
-  static void printUnsignedIntVector(const std::vector<unsigned int>& vec);
-  bool pointsLiesOnOneLine(const std::vector<unsigned int>& points);
-  unsigned int setEqualSides(unsigned int segment1End1, unsigned int segment1End2, unsigned int segment2End1,
-                             unsigned int segment2End2, IDependency::Reason reason, IDependency::UsefulnessLevel usefulness);
-  unsigned int setEqualSides(unsigned int segment1End1, unsigned int segment1End2, unsigned int segment2End1,
-                             unsigned int segment2End2, IDependency::Reason reason, std::vector<unsigned int> basedOn,
-                             IDependency::UsefulnessLevel usefulness);
-  unsigned int setEqualAngles(unsigned int angle1Point1, unsigned int angle1Vertex, unsigned int angle1Point2,
-                              unsigned int angle2Point1, unsigned int angle2Vertex, unsigned int angle2Point2,
-                              AngleType anglesType, IDependency::Reason reason, IDependency::UsefulnessLevel usefulness);
-  unsigned int setEqualAngles(unsigned int angle1Point1, unsigned int angle1Vertex, unsigned int angle1Point2,
-                              unsigned int angle2Point1, unsigned int angle2Vertex, unsigned int angle2Point2,
-                              AngleType anglesType, IDependency::Reason reason, std::vector<unsigned int> basedOn,
-                              IDependency::UsefulnessLevel usefulness);
-  unsigned int setSidesParallelism(unsigned int segment1End1, unsigned int segment1End2, unsigned int segment2End1,
-                                   unsigned int segment2End2, IDependency::Reason reason,
-                                   IDependency::UsefulnessLevel usefulness);
-  unsigned int setSidesParallelism(unsigned int segment1End1, unsigned int segment1End2, unsigned int segment2End1,
-                                   unsigned int segment2End2, IDependency::Reason reason, std::vector<unsigned int> basedOn,
-                                   IDependency::UsefulnessLevel usefulness);
-  unsigned int setSidesPerpendicularity(unsigned int segment1End1, unsigned int segment1End2, unsigned int segment2End1,
-                                        unsigned int segment2End2, IDependency::Reason reason,
-                                        IDependency::UsefulnessLevel usefulness);
-  unsigned int setSidesPerpendicularity(unsigned int segment1End1, unsigned int segment1End2, unsigned int segment2End1,
-                                        unsigned int segment2End2, IDependency::Reason reason, std::vector<unsigned int> basedOn,
-                                        IDependency::UsefulnessLevel usefulness);
+  // Tools.cpp
+  bool pointsLiesOnOneLine(const std::vector<std::string>& pointIds) const;
+  unsigned int setEqualSides(const std::string& segment1End1Id, const std::string& segment1End2Id,
+                             const std::string& segment2End1Id, const std::string& segment2End2Id,
+                             IDependency::Reason reason, std::vector<size_t> basedOn, 
+                             IDependency::ImportanceLevel importanceLevel);
+  unsigned int setEqualAngles(const std::string& angle1Point1, const std::string& angle1Vertex, const std::string& angle1Point2,
+                              const std::string& angle2Point1, const std::string& angle2Vertex, const std::string& angle2Point2,
+                              AngleType anglesType,
+                              IDependency::Reason reason, std::vector<size_t> basedOn, 
+                              IDependency::ImportanceLevel importanceLevel);
+  unsigned int setSidesParallelism(const std::string& segment1End1Id, const std::string& segment1End2Id,
+                                   const std::string& segment2End1Id, const std::string& segment2End2Id,
+                                   IDependency::Reason reason, std::vector<size_t> basedOn, 
+                                   IDependency::ImportanceLevel importanceLevel);
+  unsigned int setSidesPerpendicularity(const std::string& segment1End1Id, const std::string& segment1End2Id,
+                                        const std::string& segment2End1Id, const std::string&segment2End2Id,
+                                        IDependency::Reason reason, std::vector<size_t> basedOn,
+                                        IDependency::ImportanceLevel importanceLevel);
+
+  // LinesTheorems.cpp
+  unsigned int exploreLineBasedDependencies();
+  unsigned int setRightAnglesBasedOnPerpendicularLines();
+  unsigned int findParallelLinesBasedOnParallelLines();
+  unsigned int findParallelLinesBasedOnPerpendicularLines();
+  unsigned int findPerpendicularLinesBasedOnLines();
+  unsigned int findPerpendicularLinesBasedOnRightAngles();
 
   // AnglesTheorems.cpp
+  unsigned int exploreAngleBasedTheorems();
   unsigned int findVerticalAngles();
   unsigned int findSupplementaryAngles();
   unsigned int findAlternateAngles();
   unsigned int findCorrespondingAngles();
 
-  // PolygonsTheorems.cpp
-  unsigned int findSpecificPolygonDependencies(const expertBackground::PolygonModel& polygon, PolygonType type,
-                                               unsigned int dependencyId);
-  unsigned int findMidPerpendicularDependencies(const expertBackground::PointsPairModel& segment, unsigned int lineId,
-                                                unsigned int dependencyId);
-  unsigned int findBisectorDependencies(const expertBackground::AngleModel& angle, unsigned int lineId,
-                                        unsigned int dependencyId);
-  unsigned int findTangentLineDependencies(unsigned int lineId, unsigned int circleId, unsigned int dependencyId);
-  unsigned int findMedianDependencies(const expertBackground::PointsPairModel& base,
-                                      const expertBackground::PointsPairModel& median, unsigned int dependencyId);
-  unsigned int findAltitudeDependencies(unsigned int baseLineId, const expertBackground::PointsPairModel& altitude,
-                                        unsigned int dependencyId);
-  unsigned int findMidSegmentDependencies(const expertBackground::PointsPairModel& arm1,
-                                          const expertBackground::PointsPairModel& arm2,
-                                          const expertBackground::PointsPairModel& midSegment, unsigned int dependencyId);
-  unsigned int findInscribedCircleDependencies(const expertBackground::PolygonModel& polygon, unsigned int circleId,
-                                               unsigned int dependencyId);
-  unsigned int findEscribedCircleDependencies(const expertBackground::PolygonModel& polygon, unsigned int circleId,
-                                              unsigned int dependencyId);
-  unsigned int findSpecificShapesDependencies();
+  // SpecificPropertiesTheorems.cpp
+  unsigned int explorePolygonTypeBasedDependencies();
+  unsigned int setIsoscelesAcuteTriangleDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setEquilateralTriangleDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setScaleneRightTriangleDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setIsoscelesRightTriangleDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setObtuseIsoscelesTriangleDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setSquareDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setRectangleDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setRegularPolygonDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setParallelogramDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setKiteDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setRhombusDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setScaleneTrapezoidDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setIsoscelesTrapezoidDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
+  unsigned int setRightTrapezoidDependencies(const std::shared_ptr<PolygonTypeDependency>& dependency);
 
-  // LinesTheorems.cpp
-  unsigned int setRightAnglesBasedOnPerpendicularities();
-  unsigned int findParallelLinesBasedOnParallelLines();
-  unsigned int findParallelLinesBasedOnPerpendicularLines();
-  unsigned int findPerpendicularLinesBasedOnLines();
-  unsigned int findPerpendicularLinesBasedOnRightAngles();
-   */
+  unsigned int exploreSpecificSegmentsBasedDependencies();
+  unsigned int setMedianDependencies(const std::shared_ptr<PolygonPointsPairDependency>& dependency);
+  unsigned int setAltitudeDependencies(const std::shared_ptr<PolygonPointsPairDependency>& dependency);
+  unsigned int setMidSegmentDependencies(const std::shared_ptr<PolygonPointsPairDependency>& dependency);
+  unsigned int setMidSegmentInTriangleDependencies(const std::shared_ptr<PolygonPointsPairDependency>& dependency);
+  unsigned int setMidSegmentInTrapezoidDependencies(const std::shared_ptr<PolygonPointsPairDependency>& dependency);
+
+  unsigned int exploreTangentLineAndCircleBasedDependencies();
+  unsigned int setTangentLineCircleDependencies(const std::shared_ptr<LineCircleDependency>& dependency);
+  unsigned int setTangentCircleCircleDependencies(const std::shared_ptr<CirclesDependency>& dependency);
+
+  unsigned int explorePolygonCircleBasedDependencies();
+  unsigned int setInscribedCircleDependencies(const std::shared_ptr<CirclePolygonDependency>& dependency);
+  unsigned int setCircumscribedCircleDependencies(const std::shared_ptr<CirclePolygonDependency>& dependency);
+  unsigned int setEscribedCircleDependencies(const std::shared_ptr<CirclePolygonDependency>& dependency);
+
+  unsigned int exploreSpecificLineBasedDependencies();
+  unsigned int setMidPerpendicularLineDependencies(const std::shared_ptr<LinePointsPairDependency>& dependency);
+  unsigned int setBisectorLineDependencies(const std::shared_ptr<LineAngleDependency>& dependency);
 };
 
 }  // namespace expert

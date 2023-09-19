@@ -129,6 +129,10 @@ class DependenciesBank {
   // it does not include variables entered from external
   std::map<std::string, std::set<size_t>> formulasIncludingVariable;
 
+  std::map<IDependency::Type, bool> lastChanges;
+
+  bool newEvaluations;
+
  public:
   explicit DependenciesBank();
   explicit DependenciesBank(const ShapesBank* generatedShapesBank);
@@ -136,6 +140,10 @@ class DependenciesBank {
   inline std::size_t getDependenciesNumber() const { return dependencyIdCounter; }
 
   inline const std::shared_ptr<IDependency>& getDependencyById(size_t dependencyId) const { return dependenciesVector.at(dependencyId); }
+
+  void clearLastChanges();
+  inline bool lastChange(IDependency::Type type) const { return lastChanges.at(type); }
+  inline bool newEvaluationsAdded() const { return  newEvaluations; }
 
   unsigned int addEquation(const symbolicAlgebra::Expression& leftSide, const symbolicAlgebra::Expression& rightSide,
                            IDependency::Reason reason, std::vector<size_t> basedOn,
@@ -155,6 +163,14 @@ class DependenciesBank {
   std::vector<std::shared_ptr<EquationDependency>> getEquationDependencies(EquationDependencies type) const {
     return getDependenciesWithType<ExpressionModel, ExpressionModel>(static_cast<IDependency::Type>(type));
   }
+
+  static inline Var getSegmentLengthVariable(const PointModel& point1,
+                                      const PointModel& point2) { return Var{getSegmentName(point1, point2).first}; }
+
+  static inline Var getAngleMeasureVariable(const PointModel& point1,
+                                     const PointModel& point2,
+                                     const PointModel& point3,
+                                     bool angleIsConvex) { return Var{getAngleName(point1, point2, point3, angleIsConvex).first};}
 
   unsigned int addLinesDependency(const std::string& id1, const std::string& id2, LinesDependencies type,
                                   IDependency::Reason reason, std::vector<size_t> basedOn,
@@ -279,6 +295,8 @@ class DependenciesBank {
   json getDependenciesAsJsonObjects() const;
   json getVariablesIndexesAsJsonObject() const;
 
+  std::pair<bool, std::vector<size_t>> evaluateEquation() const { return {false, {}}; }
+
  private:
   template <class T1, class T2>
   std::vector<std::shared_ptr<Dependency<T1, T2>>> getDependenciesWithType(IDependency::Type type) const {
@@ -331,9 +349,8 @@ class DependenciesBank {
     return false;
   }
 
-
-  static std::pair<std::string, std::vector<std::string>> getLengthName(const PointModel& point1,
-                                                                        const PointModel& point2);
+  static std::pair<std::string, std::vector<std::string>> getSegmentName(const PointModel& point1,
+                                                                         const PointModel& point2);
 
   static std::pair<std::string, std::vector<std::string>> getAngleName(const PointModel& point1,
                                                                        const PointModel& point2,

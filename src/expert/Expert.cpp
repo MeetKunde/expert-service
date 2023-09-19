@@ -88,13 +88,35 @@ json Expert::exportSolution() {
 }
 
 void Expert::useKnowledge() {
-  const size_t dependenciesFoundNumber = 0;
+  unsigned int allDependenciesFoundNumber{0};
+  unsigned int newDependenciesFoundNumber;
+  unsigned int roundsCounter{1};
 
-  localTimer.startMeasurement();
+  do {
+    localTimer.startMeasurement();
+
+    newDependenciesFoundNumber = 0;
+
+    newDependenciesFoundNumber += explorePolygonTypeBasedDependencies();
+    newDependenciesFoundNumber += exploreSpecificSegmentsBasedDependencies();
+    newDependenciesFoundNumber += exploreTangentLineAndCircleBasedDependencies();
+    newDependenciesFoundNumber += explorePolygonCircleBasedDependencies();
+    newDependenciesFoundNumber += exploreSpecificLineBasedDependencies();
+    newDependenciesFoundNumber += exploreLineBasedDependencies();
+    newDependenciesFoundNumber += exploreAngleBasedTheorems();
+
+    allDependenciesFoundNumber += newDependenciesFoundNumber;
+    shapesBank.clearLastChanges();
+    dependenciesBank.clearLastChanges();
+
+    localTimer.takeMeasurement("Round number " + std::to_string(roundsCounter) + "ended. Found " +
+                               std::to_string(newDependenciesFoundNumber) + " new dependencies!",
+                               false, std::cout);
+    roundsCounter++;
+  }
+  while(newDependenciesFoundNumber > 0);
 
   /*
-  dependenciesFoundNumber += findSpecificShapesDependencies();
-
   dependenciesFoundNumber += findVerticalAngles();
   dependenciesFoundNumber += findSupplementaryAngles();
   dependenciesFoundNumber += findAlternateAngles();
@@ -112,8 +134,7 @@ void Expert::useKnowledge() {
   dependenciesFoundNumber += findPerpendicularLinesBasedOnLines();
   dependenciesFoundNumber += findPerpendicularLinesBasedOnRightAngles();
   */
-  localTimer.takeMeasurement("Using knowledge ended!\nFound " + std::to_string(dependenciesFoundNumber) + " new dependencies!",
-                             false, std::cout);
+
 }
 
 void Expert::addValues(json lengths, json angleValues, json formulas, json perimeters, json areas) {
@@ -326,6 +347,8 @@ AngleType Expert::parseAngleType(unsigned int angleType) {
       return AngleType::CONVEX;
     case CONCAVE_ANGLE_TYPE_ID:
       return AngleType::CONCAVE;
+    //case UNKNOWN_ANGLE_TYPE_ID:
+    //  return AngleType::UNKNOWN;
     default:
       return AngleType::UNKNOWN;
   }
@@ -376,7 +399,8 @@ void Expert::findIntersectionPointsOfLines() {
       const std::vector<std::string>& points2 = lines[line2Id].getIncludedPoints();
 
       for (const std::string& point1Id : points1) {
-        if (std::any_of(points2.begin(), points2.end(), [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
+        if (std::any_of(points2.begin(), points2.end(),
+                        [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
           const std::string& commonPointId = point1Id;
           intersectionPointsOfLines[line1Id][line2Id].push_back(shapesBank.getPointPositionInVector(commonPointId));
           intersectionPointsOfLines[line2Id][line1Id].push_back(shapesBank.getPointPositionInVector(commonPointId));
@@ -401,7 +425,8 @@ void Expert::findIntersectionPointsOfCircles() {
 
       size_t counter = 0;
       for (const std::string& point1Id : points1) {
-        if (std::any_of(points2.begin(), points2.end(), [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
+        if (std::any_of(points2.begin(), points2.end(),
+                        [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
           const std::string& commonPointId = point1Id;
           intersectionPointsOfCircles[circle1Id][circle2Id].push_back(shapesBank.getPointPositionInVector(commonPointId));
           intersectionPointsOfCircles[circle2Id][circle1Id].push_back(shapesBank.getPointPositionInVector(commonPointId));
@@ -431,7 +456,8 @@ void Expert::findIntersectionPointsOfLinesCircles() {
 
       size_t counter = 0;
       for (const std::string& point1Id : points1) {
-        if (std::any_of(points2.begin(), points2.end(), [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
+        if (std::any_of(points2.begin(), points2.end(),
+                        [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
           const std::string& commonPointId = point1Id;
           intersectionPointsOfLinesAndCircles[lineId][circleId].push_back(shapesBank.getPointPositionInVector(commonPointId));
           pointsOnLineAndCircleIntersections[shapesBank.getPointPositionInVector(commonPointId)].push_back({

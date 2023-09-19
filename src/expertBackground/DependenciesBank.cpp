@@ -3,16 +3,19 @@
 namespace expertBackground {
 DependenciesBank::DependenciesBank()
     : dependencyIdCounter{0},
-      shapesBank{nullptr} {
+      shapesBank{nullptr},
+      newEvaluations{false} {
   std::vector<IDependency::Type>::const_iterator iter;
   for (iter = IDependency::dependencyTypes.begin(); iter != IDependency::dependencyTypes.end(); ++iter) {
     dependenciesMap.insert({(*iter), {}});
+    lastChanges.insert({(*iter), false});
   }
 }
 
 DependenciesBank::DependenciesBank(const ShapesBank* generatedShapesBank)
     : dependencyIdCounter(0),
-      shapesBank(generatedShapesBank) {
+      shapesBank(generatedShapesBank),
+      newEvaluations{false} {
   std::vector<IDependency::Type>::const_iterator iter;
   for (iter = IDependency::dependencyTypes.begin(); iter != IDependency::dependencyTypes.end(); ++iter) {
     dependenciesMap.insert({ (*iter), { } });
@@ -23,7 +26,7 @@ DependenciesBank::DependenciesBank(const ShapesBank* generatedShapesBank)
   for (size_t point1Pos = 0; point1Pos < shapesBank->getPointsNumber(); point1Pos++) {
     for (size_t point2Pos = 0; point2Pos <= point1Pos; point2Pos++) {
       const std::pair<std::string, std::vector<std::string>> lengthName =
-          getLengthName(points.at(point1Pos), points.at(point2Pos));
+          getSegmentName(points.at(point1Pos), points.at(point2Pos));
 
       variableToIndexes.insert({ lengthName.first,
           { shapesBank->getPointPositionInVector(lengthName.second[0]),shapesBank->getPointPositionInVector(lengthName.second[1]) } });
@@ -79,6 +82,13 @@ DependenciesBank::DependenciesBank(const ShapesBank* generatedShapesBank)
   }
 }
 
+void DependenciesBank::clearLastChanges() {
+  std::vector<IDependency::Type>::const_iterator iter;
+  for (iter = IDependency::dependencyTypes.begin(); iter != IDependency::dependencyTypes.end(); ++iter) {
+    lastChanges[*iter] = false;
+  }
+}
+
 unsigned int DependenciesBank::addEquation(const symbolicAlgebra::Expression& leftSide,
                                            const symbolicAlgebra::Expression& rightSide,
                                            IDependency::Reason reason,
@@ -117,7 +127,7 @@ unsigned int DependenciesBank::addLength(const std::string& point1Id, const std:
                                          IDependency::Reason reason, std::vector<size_t> basedOn,
                                          IDependency::ImportanceLevel importanceLevel) {
   const std::pair<std::string, std::vector<std::string>> name =
-      getLengthName(shapesBank->getPoint(point1Id), shapesBank->getPoint(point2Id));
+      getSegmentName(shapesBank->getPoint(point1Id), shapesBank->getPoint(point2Id));
 
   const std::shared_ptr<EquationDependency> dependency = std::make_shared<EquationDependency>(
       ExpressionModel(Var(name.first)), ExpressionModel(length), true, dependencyIdCounter,
@@ -526,7 +536,7 @@ json DependenciesBank::getVariablesIndexesAsJsonObject() const {
   return result;
 }
 
-std::pair<std::string, std::vector<std::string>> DependenciesBank::getLengthName(const PointModel& point1, const PointModel& point2) {
+std::pair<std::string, std::vector<std::string>> DependenciesBank::getSegmentName(const PointModel& point1, const PointModel& point2) {
   const std::string& point1Name = point1.getName();
   const std::string& point2Name = point2.getName();
 
@@ -636,6 +646,7 @@ std::vector<std::string> DependenciesBank::changeAngleEnds(const std::string& po
 
 void DependenciesBank::add(std::shared_ptr<IDependency> dependencyModel) {
   dependenciesMap.at(dependencyModel->getType()).emplace_back(dependencyIdCounter);
+  lastChanges.at(dependencyModel->getType()) = true;
   dependenciesVector.emplace_back(std::move(dependencyModel));
   dependencyIdCounter++;
 }

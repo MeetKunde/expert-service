@@ -9,12 +9,16 @@ ShapesBank::ShapesBank()
       circles{},
       pointIdsConverter{},
       lineIdsConverter{},
-      circleIdsConverter{} {}
+      circleIdsConverter{},
+      newPointAdded{false},
+      newLineAdded{false},
+      newCircleAdded{false} {}
 
 void ShapesBank::addPoint(const std::string& identifier, float xCoordinate, float yCoordinate, const std::string& name) {
   points.emplace_back(identifier, xCoordinate, yCoordinate, name);
   pointIdsConverter.insert(std::make_pair(identifier, pointIdCounter));
   pointIdCounter++;
+  newPointAdded = true;
 }
 
 json ShapesBank::getPointsAsJsonObjects() const {
@@ -63,6 +67,7 @@ void ShapesBank::addLine(const std::string& identifier, LineModel::LineType line
   lines.emplace_back(identifier, lineType, lineA, lineB, includedPointsCopy);
   lineIdsConverter.insert(std::make_pair(identifier, lineIdCounter));
   lineIdCounter++;
+  newLineAdded = true;
 }
 
 std::string ShapesBank::getLineIdThrowTwoPoints(const std::string& point1Id, const std::string& point2Id) const {
@@ -110,6 +115,7 @@ void ShapesBank::addCircle(const std::string& identifier, const std::string& cen
   circles.emplace_back(identifier, centerId, centerX, centerY, centerName, radius, includedPointsCopy);
   circleIdsConverter.insert(std::make_pair(identifier, circleIdCounter));
   circleIdCounter++;
+  newCircleAdded = true;
 }
 
 std::string ShapesBank::getCircleIdWithTwoPoints(const std::string& centerPointId, const std::string& pointOnCircleId) const {

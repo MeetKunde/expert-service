@@ -62,6 +62,12 @@ class ShapesBank {
    */
   std::map<std::string, size_t> circleIdsConverter;
 
+  bool newPointAdded;
+
+  bool newLineAdded;
+
+  bool newCircleAdded;
+
  public:
   /**
    * @brief Constructor of a new ShapesBank object
@@ -248,6 +254,11 @@ class ShapesBank {
    * @return false if point1 is not greater than point2
    */
   static bool counterClockwiseComparator(const PointModel& point1, const PointModel& point2, float centerX, float centerY);
+
+  inline bool newPointLastAdded() const { return newPointAdded; };
+  inline bool newLineLastAdded() const { return newLineAdded; };
+  inline bool newCircleLastAdded() const { return newCircleAdded; };
+  inline void clearLastChanges() { newPointAdded = newLineAdded = newCircleAdded = false; }
 };
 }  // namespace expertBackground
 

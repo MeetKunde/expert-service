@@ -1,200 +1,233 @@
 #include "../Expert.h"
-/*
+
 namespace expert {
-unsigned int Expert::setRightAnglesBasedOnPerpendicularities() {
-  unsigned int result = 0;
+unsigned int Expert::exploreLineBasedDependencies() {
+  unsigned int sumOfNewDependencies{0};
+
+  if(shapesBank.newPointLastAdded() || dependenciesBank.lastChange(IDependency::Type::PERPENDICULAR_LINES)) {
+    sumOfNewDependencies += setRightAnglesBasedOnPerpendicularLines();
+  }
+
+  if(dependenciesBank.lastChange(IDependency::Type::PARALLEL_LINES)) {
+    sumOfNewDependencies += findParallelLinesBasedOnParallelLines();
+  }
+
+  if(dependenciesBank.lastChange(IDependency::Type::PERPENDICULAR_LINES)) {
+    sumOfNewDependencies += findParallelLinesBasedOnPerpendicularLines();
+  }
+
+  if(dependenciesBank.lastChange(IDependency::Type::PERPENDICULAR_LINES) || dependenciesBank.lastChange(IDependency::Type::PARALLEL_LINES)) {
+    sumOfNewDependencies += findPerpendicularLinesBasedOnLines();
+  }
+
+  if(shapesBank.newLineLastAdded() || shapesBank.newPointLastAdded() || dependenciesBank.newEvaluationsAdded()) {
+    sumOfNewDependencies += findPerpendicularLinesBasedOnRightAngles();
+  }
+
+  return sumOfNewDependencies;
+}
+
+unsigned int Expert::setRightAnglesBasedOnPerpendicularLines() {
+  unsigned int sumOfNewDependencies{0};
 
   const std::vector<std::shared_ptr<LinesDependency>> perpendicularLines =
       dependenciesBank.getLinesDependencies(LinesDependencies::PERPENDICULAR_LINES);
 
-  for (const auto& dependency : perpendicularLines) {
-    const unsigned int line1Id = dependency->getFirstElement().getId();
-    const unsigned int line2Id = dependency->getSecondElement().getId();
+  for (size_t index = 0; index < perpendicularLines.size(); index++) {
+    const std::string& line1Id = perpendicularLines[index]->getFirstObject().getId();
+    const std::string& line2Id = perpendicularLines[index]->getSecondObject().getId();
 
-    if (intersectionPointsOfLines[line1Id][line2Id].empty()) {
+    const size_t line1IdPos{shapesBank.getLinePositionInVector(line1Id)};
+    const size_t line2IdPos{shapesBank.getLinePositionInVector(line2Id)};
+
+    if (intersectionPointsOfLines[line1IdPos][line2IdPos].empty()) {
       continue;
     }
 
-    const unsigned int intersectionPoint = intersectionPointsOfLines[line1Id][line2Id][0];
-    std::vector<unsigned int> line1Points = shapesBank.getLine(line1Id).getIncludedPoints();
-    std::vector<unsigned int> line2Points = shapesBank.getLine(line2Id).getIncludedPoints();
+    const size_t intersectionPoint = intersectionPointsOfLines[line1IdPos][line2IdPos][0];
+    const std::string& intersectionPointId = shapesBank.getPointsVector().at(intersectionPoint).getId();
+    const std::vector<std::string>& line1Points = shapesBank.getLine(line1Id).getIncludedPoints();
+    const std::vector<std::string>& line2Points = shapesBank.getLine(line2Id).getIncludedPoints();
 
-    unsigned int linesEnds[4];
+    std::string linesEnds[4];
     linesEnds[0] = line1Points.front();
     linesEnds[1] = line2Points.front();
     linesEnds[2] = line1Points.back();
     linesEnds[3] = line2Points.back();
 
-    for (unsigned int endNumber = 0; endNumber < 4; endNumber++) {
-      if (linesEnds[endNumber] != intersectionPoint && linesEnds[endNumber] != linesEnds[(endNumber + 1) % 4] &&
-          linesEnds[(endNumber + 1) % 4] != intersectionPoint) {
-        result += dependenciesBank.addConvexAngle(
-            linesEnds[endNumber], intersectionPoint, linesEnds[(endNumber + 1) % 4], Integer(MathHelper::RIGHT_ANGLE_VALUE),
-            IDependency::Reason::PERPENDICULAR_LINES, {dependency->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+    for (size_t endNumber = 0; endNumber < 4; endNumber++) {
+      if (linesEnds[endNumber] != intersectionPointId &&
+          linesEnds[endNumber] != linesEnds[(endNumber + 1) % 4] &&
+          linesEnds[(endNumber + 1) % 4] != intersectionPointId) {
+
+        sumOfNewDependencies += dependenciesBank.addConvexAngle(
+            linesEnds[endNumber], intersectionPointId, linesEnds[(endNumber + 1) % 4],
+            Integer(MathHelper::RIGHT_ANGLE_VALUE),
+            IDependency::Reason::PERPENDICULAR_LINES, {perpendicularLines[index]->getId()},
+            IDependency::ImportanceLevel::MEDIUM);
       }
     }
   }
 
-  return result;
+  return sumOfNewDependencies;
 }
 
 unsigned int Expert::findParallelLinesBasedOnParallelLines() {
-  unsigned int result = 0;
+  unsigned int sumOfNewDependencies{0};
 
   const std::vector<std::shared_ptr<LinesDependency>> parallelLines =
       dependenciesBank.getLinesDependencies(LinesDependencies::PARALLEL_LINES);
 
-  for (std::vector<std::shared_ptr<LinesDependency>>::const_iterator dependency1 = parallelLines.begin();
-       dependency1 != parallelLines.end(); ++dependency1) {
-    for (std::vector<std::shared_ptr<LinesDependency>>::const_iterator dependency2 = dependency1 + 1;
-         dependency2 != parallelLines.end(); ++dependency2) {
+  for (size_t index1 = 0; index1 < parallelLines.size(); index1++) {
+    for (size_t index2 = index1 + 1; index2 < parallelLines.size(); index2++) {
 
-      const unsigned int line1Id = (*dependency1)->getFirstElement().getId();
-      const unsigned int line2Id = (*dependency1)->getSecondElement().getId();
-      const unsigned int line3Id = (*dependency2)->getFirstElement().getId();
-      const unsigned int line4Id = (*dependency2)->getSecondElement().getId();
+      const std::string& line1Id = parallelLines[index1]->getFirstObject().getId();
+      const std::string& line2Id = parallelLines[index1]->getSecondObject().getId();
+      const std::string& line3Id = parallelLines[index2]->getFirstObject().getId();
+      const std::string& line4Id = parallelLines[index2]->getSecondObject().getId();
 
       if (line1Id == line3Id) {
-        result += dependenciesBank.addLinesDependency(
-            line2Id, line4Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PARALLELISM_TRANSITIVITY,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+        sumOfNewDependencies += dependenciesBank.addLinesDependency(
+            line2Id, line4Id, LinesDependencies::PARALLEL_LINES, IDependency::Reason::PARALLELISM_TRANSITIVITY,
+            {parallelLines[index1]->getId(), parallelLines[index2]->getId()}, IDependency::ImportanceLevel::MEDIUM);
       }
       else if (line1Id == line4Id) {
-        result += dependenciesBank.addLinesDependency(
-            line2Id, line3Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PARALLELISM_TRANSITIVITY,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+        sumOfNewDependencies += dependenciesBank.addLinesDependency(
+            line2Id, line3Id, LinesDependencies::PARALLEL_LINES, IDependency::Reason::PARALLELISM_TRANSITIVITY,
+            {parallelLines[index1]->getId(), parallelLines[index2]->getId()}, IDependency::ImportanceLevel::MEDIUM);
       }
       else if (line2Id == line3Id) {
-        result += dependenciesBank.addLinesDependency(
-            line1Id, line4Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PARALLELISM_TRANSITIVITY,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+        sumOfNewDependencies += dependenciesBank.addLinesDependency(
+            line1Id, line4Id, LinesDependencies::PARALLEL_LINES, IDependency::Reason::PARALLELISM_TRANSITIVITY,
+            {parallelLines[index1]->getId(), parallelLines[index2]->getId()}, IDependency::ImportanceLevel::MEDIUM);
       }
       else if (line2Id == line4Id) {
-        result += dependenciesBank.addLinesDependency(
-            line1Id, line3Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PARALLELISM_TRANSITIVITY,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+        sumOfNewDependencies += dependenciesBank.addLinesDependency(
+            line1Id, line3Id, LinesDependencies::PARALLEL_LINES, IDependency::Reason::PARALLELISM_TRANSITIVITY,
+            {parallelLines[index1]->getId(), parallelLines[index2]->getId()}, IDependency::ImportanceLevel::MEDIUM);
       }
     }
   }
 
-  return result;
+  return sumOfNewDependencies;
 }
 
 unsigned int Expert::findParallelLinesBasedOnPerpendicularLines() {
-  unsigned int result = 0;
+  unsigned int sumOfNewDependencies{0};
 
-  std::vector<std::shared_ptr<LinesDependency>> perpendicularLines =
+  const std::vector<std::shared_ptr<LinesDependency>> perpendicularLines =
       dependenciesBank.getLinesDependencies(LinesDependencies::PERPENDICULAR_LINES);
 
-  for (std::vector<std::shared_ptr<LinesDependency>>::const_iterator dependency1 = perpendicularLines.begin(); dependency1 != perpendicularLines.end();
-       ++dependency1) {
-    for (std::vector<std::shared_ptr<LinesDependency>>::const_iterator dependency2 = dependency1 + 1; dependency2 != perpendicularLines.end();
-         ++dependency2) {
+  for (size_t index1 = 0; index1 < perpendicularLines.size(); index1++) {
+    for (size_t index2 = index1 + 1; index2 < perpendicularLines.size(); index2++) {
 
-      const unsigned int line1Id = (*dependency1)->getFirstElement().getId();
-      const unsigned int line2Id = (*dependency1)->getSecondElement().getId();
-      const unsigned int line3Id = (*dependency2)->getFirstElement().getId();
-      const unsigned int line4Id = (*dependency2)->getSecondElement().getId();
+      const std::string& line1Id = perpendicularLines[index1]->getFirstObject().getId();
+      const std::string& line2Id = perpendicularLines[index1]->getSecondObject().getId();
+      const std::string& line3Id = perpendicularLines[index2]->getFirstObject().getId();
+      const std::string& line4Id = perpendicularLines[index2]->getSecondObject().getId();
 
       if (line1Id == line3Id) {
-        result += dependenciesBank.addLinesDependency(
-            line2Id, line4Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PERPENDICULARITY_COMPOSITION,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+        sumOfNewDependencies += dependenciesBank.addLinesDependency(
+            line2Id, line4Id, LinesDependencies::PARALLEL_LINES, IDependency::Reason::PERPENDICULARITY_COMPOSITION,
+            {perpendicularLines[index1]->getId(), perpendicularLines[index2]->getId()}, IDependency::ImportanceLevel::MEDIUM);
       }
       else if (line1Id == line4Id) {
-        result += dependenciesBank.addLinesDependency(
-            line2Id, line3Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PERPENDICULARITY_COMPOSITION,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+        sumOfNewDependencies += dependenciesBank.addLinesDependency(
+            line2Id, line3Id, LinesDependencies::PARALLEL_LINES, IDependency::Reason::PERPENDICULARITY_COMPOSITION,
+            {perpendicularLines[index1]->getId(), perpendicularLines[index2]->getId()}, IDependency::ImportanceLevel::MEDIUM);
       }
       else if (line2Id == line3Id) {
-        result += dependenciesBank.addLinesDependency(
-            line1Id, line4Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PERPENDICULARITY_COMPOSITION,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+        sumOfNewDependencies += dependenciesBank.addLinesDependency(
+            line1Id, line4Id, LinesDependencies::PARALLEL_LINES, IDependency::Reason::PERPENDICULARITY_COMPOSITION,
+            {perpendicularLines[index1]->getId(), perpendicularLines[index2]->getId()}, IDependency::ImportanceLevel::MEDIUM);
       }
       else if (line2Id == line4Id) {
-        result += dependenciesBank.addLinesDependency(
-            line1Id, line3Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PERPENDICULARITY_COMPOSITION,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+        sumOfNewDependencies += dependenciesBank.addLinesDependency(
+            line1Id, line3Id, LinesDependencies::PARALLEL_LINES, IDependency::Reason::PERPENDICULARITY_COMPOSITION,
+            {perpendicularLines[index1]->getId(), perpendicularLines[index2]->getId()}, IDependency::ImportanceLevel::MEDIUM);
       }
     }
   }
 
-  return result;
+  return sumOfNewDependencies;
 }
 
 unsigned int Expert::findPerpendicularLinesBasedOnLines() {
-  unsigned int result = 0;
+  unsigned int sumOfNewDependencies{0};
 
   const std::vector<std::shared_ptr<LinesDependency>> parallelLines = dependenciesBank.getLinesDependencies(LinesDependencies::PARALLEL_LINES);
 
   const std::vector<std::shared_ptr<LinesDependency>> perpendicularLines =
       dependenciesBank.getLinesDependencies(LinesDependencies::PERPENDICULAR_LINES);
 
-  for (const auto& dependency1 : perpendicularLines) {
-    for (const auto& dependency2 : parallelLines) {
-      const unsigned int line1Id = dependency1->getFirstElement().getId();
-      const unsigned int line2Id = dependency1->getSecondElement().getId();
-      const unsigned int line3Id = dependency2->getFirstElement().getId();
-      const unsigned int line4Id = dependency2->getSecondElement().getId();
+  for (size_t index1 = 0; index1 < perpendicularLines.size(); index1++) {
+    for (size_t index2 = 0; index2 < parallelLines.size(); index2++) {
+      const std::string& line1Id = perpendicularLines[index1]->getFirstObject().getId();
+      const std::string& line2Id = perpendicularLines[index1]->getSecondObject().getId();
+      const std::string& line3Id = parallelLines[index2]->getFirstObject().getId();
+      const std::string& line4Id = parallelLines[index2]->getSecondObject().getId();
 
       if (line1Id == line3Id) {
-        result += dependenciesBank.addLinesDependency(line2Id, line4Id, IDependency::Type::PERPENDICULAR_LINES,
+        sumOfNewDependencies += dependenciesBank.addLinesDependency(line2Id, line4Id, LinesDependencies::PERPENDICULAR_LINES,
                                                       IDependency::Reason::PERPENDICULARITY_AND_PARALLELISM_COMPOSITION,
-                                                      {dependency1->getId(), dependency2->getId()},
-                                                      IDependency::UsefulnessLevel::MEDIUM);
+                                                      {perpendicularLines[index1]->getId(), parallelLines[index2]->getId()},
+                                                      IDependency::ImportanceLevel::MEDIUM);
       }
       else if (line1Id == line4Id) {
-        result += dependenciesBank.addLinesDependency(line2Id, line3Id, IDependency::Type::PERPENDICULAR_LINES,
+        sumOfNewDependencies += dependenciesBank.addLinesDependency(line2Id, line3Id, LinesDependencies::PERPENDICULAR_LINES,
                                                       IDependency::Reason::PERPENDICULARITY_AND_PARALLELISM_COMPOSITION,
-                                                      {dependency1->getId(), dependency2->getId()},
-                                                      IDependency::UsefulnessLevel::MEDIUM);
+                                                      {perpendicularLines[index1]->getId(), parallelLines[index2]->getId()},
+                                                      IDependency::ImportanceLevel::MEDIUM);
       }
       else if (line2Id == line3Id) {
-        result += dependenciesBank.addLinesDependency(line1Id, line4Id, IDependency::Type::PERPENDICULAR_LINES,
+        sumOfNewDependencies += dependenciesBank.addLinesDependency(line1Id, line4Id, LinesDependencies::PERPENDICULAR_LINES,
                                                       IDependency::Reason::PERPENDICULARITY_AND_PARALLELISM_COMPOSITION,
-                                                      {dependency1->getId(), dependency2->getId()},
-                                                      IDependency::UsefulnessLevel::MEDIUM);
+                                                      {perpendicularLines[index1]->getId(), parallelLines[index2]->getId()},
+                                                      IDependency::ImportanceLevel::MEDIUM);
       }
       else if (line2Id == line4Id) {
-        result += dependenciesBank.addLinesDependency(line1Id, line3Id, IDependency::Type::PERPENDICULAR_LINES,
+        sumOfNewDependencies += dependenciesBank.addLinesDependency(line1Id, line3Id, LinesDependencies::PERPENDICULAR_LINES,
                                                       IDependency::Reason::PERPENDICULARITY_AND_PARALLELISM_COMPOSITION,
-                                                      {dependency1->getId(), dependency2->getId()},
-                                                      IDependency::UsefulnessLevel::MEDIUM);
+                                                      {perpendicularLines[index1]->getId(), parallelLines[index2]->getId()},
+                                                      IDependency::ImportanceLevel::MEDIUM);
       }
     }
   }
 
-  return result;
+  return sumOfNewDependencies;
 }
 
 unsigned int Expert::findPerpendicularLinesBasedOnRightAngles() {
+  unsigned int sumOfNewDependencies{0};
 
-  unsigned int result = 0;
-
-  for (unsigned int line1Id = 0; line1Id < linesNumber; line1Id++) {
-    for (unsigned int line2Id = line1Id + 1; line2Id < linesNumber; line2Id++) {
+  const std::vector<LineModel> lines = shapesBank.getLinesVector();
+  for (size_t line1Id = 0; line1Id < lines.size(); line1Id++) {
+    for (size_t line2Id = line1Id + 1; line2Id < lines.size(); line2Id++) {
       if (intersectionPointsOfLines[line1Id][line2Id].empty()) {
         continue;
       }
 
-      const unsigned int intersectionPoint = intersectionPointsOfLines[line1Id][line2Id][0];
-      unsigned int linesEnds[4];
-      linesEnds[0] = shapesBank.getLine(line1Id).getIncludedPoints().front();
-      linesEnds[1] = shapesBank.getLine(line2Id).getIncludedPoints().front();
-      linesEnds[2] = shapesBank.getLine(line1Id).getIncludedPoints().back();
-      linesEnds[3] = shapesBank.getLine(line2Id).getIncludedPoints().back();
+      const PointModel intersectionPoint = shapesBank.getPointsVector().at(intersectionPointsOfLines[line1Id][line2Id][0]);
+      const PointModel linesEnds[4] = {
+        shapesBank.getPoint(lines.at(line1Id).getIncludedPoints().front()),
+        shapesBank.getPoint(lines.at(line2Id).getIncludedPoints().front()),
+        shapesBank.getPoint(lines.at(line1Id).getIncludedPoints().back()),
+        shapesBank.getPoint(lines.at(line2Id).getIncludedPoints().back())
+      };
 
-      const Integer rigthAngle(MathHelper::RIGHT_ANGLE_VALUE);
+      const Integer rightAngle(MathHelper::RIGHT_ANGLE_VALUE);
+      std::pair<bool, std::vector<size_t>> evaluation = {false, {}};
 
-      std::pair<EvaluationResult, std::vector<unsigned int>> evaluation;
-      for (unsigned int endNumber = 0; endNumber < 4; endNumber++) {
+      for (size_t endNumber = 0; endNumber < 4; endNumber++) {
         evaluation = dependenciesBank.evaluateEquation(
-            dependenciesBank.getConvexAngleVariable(linesEnds[endNumber], intersectionPoint, linesEnds[(endNumber + 1) % 4]),
-            rigthAngle);
-        if (evaluation.first == EvaluationResult::SUCCESS) {
-          result += dependenciesBank.addLinesDependency(line1Id, line2Id, IDependency::Type::PERPENDICULAR_LINES,
-                                                        IDependency::Reason::RIGHT_ANGLE, evaluation.second,
-                                                        IDependency::UsefulnessLevel::MEDIUM);
+            /*dependenciesBank.getAngleMeasureVariable(linesEnds[endNumber], intersectionPoint, linesEnds[(endNumber + 1) % 4], true),
+            rightAngle*/);
+
+        if (evaluation.first) {
+          sumOfNewDependencies += dependenciesBank.addLinesDependency(lines.at(line1Id).getId(), lines.at(line2Id).getId(),
+                                                                      LinesDependencies::PERPENDICULAR_LINES,
+                                                                      IDependency::Reason::RIGHT_ANGLE, evaluation.second,
+                                                                      IDependency::ImportanceLevel::MEDIUM);
 
           break;
         }
@@ -206,4 +239,3 @@ unsigned int Expert::findPerpendicularLinesBasedOnRightAngles() {
 }
 
 }  // namespace expert
-*/
