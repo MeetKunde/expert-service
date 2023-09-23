@@ -3,11 +3,7 @@
 TEST_CASE("Creating empty DependenciesBank", "[expertBackground]") {
   const DependenciesBank emptyDependenciesBank;
 
-  json emptyDependenciesJson{};
-  for(const IDependency::Type& type: IDependency::dependencyTypes) {
-    emptyDependenciesJson.push_back({{"dependencies", std::vector<IDependency::Type>()}, {"type", type}});
-  }
-
+  const json emptyDependenciesJson{};
   const json emptyVariablesIndexesJson{};
 
   const size_t equationId = 11;

@@ -74,9 +74,9 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
       {"id", dependency1Id},
       {"category", IDependency::Category::FORMULA},
       {"type", type1},
-      {"reason", std::vector<IDependency::Reason>{reason1}},
+      {"reasons", std::vector<IDependency::Reason>{reason1}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
   };
 
   const json dependency2Json = {
@@ -91,9 +91,9 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
       {"id", dependency2Id},
       {"category", IDependency::Category::FORMULA},
       {"type", type2},
-      {"reason", std::vector<IDependency::Reason>{reason1}},
+      {"reasons", std::vector<IDependency::Reason>{reason1}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
   };
 
   const json dependency3Json = {
@@ -108,9 +108,9 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
       {"id", dependency4Id},
       {"category", IDependency::Category::FORMULA},
       {"type", type3},
-      {"reason", std::vector<IDependency::Reason>{reason1}},
+      {"reasons", std::vector<IDependency::Reason>{reason1}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
   };
 
   // new dependency
@@ -252,9 +252,9 @@ TEST_CASE("Adding LinesDependencies to DependenciesBank", "[expertBackground]") 
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_LINES},
       {"type", type1},
-      {"reason", std::vector<IDependency::Reason>{reason1, reason2}},
+      {"reasons", std::vector<IDependency::Reason>{reason1, reason2}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1, dependentDependencies2}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
   };
 
   const json dependency4Json = {
@@ -267,9 +267,9 @@ TEST_CASE("Adding LinesDependencies to DependenciesBank", "[expertBackground]") 
       {"id", dependency3Id},
       {"category", IDependency::Category::OF_LINES},
       {"type", type2},
-      {"reason", std::vector<IDependency::Reason>{reason1}},
+      {"reasons", std::vector<IDependency::Reason>{reason1}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
   };
 
   // new dependency
@@ -374,9 +374,9 @@ TEST_CASE("Adding CirclesDependencies to DependenciesBank", "[expertBackground]"
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_CIRCLES},
       {"type", type},
-      {"reason", std::vector<IDependency::Reason>{reason1, reason2}},
+      {"reasons", std::vector<IDependency::Reason>{reason1, reason2}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1, dependentDependencies2}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
   };
 
   // new dependency
@@ -467,9 +467,9 @@ TEST_CASE("Adding LineCircleDependencies to DependenciesBank", "[expertBackgroun
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_LINE_AND_CIRCLE},
       {"type", type},
-      {"reason", std::vector<IDependency::Reason>{reason1, reason2}},
+      {"reasons", std::vector<IDependency::Reason>{reason1, reason2}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1, dependentDependencies2}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
   };
 
   // new dependency
@@ -564,9 +564,9 @@ TEST_CASE("Adding CirclePolygonDependencies to DependenciesBank", "[expertBackgr
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_CIRCLE_AND_POLYGON},
       {"type", type1},
-      {"reason", std::vector<IDependency::Reason>{reason1, reason2}},
+      {"reasons", std::vector<IDependency::Reason>{reason1, reason2}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1, dependentDependencies2}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
   };
 
   const json dependency5Json = {
@@ -579,9 +579,9 @@ TEST_CASE("Adding CirclePolygonDependencies to DependenciesBank", "[expertBackgr
       {"id", dependency4Id},
       {"category", IDependency::Category::OF_CIRCLE_AND_POLYGON},
       {"type", type2},
-      {"reason", std::vector<IDependency::Reason>{reason1}},
+      {"reasons", std::vector<IDependency::Reason>{reason1}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
   };
 
   // new dependency
@@ -690,9 +690,9 @@ TEST_CASE("Adding PointsPairsDependencies to DependenciesBank", "[expertBackgrou
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_POINTS_PAIRS},
       {"type", type1},
-      {"reason", std::vector<IDependency::Reason>{reason1, reason2}},
+      {"reasons", std::vector<IDependency::Reason>{reason1, reason2}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1, dependentDependencies2}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
   };
 
   // new dependency
@@ -833,9 +833,9 @@ TEST_CASE("Adding AnglesDependencies to DependenciesBank", "[expertBackground]")
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_ANGLES},
       {"type", type},
-      {"reason", std::vector<IDependency::Reason>{reason1, reason2}},
+      {"reasons", std::vector<IDependency::Reason>{reason1, reason2}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1, dependentDependencies2}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
   };
 
   // new dependency
@@ -971,9 +971,9 @@ TEST_CASE("Adding PolygonsDependencies to DependenciesBank", "[expertBackground]
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_POLYGONS},
       {"type", type1},
-      {"reason", std::vector<IDependency::Reason>{reason1, reason2}},
+      {"reasons", std::vector<IDependency::Reason>{reason1, reason2}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1, dependentDependencies2}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
   };
 
   const json dependency5Json = {
@@ -986,9 +986,9 @@ TEST_CASE("Adding PolygonsDependencies to DependenciesBank", "[expertBackground]
       {"id", dependency4Id},
       {"category", IDependency::Category::OF_POLYGONS},
       {"type", type2},
-      {"reason", std::vector<IDependency::Reason>{reason1}},
+      {"reasons", std::vector<IDependency::Reason>{reason1}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
   };
 
   // add new dependency
@@ -1120,9 +1120,9 @@ TEST_CASE("Adding PolygonTypeDependencies to DependenciesBank", "[expertBackgrou
       {"id", dependency1Id},
       {"category", IDependency::Category::POLYGON_TYPE},
       {"type", type},
-      {"reason", std::vector<IDependency::Reason>{reason1, reason2}},
+      {"reasons", std::vector<IDependency::Reason>{reason1, reason2}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1, dependentDependencies2}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
   };
 
   // new dependency
@@ -1212,9 +1212,9 @@ TEST_CASE("Adding LinePointPairDependencies to DependenciesBank", "[expertBackgr
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_LINE_AND_POINTS_PAIR},
       {"type", type1},
-      {"reason", std::vector<IDependency::Reason>{reason1, reason2}},
+      {"reasons", std::vector<IDependency::Reason>{reason1, reason2}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1, dependentDependencies2}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
   };
 
   // new dependency
@@ -1312,9 +1312,9 @@ TEST_CASE("Adding LineAngleDependencies to DependenciesBank", "[expertBackground
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_LINE_AND_ANGLE},
       {"type", type},
-      {"reason", std::vector<IDependency::Reason>{reason1, reason2}},
+      {"reasons", std::vector<IDependency::Reason>{reason1, reason2}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1, dependentDependencies2}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
   };
 
   // new dependency
@@ -1427,9 +1427,9 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_POINTS_PAIRS_PAIR_AND_POINTS_PAIR},
       {"type", type},
-      {"reason", std::vector<IDependency::Reason>{reason1}},
+      {"reasons", std::vector<IDependency::Reason>{reason1}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
   };
 
   // new dependency
@@ -1575,9 +1575,9 @@ TEST_CASE("Adding PolygonPointsPairDependency to DependenciesBank", "[expertBack
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_POLYGON_AND_POINTS_PAIRS},
       {"type", type1},
-      {"reason", std::vector<IDependency::Reason>{reason1, reason2}},
+      {"reasons", std::vector<IDependency::Reason>{reason1, reason2}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1, dependentDependencies2}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
   };
 
   const json dependency5Json = {
@@ -1591,9 +1591,9 @@ TEST_CASE("Adding PolygonPointsPairDependency to DependenciesBank", "[expertBack
       {"id", dependency4Id},
       {"category", IDependency::Category::OF_POLYGON_AND_POINTS_PAIRS},
       {"type", type2},
-      {"reason", std::vector<IDependency::Reason>{reason1}},
+      {"reasons", std::vector<IDependency::Reason>{reason1}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
   };
 
   // new dependency
@@ -1705,9 +1705,9 @@ TEST_CASE("Adding PolygonExpressionDependency to DependenciesBank", "[expertBack
       {"id", dependency1Id},
       {"category", IDependency::Category::OF_POLYGON_AND_EXPRESSION},
       {"type", type1},
-      {"reason", std::vector<IDependency::Reason>{reason1, reason2}},
+      {"reasons", std::vector<IDependency::Reason>{reason1, reason2}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1, dependentDependencies2}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1, importanceLevel2}}
   };
 
   const json dependency5Json = {
@@ -1721,9 +1721,9 @@ TEST_CASE("Adding PolygonExpressionDependency to DependenciesBank", "[expertBack
       {"id", dependency4Id},
       {"category", IDependency::Category::OF_POLYGON_AND_EXPRESSION},
       {"type", type2},
-      {"reason", std::vector<IDependency::Reason>{reason1}},
+      {"reasons", std::vector<IDependency::Reason>{reason1}},
       {"dependentDependencies", std::vector<std::vector<size_t>>{dependentDependencies1}},
-      {"importance", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
+      {"importances", std::vector<IDependency::ImportanceLevel>{importanceLevel1}}
   };
 
   // new dependency

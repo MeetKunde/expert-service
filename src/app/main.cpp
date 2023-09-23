@@ -11,7 +11,7 @@ int main() {
 
   std::cout << "Compute Service Started..." << std::endl;
 
-  server.Options("/(.*)", [&](const httplib::Request& req, httplib::Response& res) {
+  server.Options("/(.*)", [&](const httplib::Request& /*req*/, httplib::Response& res) {
     res.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
     res.set_header("Content-Type", "text/html; charset=utf-8");
     res.set_header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Accept, Authorization");
@@ -31,12 +31,13 @@ int main() {
       expert.useKnowledge();
       const json output = expert.exportSolution();
 
+      //std::cout << input.dump(2) << std::endl;
+
       res.set_header("Access-Control-Allow-Origin", " * ");
       res.set_header("Access-Control-Allow-Credentials", "true");
       res.set_header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
       res.set_header("Access-Control-Expose-Headers", "Content-Length");
       res.set_header("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-Requested-With, Range");
-
       res.set_content(output.dump(), "application/json");
     } catch (const std::exception& exception) {
       std::cout << exception.what() << std::endl;

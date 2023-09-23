@@ -182,9 +182,9 @@ class Dependency : public IDependency {
         {"id", id},
         {"category", category},
         {"type", type},
-        {"reason", reasons},
+        {"reasons", reasons},
         {"dependentDependencies", dependentDependencies},
-        {"importance", importances}
+        {"importances", importances}
     };
   }
 
