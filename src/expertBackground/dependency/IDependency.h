@@ -133,9 +133,9 @@ class IDependency {
   virtual inline size_t getId() const = 0;
   virtual inline Category getCategory() const = 0;
   virtual inline Type getType() const = 0;
-  virtual inline Reason getReason() const = 0;
-  virtual inline const std::vector<size_t>& getDependentDependencies() const = 0;
-  virtual inline ImportanceLevel getImportanceLevel() const = 0;
+  virtual inline const std::vector<Reason>& getReasons() const = 0;
+  virtual inline const std::vector<std::vector<size_t>>& getDependentDependencies() const = 0;
+  virtual inline const std::vector<ImportanceLevel>& getImportanceLevels() const = 0;
 
   virtual ~IDependency() {}
 };

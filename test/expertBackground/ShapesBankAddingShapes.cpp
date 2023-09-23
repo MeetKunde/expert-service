@@ -101,7 +101,7 @@ TEST_CASE("Adding line to ShapesBank", "[expertBackground]") {
   const std::vector<std::string> line1PointsOrder{point7Id, point4Id, point5Id, point6Id};
   const size_t line1PositionInLinesVector{0};
   const json line1Json{
-      {"object", {{"a", line1A}, {"b", line1B}, {"end1Id", point7Id}, {"end2Id", point6Id}, {"id", line1Id}, {"pointsOn", json(line1PointsOrder)}, {"type", line1Type}}},
+      {"object", {{"a", line1A}, {"b", line1B}, {"end1Id", point7Id}, {"end2Id", point6Id}, {"id", line1Id}, {"pointsOn", line1PointsOrder}, {"type", line1Type}}},
       {"position", 0}
   };
 
@@ -199,7 +199,7 @@ TEST_CASE("Adding circle to ShapesBank", "[expertBackground]") {
   const std::vector<std::string> circlePointsOrder{point5Id, point2Id, point4Id, point3Id};
   const size_t circlePositionInCirclesVector{0};
   const json circleJson{
-      {"object", {{"centerId", circleCenterId}, {"cx", circleCenterCoordX}, {"cy", circleCenterCoordY}, {"id", circleId}, {"pointsOn", json(circlePointsOrder)}, {"r", circleRadius}}},
+      {"object", {{"centerId", circleCenterId}, {"cx", circleCenterCoordX}, {"cy", circleCenterCoordY}, {"id", circleId}, {"pointsOn", circlePointsOrder}, {"r", circleRadius}}},
       {"position", 0}
   };
 

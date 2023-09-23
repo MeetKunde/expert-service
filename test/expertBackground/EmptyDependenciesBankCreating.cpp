@@ -205,9 +205,9 @@ TEST_CASE("Creating DependenciesBank based on ShapesBank", "[expertBackground]")
     bool found = false;
 
     for(const auto& expEqu: expectedLengths) {
-      if(equ->getFirstObject() == expEqu[0] && equ->getSecondObject() == expEqu[1] && equ->getDependentDependencies().empty() &&
-          equ->getImportanceLevel() == IDependency::ImportanceLevel::LOW && equ->getCategory() == IDependency::Category::FORMULA &&
-          equ->getType() == IDependency::Type::SEGMENT_LENGTH && equ->getReason() == IDependency::Reason::POINTS_ARE_THE_SAME) {
+      if(equ->getFirstObject() == expEqu[0] && equ->getSecondObject() == expEqu[1] && equ->getDependentDependencies().front().empty() &&
+          equ->getImportanceLevels().front() == IDependency::ImportanceLevel::LOW && equ->getCategory() == IDependency::Category::FORMULA &&
+          equ->getType() == IDependency::Type::SEGMENT_LENGTH && equ->getReasons().front() == IDependency::Reason::POINTS_ARE_THE_SAME) {
             found = true;
       }
     }
@@ -220,17 +220,17 @@ TEST_CASE("Creating DependenciesBank based on ShapesBank", "[expertBackground]")
     bool found = false;
 
     for(const auto& expEqu: expectedMeasures1) {
-      if(equ->getFirstObject() == expEqu[0] && equ->getSecondObject() == expEqu[1] && equ->getDependentDependencies().empty() &&
-          equ->getImportanceLevel() == IDependency::ImportanceLevel::LOW && equ->getCategory() == IDependency::Category::FORMULA &&
-          equ->getType() == IDependency::Type::ANGLE_MEASURE && equ->getReason() == IDependency::Reason::POINTS_ARE_THE_SAME) {
+      if(equ->getFirstObject() == expEqu[0] && equ->getSecondObject() == expEqu[1] && equ->getDependentDependencies().front().empty() &&
+          equ->getImportanceLevels().front() == IDependency::ImportanceLevel::LOW && equ->getCategory() == IDependency::Category::FORMULA &&
+          equ->getType() == IDependency::Type::ANGLE_MEASURE && equ->getReasons().front() == IDependency::Reason::POINTS_ARE_THE_SAME) {
             found = true;
       }
     }
 
     for(const auto& expEqu: expectedMeasures2) {
-      if(equ->getFirstObject() == expEqu[0] && equ->getSecondObject() == expEqu[1] && equ->getDependentDependencies().empty() &&
-          equ->getImportanceLevel() == IDependency::ImportanceLevel::LOW && equ->getCategory() == IDependency::Category::FORMULA &&
-          equ->getType() == IDependency::Type::ANGLE_MEASURE && equ->getReason() == IDependency::Reason::ARMS_ARE_THE_SAME) {
+      if(equ->getFirstObject() == expEqu[0] && equ->getSecondObject() == expEqu[1] && equ->getDependentDependencies().front().empty() &&
+          equ->getImportanceLevels().front() == IDependency::ImportanceLevel::LOW && equ->getCategory() == IDependency::Category::FORMULA &&
+          equ->getType() == IDependency::Type::ANGLE_MEASURE && equ->getReasons().front() == IDependency::Reason::ARMS_ARE_THE_SAME) {
             found = true;
       }
     }

@@ -133,20 +133,20 @@ class Expert {
   bool pointsLiesOnOneLine(const std::vector<std::string>& pointIds) const;
   unsigned int setEqualSides(const std::string& segment1End1Id, const std::string& segment1End2Id,
                              const std::string& segment2End1Id, const std::string& segment2End2Id,
-                             IDependency::Reason reason, std::vector<size_t> basedOn, 
+                             IDependency::Reason reason, std::vector<size_t> dependentDependencies,
                              IDependency::ImportanceLevel importanceLevel);
   unsigned int setEqualAngles(const std::string& angle1Point1, const std::string& angle1Vertex, const std::string& angle1Point2,
                               const std::string& angle2Point1, const std::string& angle2Vertex, const std::string& angle2Point2,
                               AngleType anglesType,
-                              IDependency::Reason reason, std::vector<size_t> basedOn, 
+                              IDependency::Reason reason, std::vector<size_t> dependentDependencies,
                               IDependency::ImportanceLevel importanceLevel);
   unsigned int setSidesParallelism(const std::string& segment1End1Id, const std::string& segment1End2Id,
                                    const std::string& segment2End1Id, const std::string& segment2End2Id,
-                                   IDependency::Reason reason, std::vector<size_t> basedOn, 
+                                   IDependency::Reason reason, std::vector<size_t> dependentDependencies,
                                    IDependency::ImportanceLevel importanceLevel);
   unsigned int setSidesPerpendicularity(const std::string& segment1End1Id, const std::string& segment1End2Id,
                                         const std::string& segment2End1Id, const std::string&segment2End2Id,
-                                        IDependency::Reason reason, std::vector<size_t> basedOn,
+                                        IDependency::Reason reason, std::vector<size_t> dependentDependencies,
                                         IDependency::ImportanceLevel importanceLevel);
 
   // LinesTheorems.cpp

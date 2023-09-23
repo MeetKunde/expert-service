@@ -27,42 +27,42 @@ bool Expert::pointsLiesOnOneLine(const std::vector<std::string>& pointIds) const
 
 unsigned int Expert::setEqualSides(const std::string& segment1End1Id, const std::string& segment1End2Id,
                            const std::string& segment2End1Id, const std::string& segment2End2Id,
-                           IDependency::Reason reason, std::vector<size_t> basedOn,
+                           IDependency::Reason reason, std::vector<size_t> dependentDependencies,
                            IDependency::ImportanceLevel importanceLevel) {
 
   return dependenciesBank.addPointsPairsDependency(segment1End1Id, segment1End2Id,
                                                    segment2End1Id, segment2End2Id,
-                                                   PointsPairsDependencies::EQUAL_SEGMENTS, reason,std::move(basedOn), importanceLevel);
+                                                   PointsPairsDependencies::EQUAL_SEGMENTS, reason,std::move(dependentDependencies), importanceLevel);
 }
 
 unsigned int Expert::setEqualAngles(const std::string& angle1Point1, const std::string& angle1Vertex, const std::string& angle1Point2,
                             const std::string& angle2Point1, const std::string& angle2Vertex, const std::string& angle2Point2,
                             AngleType anglesType,
-                            IDependency::Reason reason, std::vector<size_t> basedOn, IDependency::ImportanceLevel importanceLevel) {
+                            IDependency::Reason reason, std::vector<size_t> dependentDependencies, IDependency::ImportanceLevel importanceLevel) {
 
   return dependenciesBank.addAnglesDependency(angle1Point1, angle1Vertex, angle1Point2, anglesType,
                                               angle2Point1, angle2Vertex, angle2Point2, anglesType,
-                                              AnglesDependencies::EQUAL_ANGLES, reason,std::move(basedOn), importanceLevel);
+                                              AnglesDependencies::EQUAL_ANGLES, reason,std::move(dependentDependencies), importanceLevel);
 }
 
 unsigned int Expert::setSidesParallelism(const std::string& segment1End1Id, const std::string& segment1End2Id,
                                  const std::string& segment2End1Id, const std::string& segment2End2Id,
-                                 IDependency::Reason reason, std::vector<size_t> basedOn,
+                                 IDependency::Reason reason, std::vector<size_t> dependentDependencies,
                                  IDependency::ImportanceLevel importanceLevel) {
 
   return dependenciesBank.addLinesDependency(shapesBank.getLineIdThrowTwoPoints(segment1End1Id, segment1End2Id),
                                              shapesBank.getLineIdThrowTwoPoints(segment2End1Id, segment2End2Id),
-                                             LinesDependencies::PARALLEL_LINES, reason, std::move(basedOn), importanceLevel);
+                                             LinesDependencies::PARALLEL_LINES, reason, std::move(dependentDependencies), importanceLevel);
 }
 
 unsigned int Expert::setSidesPerpendicularity(const std::string& segment1End1Id, const std::string& segment1End2Id,
                                       const std::string& segment2End1Id, const std::string&segment2End2Id,
-                                      IDependency::Reason reason, std::vector<size_t> basedOn,
+                                      IDependency::Reason reason, std::vector<size_t> dependentDependencies,
                                       IDependency::ImportanceLevel importanceLevel) {
 
     return dependenciesBank.addLinesDependency(shapesBank.getLineIdThrowTwoPoints(segment1End1Id, segment1End2Id),
                                                shapesBank.getLineIdThrowTwoPoints(segment2End1Id, segment2End2Id),
-                                               LinesDependencies::PERPENDICULAR_LINES, reason, std::move(basedOn), importanceLevel);
+                                               LinesDependencies::PERPENDICULAR_LINES, reason, std::move(dependentDependencies), importanceLevel);
 }
 
 }  // namespace expert

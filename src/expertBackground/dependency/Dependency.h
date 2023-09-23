@@ -20,32 +20,32 @@ class Dependency : public IDependency {
   /**
    * @brief Dependency ID
    */
-  size_t dependencyId;
+  size_t id;
 
   /**
    * @brief Dependency category
    */
-  Category dependencyCategory;
+  Category category;
 
   /**
    * @brief Dependency type
    */
-  Type dependencyType;
+  Type type;
 
   /**
-   * @brief Dependency reason
+   * @brief Dependency reasons
    */
-  Reason dependencyReason;
+  std::vector<Reason> reasons;
 
   /**
    * @brief IDs of dependencies from which this dependency is implied
    */
-  std::vector<size_t> basedOn;
+  std::vector<std::vector<size_t>> dependentDependencies;
 
   /**
    * @brief Importance of dependency
    */
-  ImportanceLevel importance;
+  std::vector<ImportanceLevel> importances;
 
  public:
   /**
@@ -57,20 +57,20 @@ class Dependency : public IDependency {
    * @param category
    * @param type
    * @param reason
-   * @param basedOn
+   * @param dependentDependencies
    * @param importanceLevel
    */
   Dependency(T1 object1, T2 object2, bool sameMeaningOfModels, size_t identifier, Category category, Type type, Reason reason,
-                 std::vector<size_t> basedOn, ImportanceLevel importanceLevel)
+                 std::vector<size_t> dependentDependencies, ImportanceLevel importanceLevel)
       : object1{object1},
         object2{object2},
         sameMeaningOfModels{sameMeaningOfModels},
-        dependencyId{identifier},
-        dependencyCategory{category},
-        dependencyType{type},
-        dependencyReason{reason},
-        basedOn{std::move(basedOn)},
-        importance{importanceLevel} { }
+        id{identifier},
+        category{category},
+        type{type},
+        reasons{reason},
+        dependentDependencies{std::move(dependentDependencies)},
+        importances{importanceLevel} { }
 
   /**
    * @brief Constructor of a new Dependency object
@@ -81,12 +81,12 @@ class Dependency : public IDependency {
       : object1{object1},
         object2{object2},
         sameMeaningOfModels{sameMeaningOfModels},
-        dependencyId{dependency.dependencyId},
-        dependencyCategory{dependency.dependencyCategory},
-        dependencyType{dependency.dependencyType},
-        dependencyReason{dependency.dependencyReason},
-        basedOn{dependency.basedOn},
-        importance{dependency.importance} {}
+        id{dependency.id},
+        category{dependency.category},
+        type{dependency.type},
+        reasons{dependency.dependencyReason},
+        dependentDependencies{dependency.dependentDependencies},
+        importances{dependency.importance} {}
 
   /**
    * @brief Override of the assignment operator
@@ -98,14 +98,20 @@ class Dependency : public IDependency {
     object1 = dependency.object1;
     object2 = dependency.object2;
     sameMeaningOfModels = dependency.sameMeaningOfModels;
-    dependencyId = dependency.dependencyId;
-    dependencyCategory = dependency.dependencyCategory;
-    dependencyType = dependency.dependencyType;
-    dependencyReason = dependency.dependencyReason;
-    basedOn = dependency.basedOn;
-    importance = dependency.importance;
+    id = dependency.id;
+    category = dependency.category;
+    type = dependency.type;
+    reasons = dependency.dependencyReason;
+    dependentDependencies = dependency.dependentDependencies;
+    importances = dependency.importance;
 
     return *this;
+  }
+
+  void addNewPredecessor(Reason newReason, std::vector<size_t> newDependentDependencies, ImportanceLevel newImportanceLevel) {
+    reasons.emplace_back(newReason);
+    importances.emplace_back(newImportanceLevel);
+    dependentDependencies.emplace_back(std::move(newDependentDependencies));
   }
 
   /**
@@ -127,42 +133,42 @@ class Dependency : public IDependency {
    *
    * @return dependency ID
    */
-  inline size_t getId() const override { return dependencyId; }
+  inline size_t getId() const override { return id; }
 
   /**
    * @brief Dependency category getter
    *
    * @return dependency category
    */
-  inline Category getCategory() const override { return dependencyCategory; }
+  inline Category getCategory() const override { return category; }
 
   /**
    * @brief Dependency type getter
    *
    * @return dependency type
    */
-  inline Type getType() const override { return dependencyType; }
+  inline Type getType() const override { return type; }
 
   /**
    * @brief Dependency reason getter
    *
    * @return dependency reason
    */
-  inline Reason getReason() const override { return dependencyReason; }
+  inline const std::vector<Reason>& getReasons() const override { return reasons; }
 
   /**
    * @brief Reference to vector of included dependencies on which this is implied IDs getter
    *
    * @return reference to vector of included dependencies on which this is implied IDs
    */
-  inline const std::vector<size_t>& getDependentDependencies() const override { return basedOn; }
+  inline const std::vector<std::vector<size_t>>& getDependentDependencies() const override { return dependentDependencies; }
 
   /**
    * @brief Dependency importance getter
    *
    * @return dependency reason
    */
-  inline ImportanceLevel getImportanceLevel() const override { return importance; }
+  inline const std::vector<ImportanceLevel>& getImportanceLevels() const override { return importances; }
 
   /**
    * @brief Getting JSON object representing Dependency object
@@ -173,12 +179,12 @@ class Dependency : public IDependency {
     return {
         {"object1", object1.getJsonObject()},
         {"object2", object2.getJsonObject()},
-        {"id", dependencyId},
-        {"category", dependencyCategory},
-        {"type", dependencyType},
-        {"reason", dependencyReason},
-        {"basedOn", basedOn},
-        {"importance", importance}
+        {"id", id},
+        {"category", category},
+        {"type", type},
+        {"reason", reasons},
+        {"dependentDependencies", dependentDependencies},
+        {"importance", importances}
     };
   }
 
@@ -187,10 +193,6 @@ class Dependency : public IDependency {
   }
 
   friend bool operator==(const Dependency& lhs, const Dependency& rhs) {
-    if (lhs.getReason() != rhs.getReason()) {
-      return false;
-    }
-
     if constexpr (std::is_same_v<T1, T2>) {
       if(lhs.sameMeaningOfModels && rhs.sameMeaningOfModels) {
         return (lhs.getFirstObject() == rhs.getFirstObject() && lhs.getSecondObject() == rhs.getSecondObject()) ||
