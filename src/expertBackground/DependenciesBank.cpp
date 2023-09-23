@@ -611,15 +611,9 @@ json DependenciesBank::getDependenciesAsJsonObjects() const {
   std::map<IDependency::Type, std::vector<size_t>>::const_iterator mIt;
   std::vector<size_t>::const_iterator vIt;
   for (mIt = dependenciesMap.begin(); mIt != dependenciesMap.end(); ++mIt) {
-    std::vector<json> dependencies;
     for (vIt = mIt->second.begin(); vIt != mIt->second.end(); ++vIt) {
-      dependencies.push_back(dependenciesVector.at((*vIt))->getObjectAsJson());
+      result.push_back(dependenciesVector.at((*vIt))->getObjectAsJson());
     }
-
-    result.push_back({
-        {"type", mIt->first},
-        {"dependencies", json(dependencies)},
-    });
   }
 
   return result;

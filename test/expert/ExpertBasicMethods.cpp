@@ -11,13 +11,15 @@ size_t filterObjectPos(const json& objects, const std::string& identifier) {
 }
 
 json filterDependenciesByType(const json& dependencies, DependencyType type) {
-  for(const auto& dependenciesGroup: dependencies) {
-    if(dependenciesGroup["type"] == type) {
-      return dependenciesGroup["dependencies"];
+  json result{};
+
+  for(const auto& dep: dependencies) {
+    if(dep["type"] == type) {
+      result.push_back(dep);
     }
   }
 
-  return json{};
+  return result;
 }
 
 TEST_CASE("Empty expert", "[expert]") {
@@ -35,30 +37,7 @@ TEST_CASE("Empty expert", "[expert]") {
         {"points_on_line_line", std::vector<json>{}},
       }},
       {"indexes_of_variables", json{}},
-      {"dependencies", {
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::SEGMENT_LENGTH }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::ANGLE_MEASURE }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::EQUATION }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::POLYGON_TYPE }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::POLYGON_PERIMETER }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::POLYGON_AREA }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::EQUAL_SEGMENTS }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::EQUAL_ANGLES }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::PERPENDICULAR_LINES }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::PARALLEL_LINES }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::TANGENT_LINE_TO_CIRCLE }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::TANGENT_CIRCLE_TO_CIRCLE }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::BISECTOR_LINE }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::MID_PERPENDICULAR_LINE }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::INSCRIBED_CIRCLE }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::CIRCUMSCRIBED_CIRCLE }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::ESCRIBED_CIRCLE }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::MEDIAN }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::ALTITUDE }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::MID_SEGMENT }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::SIMILAR_TRIANGLES }},
-        {{"dependencies", std::vector<json>{}}, {"type", DependencyType::CONGRUENT_TRIANGLES }}
-      }},
+      {"dependencies", { }},
   };
 
   Expert expert{};
@@ -308,28 +287,14 @@ TEST_CASE("Importing task(part 1) and exporting empty solution from expert", "[e
     REQUIRE(found);
   }
 
-  size_t allDependenciesNumber{0};
-  for(const auto& dep: solution["dependencies"]) {
-    allDependenciesNumber += dep["dependencies"].size();
-  }
-
-  REQUIRE((expectedLengths.size() + expectedMeasures.size() + expectedFormulas.size()) == allDependenciesNumber);
-
-  for(const auto& depVec: solution["dependencies"]) {
-    for(const auto& dep: depVec["dependencies"]) {
-      std::cout << dep << std::endl;
-    }
-  }
-  std::cout << std::endl;
+  REQUIRE((expectedLengths.size() + expectedMeasures.size() + expectedFormulas.size()) == solution["dependencies"].size());
 
   for(const auto& len: expectedLengths) {
     bool found = false;
-    for(const auto& depVec: solution["dependencies"]) {
-      for(const auto& dep: depVec["dependencies"]) {
-        if(len == dep) {
-          found = true;
-          break;
-        }
+    for(const auto& dep: solution["dependencies"]) {
+      if(len == dep) {
+        found = true;
+        break;
       }
     }
     REQUIRE(found);
@@ -337,26 +302,21 @@ TEST_CASE("Importing task(part 1) and exporting empty solution from expert", "[e
 
   for(const auto& meas: expectedMeasures) {
     bool found = false;
-    for(const auto& depVec: solution["dependencies"]) {
-      for(const auto& dep: depVec["dependencies"]) {
-        if(meas == dep) {
-          found = true;
-          break;
-        }
+    for(const auto& dep: solution["dependencies"]) {
+      if(meas == dep) {
+        found = true;
+        break;
       }
     }
-    if(!found) { std::cout << meas << std::endl; }
     REQUIRE(found);
   }
 
   for(const auto& form: expectedFormulas) {
     bool found = false;
-    for(const auto& depVec: solution["dependencies"]) {
-      for(const auto& dep: depVec["dependencies"]) {
-        if(form == dep) {
-          found = true;
-          break;
-        }
+    for(const auto& dep: solution["dependencies"]) {
+      if(form == dep) {
+        found = true;
+        break;
       }
     }
     REQUIRE(found);
@@ -377,14 +337,13 @@ TEST_CASE("Importing task(part 2) and exporting empty solution from expert", "[e
   Expert expert{};
   REQUIRE_NOTHROW(expert.importTask(task3));
   const json solution = expert.exportSolution();
-  const json dependencies{solution["dependencies"]};
 
-  const json parallelLines{filterDependenciesByType(dependencies, DependencyType::PARALLEL_LINES)};
-  const json perpendicularLines{filterDependenciesByType(dependencies, DependencyType::PERPENDICULAR_LINES)};
-  const json midPerpendicularLines{filterDependenciesByType(dependencies, DependencyType::MID_PERPENDICULAR_LINE)};
-  const json bisectors{filterDependenciesByType(dependencies, DependencyType::BISECTOR_LINE)};
-  const json tangentLineCircles{filterDependenciesByType(dependencies, DependencyType::TANGENT_LINE_TO_CIRCLE)};
-  const json tangentCircleCircles{filterDependenciesByType(dependencies, DependencyType::TANGENT_CIRCLE_TO_CIRCLE)};
+  const json parallelLines{filterDependenciesByType(solution["dependencies"], DependencyType::PARALLEL_LINES)};
+  const json perpendicularLines{filterDependenciesByType(solution["dependencies"], DependencyType::PERPENDICULAR_LINES)};
+  const json midPerpendicularLines{filterDependenciesByType(solution["dependencies"], DependencyType::MID_PERPENDICULAR_LINE)};
+  const json bisectors{filterDependenciesByType(solution["dependencies"], DependencyType::BISECTOR_LINE)};
+  const json tangentLineCircles{filterDependenciesByType(solution["dependencies"], DependencyType::TANGENT_LINE_TO_CIRCLE)};
+  const json tangentCircleCircles{filterDependenciesByType(solution["dependencies"], DependencyType::TANGENT_CIRCLE_TO_CIRCLE)};
 
   const std::vector<json> expectedParallelLines{
     {{"dependentDependencies", std::vector<std::vector<size_t>>{{}}}, {"category", DependencyCategory::OF_LINES}, {"id",655}, {"importance", std::vector<DependencyImportanceLevel>{DependencyImportanceLevel::HIGH}}, {"object1",{{"id","jxgBoard1L24"}}}, {"object2",{{"id","jxgBoard1L28"}}}, {"reason", std::vector<DependencyReason>{DependencyReason::USER_DEFINED}}, {"type", DependencyType::PARALLEL_LINES}}
@@ -431,10 +390,9 @@ TEST_CASE("Importing task(part 3) and exporting empty solution from expert", "[e
   Expert expert{};
   REQUIRE_NOTHROW(expert.importTask(task4));
   const json solution = expert.exportSolution();
-  const json dependencies{solution["dependencies"]};
 
-  const json equalSegments{filterDependenciesByType(dependencies, DependencyType::EQUAL_SEGMENTS)};
-  const json equalAngles{filterDependenciesByType(dependencies, DependencyType::EQUAL_ANGLES)};
+  const json equalSegments{filterDependenciesByType(solution["dependencies"], DependencyType::EQUAL_SEGMENTS)};
+  const json equalAngles{filterDependenciesByType(solution["dependencies"], DependencyType::EQUAL_ANGLES)};
 
   const std::vector<json> expectedEqualSegments{
     {{"dependentDependencies", std::vector<std::vector<size_t>>{{}}}, {"category", DependencyCategory::OF_POINTS_PAIRS}, {"id",1245}, {"importance", std::vector<DependencyImportanceLevel>{DependencyImportanceLevel::HIGH}}, {"object1",{{"end1Id","jxgBoard1P20"}, {"end2Id","jxgBoard1P25"}}}, {"object2",{{"end1Id","jxgBoard1P25"}, {"end2Id","jxgBoard1P27"}}}, {"reason", std::vector<DependencyReason>{DependencyReason::USER_DEFINED}}, {"type", DependencyType::EQUAL_SEGMENTS}},
@@ -482,13 +440,12 @@ TEST_CASE("Importing task(part 4) and exporting empty solution from expert", "[e
   Expert expert{};
   REQUIRE_NOTHROW(expert.importTask(task5));
   const json solution = expert.exportSolution();
-  const json dependencies{solution["dependencies"]};
 
-  const json medians{filterDependenciesByType(dependencies, DependencyType::MEDIAN)};
-  const json altitudes{filterDependenciesByType(dependencies, DependencyType::ALTITUDE)};
-  const json midSegments{filterDependenciesByType(dependencies, DependencyType::MID_SEGMENT)};
-  const json perimeters{filterDependenciesByType(dependencies, DependencyType::POLYGON_PERIMETER)};
-  const json areas{filterDependenciesByType(dependencies, DependencyType::POLYGON_AREA)};
+  const json medians{filterDependenciesByType(solution["dependencies"], DependencyType::MEDIAN)};
+  const json altitudes{filterDependenciesByType(solution["dependencies"], DependencyType::ALTITUDE)};
+  const json midSegments{filterDependenciesByType(solution["dependencies"], DependencyType::MID_SEGMENT)};
+  const json perimeters{filterDependenciesByType(solution["dependencies"], DependencyType::POLYGON_PERIMETER)};
+  const json areas{filterDependenciesByType(solution["dependencies"], DependencyType::POLYGON_AREA)};
 
   const std::vector<json> expectedMedians{
     {{"dependentDependencies", std::vector<std::vector<size_t>>{{}}}, {"category", DependencyCategory::OF_POLYGON_AND_POINTS_PAIRS}, {"id",1128}, {"importance", std::vector<DependencyImportanceLevel>{DependencyImportanceLevel::HIGH}}, {"object1",{{"verticesIds",std::vector<std::string>{"jxgBoard1P22", "jxgBoard1P20", "jxgBoard1P25"}}}}, {"object2",{{"end1Id","jxgBoard1P22"}, {"end2Id","jxgBoard1P60"}}}, {"reason", std::vector<DependencyReason>{DependencyReason::USER_DEFINED}}, {"type", DependencyType::MEDIAN}}
@@ -533,9 +490,8 @@ TEST_CASE("Importing task(part 5) and exporting empty solution from expert", "[e
   Expert expert{};
   REQUIRE_NOTHROW(expert.importTask(task6));
   const json solution = expert.exportSolution();
-  const json dependencies{solution["dependencies"]};
 
-  const json polygonTypes = filterDependenciesByType(dependencies, DependencyType::POLYGON_TYPE);
+  const json polygonTypes = filterDependenciesByType(solution["dependencies"], DependencyType::POLYGON_TYPE);
 
   const std::vector<json> expectedPolygonTypes{
     {{"dependentDependencies", std::vector<std::vector<size_t>>{{}}}, {"category", DependencyCategory::POLYGON_TYPE}, {"id",5615}, {"importance", std::vector<DependencyImportanceLevel>{DependencyImportanceLevel::HIGH}}, {"object1",{{"id",std::to_string(static_cast<unsigned int>(PolygonType::SCALENE_RIGHT_TRIANGLE))}}}, {"object2",{{"verticesIds",std::vector<std::string>{"jxgBoard1P20", "jxgBoard1P22", "jxgBoard1P25"}}}}, {"reason", std::vector<DependencyReason>{DependencyReason::USER_DEFINED}}, {"type", DependencyType::POLYGON_TYPE}},
@@ -567,11 +523,10 @@ TEST_CASE("Importing task(part 6) and exporting empty solution from expert", "[e
   Expert expert{};
   REQUIRE_NOTHROW(expert.importTask(task7));
   const json solution = expert.exportSolution();
-  const json dependencies{solution["dependencies"]};
 
-  const json inscribedCircles = filterDependenciesByType(dependencies, DependencyType::INSCRIBED_CIRCLE);
-  const json circumscribedCircles = filterDependenciesByType(dependencies, DependencyType::CIRCUMSCRIBED_CIRCLE);
-  const json escribedCircles = filterDependenciesByType(dependencies, DependencyType::ESCRIBED_CIRCLE);
+  const json inscribedCircles = filterDependenciesByType(solution["dependencies"], DependencyType::INSCRIBED_CIRCLE);
+  const json circumscribedCircles = filterDependenciesByType(solution["dependencies"], DependencyType::CIRCUMSCRIBED_CIRCLE);
+  const json escribedCircles = filterDependenciesByType(solution["dependencies"], DependencyType::ESCRIBED_CIRCLE);
 
   const std::vector<json> expectedInscribedCircles{
     {{"dependentDependencies", std::vector<std::vector<size_t>>{{}}}, {"category", DependencyCategory::OF_CIRCLE_AND_POLYGON}, {"id",936}, {"importance", std::vector<DependencyImportanceLevel>{DependencyImportanceLevel::HIGH}}, {"object1",{{"id","jxgBoard1C80"}}}, {"object2",{{"verticesIds",std::vector<std::string>{"jxgBoard1P36", "jxgBoard1P34", "jxgBoard1P32", "jxgBoard1P30"}}}}, {"reason", std::vector<DependencyReason>{DependencyReason::USER_DEFINED}}, {"type", DependencyType::INSCRIBED_CIRCLE}}
