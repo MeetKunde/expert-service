@@ -10,6 +10,9 @@ DependenciesBank::DependenciesBank()
     dependenciesMap.insert({(*iter), {}});
     lastChanges.insert({(*iter), false});
   }
+
+  const std::shared_ptr<IDependency> rootDependency{std::make_shared<ExerciseDescriptionDependency>(dependencyIdCounter)};
+  addNewDependency(rootDependency);
 }
 
 DependenciesBank::DependenciesBank(const ShapesBank* generatedShapesBank)
@@ -21,6 +24,9 @@ DependenciesBank::DependenciesBank(const ShapesBank* generatedShapesBank)
     dependenciesMap.insert({ (*iter), { } });
     lastChanges.insert({(*iter), false});
   }
+
+  const std::shared_ptr<IDependency> rootDependency{std::make_shared<ExerciseDescriptionDependency>(dependencyIdCounter)};
+  addNewDependency(rootDependency);
 
   const std::vector<PointModel> points = shapesBank->getPointsVector();
 
@@ -110,6 +116,10 @@ unsigned int DependenciesBank::addEquation(const symbolicAlgebra::Expression& le
     return 0;
   }
 
+  if(checkIfDependencyIsPredecessor(dependency)) {
+    return 0;
+  }
+
   std::set<std::string> names;
   leftSide.getIncludedVariables(names);
   rightSide.getIncludedVariables(names);
@@ -147,6 +157,10 @@ unsigned int DependenciesBank::addLength(const std::string& point1Id, const std:
     if(!reasonExist) {
       dependencySearch.second->addNewPredecessor(reason, dependentDependencies, importanceLevel);
     }
+    return 0;
+  }
+
+  if(checkIfDependencyIsPredecessor(dependency)) {
     return 0;
   }
 
@@ -192,6 +206,10 @@ unsigned int DependenciesBank::addConvexAngle(const std::string& point1Id, const
     return 0;
   }
 
+  if(checkIfDependencyIsPredecessor(dependency)) {
+    return 0;
+  }
+
   std::set<std::string> names;
   names.insert(name.first);
   value.getIncludedVariables(names);
@@ -231,6 +249,10 @@ unsigned int DependenciesBank::addConcaveAngle(const std::string& point1Id, cons
     if(!reasonExist) {
       dependencySearch.second->addNewPredecessor(reason, dependentDependencies, importanceLevel);
     }
+    return 0;
+  }
+
+  if(checkIfDependencyIsPredecessor(dependency)) {
     return 0;
   }
 
@@ -280,6 +302,10 @@ unsigned int DependenciesBank::addLinesDependency(const std::string& id1, const 
     return 0;
   }
 
+  if(checkIfDependencyIsPredecessor(dependency)) {
+    return 0;
+  }
+
   addNewDependency(dependency);
   return 1;
 }
@@ -311,6 +337,10 @@ unsigned int DependenciesBank::addCirclesDependency(const std::string& id1, cons
     return 0;
   }
 
+  if(checkIfDependencyIsPredecessor(dependency)) {
+    return 0;
+  }
+
   addNewDependency(dependency);
   return 1;
 }
@@ -333,6 +363,10 @@ unsigned int DependenciesBank::addPointsPairsDependency(const std::string& pair1
     if(!reasonExist) {
       dependencySearch.second->addNewPredecessor(reason, dependentDependencies, importanceLevel);
     }
+    return 0;
+  }
+
+  if(checkIfDependencyIsPredecessor(dependency)) {
     return 0;
   }
 
@@ -367,6 +401,10 @@ unsigned int DependenciesBank::addAnglesDependency(const std::string& angle1Poin
     return 0;
   }
 
+  if(checkIfDependencyIsPredecessor(dependency)) {
+    return 0;
+  }
+
   addNewDependency(dependency);
   return 1;
 }
@@ -390,6 +428,10 @@ unsigned int DependenciesBank::addPolygonsDependency(const std::vector<std::stri
     if(!reasonExist) {
       dependencySearch.second->addNewPredecessor(reason, dependentDependencies, importanceLevel);
     }
+    return 0;
+  }
+
+  if(checkIfDependencyIsPredecessor(dependency)) {
     return 0;
   }
 
@@ -417,6 +459,10 @@ unsigned int DependenciesBank::addLineCircleDependency(const std::string& lineId
     return 0;
   }
 
+  if(checkIfDependencyIsPredecessor(dependency)) {
+    return 0;
+  }
+
   addNewDependency(dependency);
   return 1;
 }
@@ -439,6 +485,10 @@ unsigned int DependenciesBank::addLinePointsPairDependency(const std::string& li
     if(!reasonExist) {
       dependencySearch.second->addNewPredecessor(reason, dependentDependencies, importanceLevel);
     }
+    return 0;
+  }
+
+  if(checkIfDependencyIsPredecessor(dependency)) {
     return 0;
   }
 
@@ -471,6 +521,10 @@ unsigned int DependenciesBank::addLineAngleDependency(const std::string& lineId,
     return 0;
   }
 
+  if(checkIfDependencyIsPredecessor(dependency)) {
+    return 0;
+  }
+
   addNewDependency(dependency);
   return 1;
 }
@@ -496,6 +550,10 @@ unsigned int DependenciesBank::addCirclePolygonDependency(const std::string& cir
     return 0;
   }
 
+  if(checkIfDependencyIsPredecessor(dependency)) {
+    return 0;
+  }
+
   addNewDependency(dependency);
   return 1;
 }
@@ -518,6 +576,10 @@ unsigned int DependenciesBank::addPolygonTypeDependency(const std::vector<std::s
     if(!reasonExist) {
       dependencySearch.second->addNewPredecessor(reason, dependentDependencies, importanceLevel);
     }
+    return 0;
+  }
+
+  if(checkIfDependencyIsPredecessor(dependency)) {
     return 0;
   }
 
@@ -553,6 +615,10 @@ unsigned int DependenciesBank::addPointsPairPairPointsPairDependency(const std::
     return 0;
   }
 
+  if(checkIfDependencyIsPredecessor(dependency)) {
+    return 0;
+  }
+
   addNewDependency(dependency);
   return 1;
 }
@@ -577,6 +643,10 @@ unsigned int DependenciesBank::addPolygonPointsPairDependency(const std::vector<
     return 0;
   }
 
+  if(checkIfDependencyIsPredecessor(dependency)) {
+    return 0;
+  }
+
   addNewDependency(dependency);
   return 1;
 }
@@ -598,6 +668,10 @@ unsigned int DependenciesBank::addPolygonExpressionDependency(const std::vector<
     if(!reasonExist) {
       dependencySearch.second->addNewPredecessor(reason, dependentDependencies, importanceLevel);
     }
+    return 0;
+  }
+
+  if(checkIfDependencyIsPredecessor(dependency)) {
     return 0;
   }
 
@@ -631,6 +705,13 @@ json DependenciesBank::getVariablesIndexesAsJsonObject() const {
   }
 
   return result;
+}
+
+void DependenciesBank::addNewDependency(std::shared_ptr<IDependency> dependencyModel) {
+  dependenciesMap.at(dependencyModel->getType()).emplace_back(dependencyIdCounter);
+  lastChanges.at(dependencyModel->getType()) = true;
+  dependenciesVector.emplace_back(std::move(dependencyModel));
+  dependencyIdCounter++;
 }
 
 std::pair<std::string, std::vector<std::string>> DependenciesBank::getSegmentName(const PointModel& point1, const PointModel& point2) {
@@ -739,12 +820,5 @@ std::vector<std::string> DependenciesBank::changeAngleEnds(const std::string& po
   } catch (std::invalid_argument const& exception) {}
 
   return std::vector<std::string>{point1IdTmp, vertexId, point2IdTmp};
-}
-
-void DependenciesBank::addNewDependency(std::shared_ptr<IDependency> dependencyModel) {
-  dependenciesMap.at(dependencyModel->getType()).emplace_back(dependencyIdCounter);
-  lastChanges.at(dependencyModel->getType()) = true;
-  dependenciesVector.emplace_back(std::move(dependencyModel));
-  dependencyIdCounter++;
 }
 }  // namespace expertBackground

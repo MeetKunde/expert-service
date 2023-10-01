@@ -84,6 +84,8 @@ class Expert {
   static constexpr int ISOSCELES_TRAPEZOID_POLYGON_TYPE_ID = 13;
   static constexpr int RIGHT_TRAPEZOID_POLYGON_TYPE_ID = 14;
 
+  static constexpr size_t EXERCISE_DESCRIPTION_ID = 0;
+
   expertBackground::ShapesBank shapesBank;
   expertBackground::DependenciesBank dependenciesBank;
 
@@ -104,9 +106,9 @@ class Expert {
  public:
   Expert();
 
-  void importTask(json task);
-  json exportSolution();
-  void useKnowledge();
+  void importTask(json task, std::ostream& stream);
+  json exportSolution(std::ostream& stream);
+  void useKnowledge(std::ostream& stream);
 
  private:
   void addValues(json lengths, json angleValues, json formulas, json perimeters, json areas);

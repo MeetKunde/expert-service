@@ -3,12 +3,19 @@
 TEST_CASE("Creating empty DependenciesBank", "[expertBackground]") {
   const DependenciesBank emptyDependenciesBank;
 
-  const json emptyDependenciesJson{};
+  const json emptyDependenciesJson{{
+      {"id", 0},
+      {"category", IDependency::Category::EXERCISE_DESCRIPTION},
+      {"type", IDependency::Type::EXERCISE_DESCRIPTION},
+      {"reasons", std::vector<IDependency::Reason>{IDependency::Reason::USER_DEFINED}},
+      {"dependentDependencies", std::vector<std::vector<size_t>>{}},
+      {"importances", std::vector<IDependency::ImportanceLevel>{IDependency::ImportanceLevel::HIGH}}
+  }};
   const json emptyVariablesIndexesJson{};
 
   const size_t equationId = 11;
 
-  REQUIRE(emptyDependenciesBank.getDependenciesNumber() == 0);
+  REQUIRE(emptyDependenciesBank.getDependenciesNumber() == 1);
   REQUIRE_THROWS(emptyDependenciesBank.getDependencyById(equationId));
 
   REQUIRE(emptyDependenciesBank.getDependenciesAsJsonObjects() == emptyDependenciesJson);
@@ -192,7 +199,7 @@ TEST_CASE("Creating DependenciesBank based on ShapesBank", "[expertBackground]")
   }
 
   REQUIRE(dependenciesBank.getDependenciesNumber() ==
-          (expectedEquations.size() + expectedLengths.size() + expectedMeasures1.size() + expectedMeasures2.size()));
+          (1 + expectedEquations.size() + expectedLengths.size() + expectedMeasures1.size() + expectedMeasures2.size()));
 
   REQUIRE(equations.size() == expectedEquations.size());
 

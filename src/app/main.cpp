@@ -1,10 +1,17 @@
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
 #include <Expert.h>
 #include <httplib/httplib.h>
 
 constexpr int SERVICE_PORT_NUMBER = 8787;
+
+std::string getCurrentDateTime() {
+  const std::time_t currTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+  return std::ctime(&currTime);
+}
 
 int main() {
   httplib::Server server;
@@ -24,14 +31,19 @@ int main() {
       const std::string inputString = req.body;
       const json input = json::parse(inputString)["scheme"];
 
-      //std::cout << input.dump(2) << std::endl;
+      const std::string logFileName = "logger/log_" + getCurrentDateTime();
+      std::ofstream logger{  logFileName + ".txt"};
+
+      logger << input.dump(2) << std::endl;
 
       expert::Expert expert;
-      expert.importTask(input);
-      expert.useKnowledge();
-      const json output = expert.exportSolution();
+      expert.importTask(input, logger);
+      expert.useKnowledge(logger);
+      const json output = expert.exportSolution(logger);
 
-      //std::cout << input.dump(2) << std::endl;
+      logger << std::endl << output.dump(2) << std::endl;
+
+      logger.close();
 
       res.set_header("Access-Control-Allow-Origin", " * ");
       res.set_header("Access-Control-Allow-Credentials", "true");

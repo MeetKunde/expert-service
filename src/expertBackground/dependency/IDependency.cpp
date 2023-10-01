@@ -2,6 +2,7 @@
 
 namespace expertBackground {
 const std::vector<IDependency::Category> IDependency::dependencyCategories = {
+    IDependency::Category::EXERCISE_DESCRIPTION,
     IDependency::Category::FORMULA,
     IDependency::Category::POLYGON_TYPE,
     IDependency::Category::OF_POINTS_PAIRS,
@@ -18,6 +19,7 @@ const std::vector<IDependency::Category> IDependency::dependencyCategories = {
     IDependency::Category::OF_POLYGON_AND_EXPRESSION};
 
 const std::vector<IDependency::Type> IDependency::dependencyTypes = {
+    IDependency::Type::EXERCISE_DESCRIPTION,
     IDependency::Type::SEGMENT_LENGTH,
     IDependency::Type::ANGLE_MEASURE,
     IDependency::Type::EQUATION,

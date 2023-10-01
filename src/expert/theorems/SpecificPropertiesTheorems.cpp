@@ -190,13 +190,14 @@ unsigned int Expert::setSquareDependencies(const std::shared_ptr<PolygonTypeDepe
                         {dependencyId}, IDependency::ImportanceLevel::HIGH);
     }
 
+    /*
     for (size_t vertexId = 0; vertexId < polygonVerticesNumber; vertexId++) {
       sumOfNewDependencies += dependenciesBank.addConvexAngle(
           polygonVertices[vertexId], polygonVertices[(vertexId + 1) % polygonVerticesNumber],
           polygonVertices[(vertexId + 2) % polygonVerticesNumber], Integer(MathHelper::SQUARE_INTERNAL_ANGLE_VALUE),
           IDependency::Reason::SQUARE, {dependencyId}, IDependency::ImportanceLevel::HIGH);
     }
-
+    */
     for (size_t diff = 0; diff < 2; diff++) {
       sumOfNewDependencies +=
           setSidesParallelism(polygonVertices[diff], polygonVertices[(diff + 1) % 4], polygonVertices[(diff + 2) % 4],

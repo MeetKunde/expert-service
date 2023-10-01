@@ -3,8 +3,10 @@ project(app)
 
 find_package(httplib REQUIRED PATHS ${CMAKE_BINARY_DIR})
 
-include_directories(${EXPERT_HEADERS_DIR})
+set(LOGGER_FOLDER ${CMAKE_BINARY_DIR}/src/app/logger)
+file(MAKE_DIRECTORY ${LOGGER_FOLDER})
 
+include_directories(${EXPERT_HEADERS_DIR})
 
 file(GLOB_RECURSE _SRCS "*.cpp" "*.h")
 

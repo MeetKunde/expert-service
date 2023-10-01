@@ -13,6 +13,7 @@ class IDependency {
    * @brief Representing category of dependency
    */
   enum class Category {
+    EXERCISE_DESCRIPTION,
     FORMULA,
     POLYGON_TYPE,
     OF_POINTS_PAIRS,
@@ -35,6 +36,7 @@ class IDependency {
    * @brief Representing type of dependency
    */
   enum class Type {
+    EXERCISE_DESCRIPTION,
     SEGMENT_LENGTH,
     ANGLE_MEASURE,
     EQUATION,
@@ -117,7 +119,6 @@ class IDependency {
     CONGRUENT_TRIANGLES,
     SIDE_ANGLE_SIDE,
     ANGLE_SIDE_ANGLE,
-    SAME_ARMS,
     FUNDAMENTAL_THEORY_OF_GEOMETRY,
     LINE_TANGENT_TO_CIRCLE,
     EQUATION_EXTRACTION

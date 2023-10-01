@@ -9,6 +9,7 @@ typedef expert::Expert Expert;
 typedef expertBackground::ExpressionModel ExpressionModel;
 typedef expertBackground::PolygonModel::PolygonType PolygonType;
 typedef expertBackground::AngleModel::AngleType AngleType;
+typedef expertBackground::LineModel::LineType LineType;
 typedef expert::IDependency::Category DependencyCategory;
 typedef expert::IDependency::Type DependencyType;
 typedef expert::IDependency::Reason DependencyReason;

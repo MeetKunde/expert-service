@@ -3,6 +3,7 @@
 
 #include "ShapesBank.h"
 #include "dependency/Dependency.h"
+#include "dependency/ExerciseDescriptionDependency.h"
 #include "models/AngleModel.h"
 #include "models/ExpressionModel.h"
 #include "models/IdentifierModel.h"
@@ -349,6 +350,82 @@ class DependenciesBank {
     return {false, nullptr};
   }
 
+  template <class T1, class T2>
+  bool checkIfDependencyIsPredecessor(const std::shared_ptr<Dependency<T1, T2>>& dependency) const {
+    std::queue<size_t> predecessors;
+    for(const auto& dependentDependencies: dependency->getDependentDependencies()) {
+      for(const auto& depId: dependentDependencies) {
+        predecessors.push(depId);
+      }
+    }
+
+    while(!predecessors.empty()) {
+      const size_t currDepId = predecessors.front();
+      const auto& dep = dependenciesVector.at(currDepId);
+      if(dependency->getType() == dep->getType()) {
+        const std::shared_ptr<Dependency<T1, T2>> castedDependency =
+            std::dynamic_pointer_cast<Dependency<T1, T2>>(dep);
+
+        if(*dependency == *castedDependency) {
+          return true;
+        }
+      }
+
+      for(const auto& dependentDependencies: dep->getDependentDependencies()) {
+        for(const auto& depId: dependentDependencies) {
+          predecessors.push(depId);
+        }
+      }
+
+      predecessors.pop();
+    }
+
+    return false;
+  }
+
+  template <>
+  bool checkIfDependencyIsPredecessor(const std::shared_ptr<EquationDependency>& dependency) const {
+    const std::vector<IDependency::Type> typesToCheck = {
+        IDependency::Type::EQUATION,
+        IDependency::Type::SEGMENT_LENGTH,
+        IDependency::Type::ANGLE_MEASURE
+    };
+
+    std::queue<size_t> predecessors;
+    for(const auto& dependentDependencies: dependency->getDependentDependencies()) {
+      for(const auto& depId: dependentDependencies) {
+        predecessors.push(depId);
+      }
+    }
+
+    while(!predecessors.empty()) {
+      const size_t currDepId = predecessors.front();
+      const auto& dep = dependenciesVector.at(currDepId);
+      for(const IDependency::Type& type: typesToCheck) {
+        if(type == dep->getType()) {
+          const std::shared_ptr<EquationDependency> castedDependency =
+              std::dynamic_pointer_cast<EquationDependency>(dep);
+
+          if(*dependency == *castedDependency) {
+            return true;
+          }
+        }
+      }
+
+      for(const auto& dependentDependencies: dep->getDependentDependencies()) {
+        for(const auto& depId: dependentDependencies) {
+          predecessors.push(depId);
+        }
+      }
+
+      predecessors.pop();
+    }
+
+    return false;
+  }
+
+  void addNewDependency(std::shared_ptr<IDependency> dependencyModel);
+
   static std::pair<std::string, std::vector<std::string>> getSegmentName(const PointModel& point1,
                                                                          const PointModel& point2);
 
@@ -358,7 +435,6 @@ class DependenciesBank {
                                                                        bool angleIsConvex);
 
   std::vector<std::string> changeAngleEnds(const std::string& point1Id, const std::string& vertexId, const std::string& point2Id);
-  void addNewDependency(std::shared_ptr<IDependency> dependencyModel);
 };
 }  // namespace expertBackground
 
