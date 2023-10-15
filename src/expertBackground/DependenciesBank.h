@@ -2,6 +2,7 @@
 #define EXPERT_SERVICE_DEPENDENCIES_BANK_H
 
 #include "ShapesBank.h"
+#include "HeuristicsBank.h"
 #include "dependency/Dependency.h"
 #include "dependency/ExerciseDescriptionDependency.h"
 #include "models/AngleModel.h"
@@ -105,6 +106,7 @@ class DependenciesBank {
   size_t dependencyIdCounter;
 
   const ShapesBank* shapesBank;
+  HeuristicsBank* heuristicsBank;
 
   /**
    * @brief Vector with pointers to all dependency objects
@@ -130,21 +132,19 @@ class DependenciesBank {
   // it does not include variables entered from external
   std::map<std::string, std::set<size_t>> formulasIncludingVariable;
 
-  std::map<IDependency::Type, bool> lastChanges;
-
-  bool newEvaluations;
+  std::vector<const ExpressionModel*> expressionModels;
 
  public:
   explicit DependenciesBank();
   explicit DependenciesBank(const ShapesBank* generatedShapesBank);
 
+  inline void addPointerToHeuristicsBank(HeuristicsBank* heuristicBankPointer) { heuristicsBank = heuristicBankPointer; }
+
+  void initializeBaseVariables();
+
   inline std::size_t getDependenciesNumber() const { return dependencyIdCounter; }
 
   inline const std::shared_ptr<IDependency>& getDependencyById(size_t dependencyId) const { return dependenciesVector.at(dependencyId); }
-
-  void clearLastChanges();
-  inline bool lastChange(IDependency::Type type) const { return lastChanges.at(type); }
-  inline bool newEvaluationsAdded() const { return  newEvaluations; }
 
   unsigned int addEquation(const symbolicAlgebra::Expression& leftSide, const symbolicAlgebra::Expression& rightSide,
                            IDependency::Reason reason, const std::vector<size_t>& dependentDependencies,
@@ -293,12 +293,18 @@ class DependenciesBank {
     return getDependenciesWithType<PolygonModel, ExpressionModel>(static_cast<IDependency::Type>(type));
   }
 
+  inline const std::vector<const ExpressionModel*>& getExpressionModels() const { return expressionModels; }
+
   json getDependenciesAsJsonObjects() const;
   json getVariablesIndexesAsJsonObject() const;
 
-  std::pair<bool, std::vector<size_t>> evaluateEquation() const { return {false, {}}; }
+  std::pair<bool, std::vector<size_t>> evaluateEquation(const ExpressionModel& leftSide, const ExpressionModel& rightSide) const;
 
  private:
+  unsigned int addEquationUtil(const symbolicAlgebra::Expression& leftSide, const symbolicAlgebra::Expression& rightSide,
+                               EquationDependencies type, IDependency::Reason reason, const std::vector<size_t>& dependentDependencies,
+                               IDependency::ImportanceLevel importanceLevel);
+
   template <class T1, class T2>
   std::vector<std::shared_ptr<Dependency<T1, T2>>> getDependenciesWithType(IDependency::Type type) const {
     std::vector<std::shared_ptr<Dependency<T1, T2>>> result;

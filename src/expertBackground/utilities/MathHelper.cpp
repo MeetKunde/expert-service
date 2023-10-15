@@ -29,4 +29,20 @@ double MathHelper::getAngleCosine(Coordinates point1, Coordinates point2, Coordi
 
   return (side1 * side1 + side2 * side2 - side3 * side3) / (multiplier * side1 * side2);
 }
+
+MathHelper::Fraction MathHelper::addFractions(const std::vector<Fraction>& fractions) {
+  int nominator = 0;
+  int denominator = 1;
+
+  for (const Fraction& frac : fractions) {
+    const int base = std::lcm(denominator, frac.denominator);
+    nominator *= (base / denominator);
+    nominator += frac.nominator * (base / frac.denominator);
+    denominator = base;
+  }
+
+  const int gcd = std::gcd(nominator, denominator);
+
+  return {nominator / gcd, denominator / gcd};
+}
 }  // namespace expertBackground

@@ -23,8 +23,8 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
   const IDependency::Reason reason1{IDependency::Reason::EQUATION_EXTRACTION};
   const IDependency::Reason reason2{IDependency::Reason::USER_DEFINED};
 
-  const std::vector<size_t> dependentDependencies1 = {11, 13};
-  const std::vector<size_t> dependentDependencies2 = {1, 91, 0, 3};
+  const std::vector<size_t> dependentDependencies1 = {};
+  const std::vector<size_t> dependentDependencies2 = {0};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::MEDIUM};
@@ -81,12 +81,12 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
 
   const json dependency2Json = {
       {"object1", {
-        {"value", "|AB|"},
-        {"variables", std::vector<std::string>{"|AB|"}},
+         {"value", "y+z+6"},
+         {"variables", std::vector<std::string>{"y", "z"}},
       }},
       {"object2", {
-        {"value", "y+z+6"},
-        {"variables", std::vector<std::string>{"y", "z"}},
+        {"value", "|AB|"},
+        {"variables", std::vector<std::string>{"|AB|"}},
       }},
       {"id", dependency2Id},
       {"category", IDependency::Category::FORMULA},
@@ -98,12 +98,12 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
 
   const json dependency3Json = {
       {"object1", {
-        {"value", "|<ABC|"},
-        {"variables", std::vector<std::string>{"|<ABC|"}},
-      }},
-      {"object2", {
         {"value", "a*b"},
         {"variables", std::vector<std::string>{"a", "b"}},
+      }},
+      {"object2", {
+        {"value", "|<ABC|"},
+        {"variables", std::vector<std::string>{"|<ABC|"}},
       }},
       {"id", dependency4Id},
       {"category", IDependency::Category::FORMULA},
@@ -229,8 +229,8 @@ TEST_CASE("Adding LinesDependencies to DependenciesBank", "[expertBackground]") 
   const IDependency::Reason reason1{IDependency::Reason::PERPENDICULAR_LINES};
   const IDependency::Reason reason2{IDependency::Reason::MID_SEGMENT};
 
-  const std::vector<size_t> dependentDependencies1 = {1, 3};
-  const std::vector<size_t> dependentDependencies2 = {11, 9};
+  const std::vector<size_t> dependentDependencies1 = {0};
+  const std::vector<size_t> dependentDependencies2 = {};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::HIGH};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::MEDIUM};
@@ -352,8 +352,8 @@ TEST_CASE("Adding CirclesDependencies to DependenciesBank", "[expertBackground]"
   const IDependency::Reason reason1{IDependency::Reason::ISOSCELES_RIGHT_TRIANGLE};
   const IDependency::Reason reason2{IDependency::Reason::ANGLE_SIDE_ANGLE};
 
-  const std::vector<size_t> dependentDependencies1 = {0, 5};
-  const std::vector<size_t> dependentDependencies2 = {9, 0, 9};
+  const std::vector<size_t> dependentDependencies1 = {0};
+  const std::vector<size_t> dependentDependencies2 = {};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::MEDIUM};
@@ -443,8 +443,8 @@ TEST_CASE("Adding LineCircleDependencies to DependenciesBank", "[expertBackgroun
   const IDependency::Reason reason1{IDependency::Reason::PARALLEL_LINES};
   const IDependency::Reason reason2{IDependency::Reason::ALTITUDE};
 
-  const std::vector<size_t> dependentDependencies1 = {17, 1};
-  const std::vector<size_t> dependentDependencies2 = {1, 6};
+  const std::vector<size_t> dependentDependencies1 = {0};
+  const std::vector<size_t> dependentDependencies2 = {};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::MEDIUM};
@@ -540,8 +540,8 @@ TEST_CASE("Adding CirclePolygonDependencies to DependenciesBank", "[expertBackgr
   const IDependency::Reason reason1{IDependency::Reason::FUNDAMENTAL_THEORY_OF_GEOMETRY};
   const IDependency::Reason reason2{IDependency::Reason::ESCRIBED_CIRCLE};
 
-  const std::vector<size_t> dependentDependencies1 = {14, 22};
-  const std::vector<size_t> dependentDependencies2 = {3, 81};
+  const std::vector<size_t> dependentDependencies1 = {0};
+  const std::vector<size_t> dependentDependencies2 = {};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::HIGH};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::MEDIUM};
@@ -666,8 +666,8 @@ TEST_CASE("Adding PointsPairsDependencies to DependenciesBank", "[expertBackgrou
   const IDependency::Reason reason1{IDependency::Reason::ARMS_ARE_THE_SAME};
   const IDependency::Reason reason2{IDependency::Reason::BISECTOR};
 
-  const std::vector<size_t> dependentDependencies1 = {4, 2};
-  const std::vector<size_t> dependentDependencies2 = {43, 8};
+  const std::vector<size_t> dependentDependencies1 = {};
+  const std::vector<size_t> dependentDependencies2 = {0};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::MEDIUM};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::LOW};
@@ -794,8 +794,8 @@ TEST_CASE("Adding AnglesDependencies to DependenciesBank", "[expertBackground]")
   const IDependency::Reason reason1{IDependency::Reason::ALTERNATE_ANGLES};
   const IDependency::Reason reason2{IDependency::Reason::CORRESPONDING_ANGLES};
 
-  const std::vector<size_t> dependentDependencies1 = {14, 2, 9};
-  const std::vector<size_t> dependentDependencies2 = {2, 8, 3};
+  const std::vector<size_t> dependentDependencies1 = {0};
+  const std::vector<size_t> dependentDependencies2 = {};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::HIGH};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::LOW};
@@ -947,8 +947,8 @@ TEST_CASE("Adding PolygonsDependencies to DependenciesBank", "[expertBackground]
   const IDependency::Reason reason1{IDependency::Reason::ANGLE_SIDE_ANGLE};
   const IDependency::Reason reason2{IDependency::Reason::SIDE_ANGLE_SIDE};
 
-  const std::vector<size_t> dependentDependencies1 = {12, 4, 9};
-  const std::vector<size_t> dependentDependencies2 = {3, 1, 22};
+  const std::vector<size_t> dependentDependencies1 = {};
+  const std::vector<size_t> dependentDependencies2 = {0};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::HIGH};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::LOW};
@@ -1097,8 +1097,8 @@ TEST_CASE("Adding PolygonTypeDependencies to DependenciesBank", "[expertBackgrou
   const IDependency::Reason reason1{IDependency::Reason::USER_DEFINED};
   const IDependency::Reason reason2{IDependency::Reason::CONGRUENT_TRIANGLES};
 
-  const std::vector<size_t> dependentDependencies1 = {2, 4};
-  const std::vector<size_t> dependentDependencies2 = {3, 1};
+  const std::vector<size_t> dependentDependencies1 = {0};
+  const std::vector<size_t> dependentDependencies2 = {};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::MEDIUM};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::HIGH};
@@ -1188,8 +1188,8 @@ TEST_CASE("Adding LinePointPairDependencies to DependenciesBank", "[expertBackgr
   const IDependency::Reason reason1{IDependency::Reason::ANGLE_SIDE_ANGLE};
   const IDependency::Reason reason2{IDependency::Reason::PERPENDICULAR_LINES};
 
-  const std::vector<size_t> dependentDependencies1 = {2, 4};
-  const std::vector<size_t> dependentDependencies2 = {3, 1};
+  const std::vector<size_t> dependentDependencies1 = {};
+  const std::vector<size_t> dependentDependencies2 = {0};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::MEDIUM};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::HIGH};
@@ -1284,8 +1284,8 @@ TEST_CASE("Adding LineAngleDependencies to DependenciesBank", "[expertBackground
   const IDependency::Reason reason1{IDependency::Reason::PARALLEL_LINES};
   const IDependency::Reason reason2{IDependency::Reason::POINTS_ARE_THE_SAME};
 
-  const std::vector<size_t> dependentDependencies1 = {4, 5, 6};
-  const std::vector<size_t> dependentDependencies2 = {1};
+  const std::vector<size_t> dependentDependencies1 = {0};
+  const std::vector<size_t> dependentDependencies2 = {};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::HIGH};
@@ -1398,8 +1398,8 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
   const IDependency::Reason reason1{IDependency::Reason::USER_DEFINED};
   const IDependency::Reason reason2{IDependency::Reason::SIMILAR_TRIANGLES};
 
-  const std::vector<size_t> dependentDependencies1 = {0, 2};
-  const std::vector<size_t> dependentDependencies2 = {2, 7};
+  const std::vector<size_t> dependentDependencies1 = {0};
+  const std::vector<size_t> dependentDependencies2 = {};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::HIGH};
@@ -1550,8 +1550,8 @@ TEST_CASE("Adding PolygonPointsPairDependency to DependenciesBank", "[expertBack
   const IDependency::Reason reason1{IDependency::Reason::ALTITUDE};
   const IDependency::Reason reason2{IDependency::Reason::CIRCUMSCRIBED_CIRCLE};
 
-  const std::vector<size_t> dependentDependencies1 = {21, 3, 1};
-  const std::vector<size_t> dependentDependencies2 = {9, 7, 11, 3};
+  const std::vector<size_t> dependentDependencies1 = {};
+  const std::vector<size_t> dependentDependencies2 = {0};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::HIGH};
@@ -1680,8 +1680,8 @@ TEST_CASE("Adding PolygonExpressionDependency to DependenciesBank", "[expertBack
   const IDependency::Reason reason1{IDependency::Reason::USER_DEFINED};
   const IDependency::Reason reason2{IDependency::Reason::CONGRUENT_TRIANGLES};
 
-  const std::vector<size_t> dependentDependencies1 = {21};
-  const std::vector<size_t> dependentDependencies2 = {13, 11, 9};
+  const std::vector<size_t> dependentDependencies1 = {0};
+  const std::vector<size_t> dependentDependencies2 = {};
 
   const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::MEDIUM};
   const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::LOW};

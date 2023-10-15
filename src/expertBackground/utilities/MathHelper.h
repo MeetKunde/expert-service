@@ -2,6 +2,8 @@
 #define EXPERT_SERVICE_MATH_HELPER_H
 
 #include <math.h>
+#include <vector>
+#include <numeric>
 
 namespace expertBackground {
 
@@ -10,6 +12,11 @@ class MathHelper {
   struct Coordinates {
     float x;
     float y;
+  };
+
+  struct Fraction {
+    int nominator;
+    int denominator;
   };
 
   static const float COMPARISON_EPSILON;
@@ -23,6 +30,8 @@ class MathHelper {
 
   static double getDistance(Coordinates point1, Coordinates point2);
   static double getAngleCosine(Coordinates point1, Coordinates point2, Coordinates point3);
+
+  static Fraction addFractions(const std::vector<Fraction>& fractions);
 };
 
 }  // namespace expertBackground

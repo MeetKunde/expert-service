@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <chrono>
 
 #include <Expert.h>
@@ -32,7 +31,7 @@ int main() {
       const json input = json::parse(inputString)["scheme"];
 
       const std::string logFileName = "logger/log_" + getCurrentDateTime();
-      std::ofstream logger{  logFileName + ".txt"};
+      std::ofstream logger{logFileName + ".txt"};
 
       logger << input.dump(2) << std::endl;
 

@@ -4,23 +4,23 @@ namespace expert {
 unsigned int Expert::exploreLineBasedDependencies() {
   unsigned int sumOfNewDependencies{0};
 
-  if(shapesBank.newPointLastAdded() || dependenciesBank.lastChange(IDependency::Type::PERPENDICULAR_LINES)) {
+  if(heuristicsBank.getNewPointsFlag() || heuristicsBank.getNewDependencyFlag(IDependency::Type::PERPENDICULAR_LINES)) {
     sumOfNewDependencies += setRightAnglesBasedOnPerpendicularLines();
   }
 
-  if(dependenciesBank.lastChange(IDependency::Type::PARALLEL_LINES)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::PARALLEL_LINES)) {
     sumOfNewDependencies += findParallelLinesBasedOnParallelLines();
   }
 
-  if(dependenciesBank.lastChange(IDependency::Type::PERPENDICULAR_LINES)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::PERPENDICULAR_LINES)) {
     sumOfNewDependencies += findParallelLinesBasedOnPerpendicularLines();
   }
 
-  if(dependenciesBank.lastChange(IDependency::Type::PERPENDICULAR_LINES) || dependenciesBank.lastChange(IDependency::Type::PARALLEL_LINES)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::PERPENDICULAR_LINES) || heuristicsBank.getNewDependencyFlag(IDependency::Type::PARALLEL_LINES)) {
     sumOfNewDependencies += findPerpendicularLinesBasedOnLines();
   }
 
-  if(shapesBank.newLineLastAdded() || shapesBank.newPointLastAdded() || dependenciesBank.newEvaluationsAdded()) {
+  if(heuristicsBank.getNewPointsFlag() || heuristicsBank.getNewLinesFlag() || heuristicsBank.getNewEvaluationFlag()) {
     sumOfNewDependencies += findPerpendicularLinesBasedOnRightAngles();
   }
 
@@ -40,11 +40,11 @@ unsigned int Expert::setRightAnglesBasedOnPerpendicularLines() {
     const size_t line1IdPos{shapesBank.getLinePositionInVector(line1Id)};
     const size_t line2IdPos{shapesBank.getLinePositionInVector(line2Id)};
 
-    if (intersectionPointsOfLines[line1IdPos][line2IdPos].empty()) {
+    if (shapesBank.getIntersectionPointsOfLines(line1IdPos, line2IdPos).empty()) {
       continue;
     }
 
-    const size_t intersectionPoint = intersectionPointsOfLines[line1IdPos][line2IdPos][0];
+    const size_t intersectionPoint = shapesBank.getIntersectionPointsOfLines(line1IdPos, line2IdPos)[0];
     const std::string& intersectionPointId = shapesBank.getPointsVector().at(intersectionPoint).getId();
     const std::vector<std::string>& line1Points = shapesBank.getLine(line1Id).getIncludedPoints();
     const std::vector<std::string>& line2Points = shapesBank.getLine(line2Id).getIncludedPoints();
@@ -201,18 +201,18 @@ unsigned int Expert::findPerpendicularLinesBasedOnRightAngles() {
   unsigned int sumOfNewDependencies{0};
 
   const std::vector<LineModel> lines = shapesBank.getLinesVector();
-  for (size_t line1Id = 0; line1Id < lines.size(); line1Id++) {
-    for (size_t line2Id = line1Id + 1; line2Id < lines.size(); line2Id++) {
-      if (intersectionPointsOfLines[line1Id][line2Id].empty()) {
+  for (size_t line1Pos = 0; line1Pos < lines.size(); line1Pos++) {
+    for (size_t line2Pos = line1Pos + 1; line2Pos < lines.size(); line2Pos++) {
+      if (shapesBank.getIntersectionPointsOfLines(line1Pos, line2Pos).empty()) {
         continue;
       }
 
-      const PointModel intersectionPoint = shapesBank.getPointsVector().at(intersectionPointsOfLines[line1Id][line2Id][0]);
+      const PointModel intersectionPoint = shapesBank.getPointsVector().at(shapesBank.getIntersectionPointsOfLines(line1Pos, line2Pos)[0]);
       const PointModel linesEnds[4] = {
-        shapesBank.getPoint(lines.at(line1Id).getIncludedPoints().front()),
-        shapesBank.getPoint(lines.at(line2Id).getIncludedPoints().front()),
-        shapesBank.getPoint(lines.at(line1Id).getIncludedPoints().back()),
-        shapesBank.getPoint(lines.at(line2Id).getIncludedPoints().back())
+        shapesBank.getPoint(lines.at(line1Pos).getIncludedPoints().front()),
+        shapesBank.getPoint(lines.at(line2Pos).getIncludedPoints().front()),
+        shapesBank.getPoint(lines.at(line1Pos).getIncludedPoints().back()),
+        shapesBank.getPoint(lines.at(line2Pos).getIncludedPoints().back())
       };
 
       const Integer rightAngle(MathHelper::RIGHT_ANGLE_VALUE);
@@ -220,11 +220,11 @@ unsigned int Expert::findPerpendicularLinesBasedOnRightAngles() {
 
       for (size_t endNumber = 0; endNumber < 4; endNumber++) {
         evaluation = dependenciesBank.evaluateEquation(
-            /*dependenciesBank.getAngleMeasureVariable(linesEnds[endNumber], intersectionPoint, linesEnds[(endNumber + 1) % 4], true),
-            rightAngle*/);
+            ExpressionModel{DependenciesBank::getAngleMeasureVariable(linesEnds[endNumber], intersectionPoint, linesEnds[(endNumber + 1) % 4], true)},
+            ExpressionModel{rightAngle});
 
         if (evaluation.first) {
-          sumOfNewDependencies += dependenciesBank.addLinesDependency(lines.at(line1Id).getId(), lines.at(line2Id).getId(),
+          sumOfNewDependencies += dependenciesBank.addLinesDependency(lines.at(line1Pos).getId(), lines.at(line2Pos).getId(),
                                                                       LinesDependencies::PERPENDICULAR_LINES,
                                                                       IDependency::Reason::RIGHT_ANGLE, evaluation.second,
                                                                       IDependency::ImportanceLevel::MEDIUM);

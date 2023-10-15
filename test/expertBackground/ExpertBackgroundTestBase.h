@@ -11,6 +11,10 @@ typedef expertBackground::ShapesBank ShapesBank;
 typedef expertBackground::DependenciesBank DependenciesBank;
 typedef expertBackground::IDependency IDependency;
 
+typedef expertBackground::SchemeGraph SchemeGraph;
+typedef expertBackground::VariablesGraph VariablesGraph;
+typedef expertBackground::MathHelper::Fraction Fraction;
+
 typedef expertBackground::PointModel PointModel;
 typedef expertBackground::LineModel LineModel;
 typedef expertBackground::CircleModel CircleModel;

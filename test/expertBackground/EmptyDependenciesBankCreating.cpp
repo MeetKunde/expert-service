@@ -3,16 +3,19 @@
 TEST_CASE("Creating empty DependenciesBank", "[expertBackground]") {
   const DependenciesBank emptyDependenciesBank;
 
-  json emptyDependenciesJson{};
-  for(const IDependency::Type& type: IDependency::dependencyTypes) {
-    emptyDependenciesJson.push_back({{"dependencies", std::vector<IDependency::Type>()}, {"type", type}});
-  }
-
+  const json emptyDependenciesJson{{
+      {"id", 0},
+      {"category", IDependency::Category::EXERCISE_DESCRIPTION},
+      {"type", IDependency::Type::EXERCISE_DESCRIPTION},
+      {"reasons", std::vector<IDependency::Reason>{IDependency::Reason::USER_DEFINED}},
+      {"dependentDependencies", std::vector<std::vector<size_t>>{}},
+      {"importances", std::vector<IDependency::ImportanceLevel>{IDependency::ImportanceLevel::HIGH}}
+  }};
   const json emptyVariablesIndexesJson{};
 
   const size_t equationId = 11;
 
-  REQUIRE(emptyDependenciesBank.getDependenciesNumber() == 0);
+  REQUIRE(emptyDependenciesBank.getDependenciesNumber() == 1);
   REQUIRE_THROWS(emptyDependenciesBank.getDependencyById(equationId));
 
   REQUIRE(emptyDependenciesBank.getDependenciesAsJsonObjects() == emptyDependenciesJson);
@@ -128,21 +131,26 @@ TEST_CASE("Creating DependenciesBank based on ShapesBank", "[expertBackground]")
   };
 
   const std::vector<std::vector<ExpressionModel>> expectedLengths = {
+      /*
       {ExpressionModel {"|AA|"}, ExpressionModel {"0"}},
       {ExpressionModel {"|BB|"}, ExpressionModel {"0"}},
       {ExpressionModel {"|A'A'|"}, ExpressionModel {"0"}}
+       */
   };
 
   const std::vector<std::vector<ExpressionModel>> expectedMeasures1 = {
+      /*
       {ExpressionModel {"|>AAA|"}, ExpressionModel {"0"}},
       {ExpressionModel {"|<AAA|"}, ExpressionModel {"360"}},
       {ExpressionModel {"|>BBB|"}, ExpressionModel {"0"}},
       {ExpressionModel {"|<BBB|"}, ExpressionModel {"360"}},
       {ExpressionModel {"|>A'A'A'|"}, ExpressionModel {"0"}},
       {ExpressionModel {"|<A'A'A'|"}, ExpressionModel {"360"}}
+       */
   };
 
   const std::vector<std::vector<ExpressionModel>> expectedMeasures2 = {
+      /*
       {ExpressionModel {"|>BAB|"}, ExpressionModel {"0"}},
       {ExpressionModel {"|<BAB|"}, ExpressionModel {"360"}},
       {ExpressionModel {"|>A'AA'|"}, ExpressionModel {"0"}},
@@ -155,9 +163,11 @@ TEST_CASE("Creating DependenciesBank based on ShapesBank", "[expertBackground]")
       {ExpressionModel {"|<AA'A|"}, ExpressionModel {"360"}},
       {ExpressionModel {"|>BA'B|"}, ExpressionModel {"0"}},
       {ExpressionModel {"|<BA'B|"}, ExpressionModel {"360"}},
+       */
   };
 
-  const DependenciesBank dependenciesBank{&shapesBank};
+  DependenciesBank dependenciesBank{&shapesBank};
+  dependenciesBank.initializeBaseVariables();
 
   const json variables = dependenciesBank.getVariablesIndexesAsJsonObject();
 
@@ -196,7 +206,7 @@ TEST_CASE("Creating DependenciesBank based on ShapesBank", "[expertBackground]")
   }
 
   REQUIRE(dependenciesBank.getDependenciesNumber() ==
-          (expectedEquations.size() + expectedLengths.size() + expectedMeasures1.size() + expectedMeasures2.size()));
+          (1 + expectedEquations.size() + expectedLengths.size() + expectedMeasures1.size() + expectedMeasures2.size()));
 
   REQUIRE(equations.size() == expectedEquations.size());
 

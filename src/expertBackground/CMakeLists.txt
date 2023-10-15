@@ -6,7 +6,7 @@ file(GLOB_RECURSE _SRCS "*.cpp" "*.h")
 
 find_package(nlohmann_json REQUIRED PATHS ${CMAKE_BINARY_DIR})
 
-add_library(expertBackground SHARED STATIC ${_SRCS} dependency/ExerciseDescriptionDependency.cpp dependency/ExerciseDescriptionDependency.h)
+add_library(expertBackground SHARED STATIC ${_SRCS} dependency/ExerciseDescriptionDependency.cpp dependency/ExerciseDescriptionDependency.h HeuristicsBank.cpp utilities/VariablesGraph.h)
 target_link_libraries(expertBackground symbolicAlgebra nlohmann_json::nlohmann_json)
 
 install(TARGETS expertBackground DESTINATION ${EXPERT_BACKGROUND_INSTALL_LIB_DIR})

@@ -12,8 +12,10 @@ typedef expertBackground::Const Constant;
 
 typedef expertBackground::ShapesBank ShapesBank;
 typedef expertBackground::DependenciesBank DependenciesBank;
+typedef expertBackground::HeuristicsBank HeuristicsBank;
 
 typedef expertBackground::MathHelper MathHelper;
+typedef expertBackground::LocalTimer LocalTimer;
 
 typedef expertBackground::PointModel PointModel;
 typedef expertBackground::LineModel LineModel;
@@ -86,22 +88,11 @@ class Expert {
 
   static constexpr size_t EXERCISE_DESCRIPTION_ID = 0;
 
-  expertBackground::ShapesBank shapesBank;
-  expertBackground::DependenciesBank dependenciesBank;
+  ShapesBank shapesBank;
+  DependenciesBank dependenciesBank;
+  HeuristicsBank heuristicsBank;
 
-  expertBackground::Graph schemeGraph;
-
-  std::vector<std::vector<std::vector<size_t>>> intersectionPointsOfLines;
-  std::vector<std::vector<std::vector<size_t>>> intersectionPointsOfCircles;
-  std::vector<std::vector<std::vector<size_t>>> intersectionPointsOfLinesAndCircles;
-
-  std::vector<std::vector<std::pair<size_t, size_t>>> pointsOnLinesIntersections;
-  std::vector<std::vector<std::pair<size_t, size_t>>> pointsOnCirclesIntersections;
-  std::vector<std::vector<std::pair<size_t, size_t>>> pointsOnLineAndCircleIntersections;
-
-  std::vector<std::vector<bool>> pointsOnShapes;
-
-  expertBackground::LocalTimer localTimer;
+  LocalTimer localTimer;
 
  public:
   Expert();
@@ -111,6 +102,7 @@ class Expert {
   void useKnowledge(std::ostream& stream);
 
  private:
+  void initializeBaseValues();
   void addValues(json lengths, json angleValues, json formulas, json perimeters, json areas);
   void addLinesDependencies(json perpendicular, json parallel);
   void addEqualismDependencies(json segments, json angles);
@@ -125,30 +117,24 @@ class Expert {
   static AngleType parseAngleType(unsigned int angleType);
   static PolygonType parsePolygonType(unsigned int polygonType);
 
-  void findIntersectionPointsOfLines();
-  void findIntersectionPointsOfCircles();
-  void findIntersectionPointsOfLinesCircles();
-  void checkPointsOnShapes();
-  json getIntersectionPointsAsJson();
-
   // Tools.cpp
   bool pointsLiesOnOneLine(const std::vector<std::string>& pointIds) const;
   unsigned int setEqualSides(const std::string& segment1End1Id, const std::string& segment1End2Id,
                              const std::string& segment2End1Id, const std::string& segment2End2Id,
-                             IDependency::Reason reason, std::vector<size_t> dependentDependencies,
+                             IDependency::Reason reason, const std::vector<size_t>& dependentDependencies,
                              IDependency::ImportanceLevel importanceLevel);
   unsigned int setEqualAngles(const std::string& angle1Point1, const std::string& angle1Vertex, const std::string& angle1Point2,
                               const std::string& angle2Point1, const std::string& angle2Vertex, const std::string& angle2Point2,
                               AngleType anglesType,
-                              IDependency::Reason reason, std::vector<size_t> dependentDependencies,
+                              IDependency::Reason reason, const std::vector<size_t>& dependentDependencies,
                               IDependency::ImportanceLevel importanceLevel);
   unsigned int setSidesParallelism(const std::string& segment1End1Id, const std::string& segment1End2Id,
                                    const std::string& segment2End1Id, const std::string& segment2End2Id,
-                                   IDependency::Reason reason, std::vector<size_t> dependentDependencies,
+                                   IDependency::Reason reason, const std::vector<size_t>& dependentDependencies,
                                    IDependency::ImportanceLevel importanceLevel);
   unsigned int setSidesPerpendicularity(const std::string& segment1End1Id, const std::string& segment1End2Id,
                                         const std::string& segment2End1Id, const std::string&segment2End2Id,
-                                        IDependency::Reason reason, std::vector<size_t> dependentDependencies,
+                                        IDependency::Reason reason, const std::vector<size_t>& dependentDependencies,
                                         IDependency::ImportanceLevel importanceLevel);
 
   // LinesTheorems.cpp

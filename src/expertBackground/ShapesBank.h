@@ -6,6 +6,9 @@
 #include "models/CircleModel.h"
 
 namespace expertBackground {
+
+class HeuristicsBank;
+
 /**
  * @brief Class storing all shapes
  */
@@ -62,17 +65,24 @@ class ShapesBank {
    */
   std::map<std::string, size_t> circleIdsConverter;
 
-  bool newPointAdded;
+  std::vector<std::vector<std::vector<size_t>>> intersectionPointsOfLines;
+  std::vector<std::vector<std::vector<size_t>>> intersectionPointsOfCircles;
+  std::vector<std::vector<std::vector<size_t>>> intersectionPointsOfLinesAndCircles;
 
-  bool newLineAdded;
+  std::vector<std::vector<std::pair<size_t, size_t>>> pointsOnLinesIntersections;
+  std::vector<std::vector<std::pair<size_t, size_t>>> pointsOnCirclesIntersections;
+  std::vector<std::vector<std::pair<size_t, size_t>>> pointsOnLineAndCircleIntersections;
 
-  bool newCircleAdded;
+  std::vector<std::vector<bool>> pointsOnShapes;
 
+  HeuristicsBank* heuristicsBank;
  public:
   /**
    * @brief Constructor of a new ShapesBank object
    */
   explicit ShapesBank();
+
+  inline void addPointerToHeuristicsBank(HeuristicsBank* heuristicBankPointer) { heuristicsBank = heuristicBankPointer; }
 
   /**
    * @brief Adding new PointModel to bank
@@ -243,6 +253,35 @@ class ShapesBank {
    */
   inline size_t getCirclePositionInVector(const std::string& circleId) const { return circleIdsConverter.at(circleId); }
 
+  void findIntersectionPointsOfLines();
+
+  inline const std::vector<size_t>& getIntersectionPointsOfLines(size_t line1Pos, size_t line2Pos) const
+    { return intersectionPointsOfLines[line1Pos][line2Pos]; }
+
+  inline const std::vector<std::pair<size_t, size_t>>& getPointsOnLinesIntersections(size_t intersectionPointPos) const
+    { return pointsOnLinesIntersections[intersectionPointPos]; }
+
+  void findIntersectionPointsOfCircles();
+
+  inline const std::vector<size_t>& getIntersectionPointsOfCircles(size_t circle1Pos, size_t circle2Pos) const
+    { return intersectionPointsOfCircles[circle1Pos][circle2Pos]; }
+
+  inline const std::vector<std::pair<size_t, size_t>>& getPointsOnCirclesIntersections(size_t intersectionPointPos) const
+    { return pointsOnCirclesIntersections[intersectionPointPos]; }
+
+  void findIntersectionPointsOfLinesCircles();
+
+  inline const std::vector<size_t>& getIntersectionPointsOfLinesAndCircles(size_t linePos, size_t circlePos) const
+    { return intersectionPointsOfLinesAndCircles[linePos][circlePos]; }
+
+  inline const std::vector<std::pair<size_t, size_t>>& getPointsOnLineAndCircleIntersections(size_t intersectionPointPos) const
+    { return pointsOnLineAndCircleIntersections[intersectionPointPos]; }
+
+  void findPointsOnShapes();
+  inline const std::vector<std::vector<bool>>& getPointsOnShapes() const { return pointsOnShapes; }
+
+  json getIntersectionPointsAsJson();
+
   /**
    * @brief Comparator used in sorting points counter-clockwise
    *
@@ -254,11 +293,6 @@ class ShapesBank {
    * @return false if point1 is not greater than point2
    */
   static bool counterClockwiseComparator(const PointModel& point1, const PointModel& point2, float centerX, float centerY);
-
-  inline bool newPointLastAdded() const { return newPointAdded; };
-  inline bool newLineLastAdded() const { return newLineAdded; };
-  inline bool newCircleLastAdded() const { return newCircleAdded; };
-  inline void clearLastChanges() { newPointAdded = newLineAdded = newCircleAdded = false; }
 };
 }  // namespace expertBackground
 

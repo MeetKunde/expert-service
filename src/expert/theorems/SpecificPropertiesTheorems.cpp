@@ -4,7 +4,7 @@ namespace expert {
 unsigned int Expert::explorePolygonTypeBasedDependencies() {
   unsigned int sumOfNewDependencies{0};
 
-  if (dependenciesBank.lastChange(IDependency::Type::POLYGON_TYPE)) {
+  if (heuristicsBank.getNewDependencyFlag(IDependency::Type::POLYGON_TYPE)) {
     const std::vector<std::shared_ptr<PolygonTypeDependency>> definedPolygonTypes =
         dependenciesBank.getPolygonTypeDependencies(PolygonTypeDependencies::POLYGON_TYPE);
 
@@ -212,9 +212,9 @@ unsigned int Expert::setSquareDependencies(const std::shared_ptr<PolygonTypeDepe
                                    IDependency::Reason::SQUARE, {dependencyId}, IDependency::ImportanceLevel::HIGH);
     }
 
-    if (schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[0]),
+    if (heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[0]),
                                      shapesBank.getPointPositionInVector(polygonVertices[2])) &&
-        schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[1]),
+        heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[1]),
                                      shapesBank.getPointPositionInVector(polygonVertices[3]))) {
       // both diagonal exist
 
@@ -230,8 +230,8 @@ unsigned int Expert::setSquareDependencies(const std::shared_ptr<PolygonTypeDepe
           {dependencyId}, IDependency::ImportanceLevel::HIGH);
 
       const size_t diagonalsIntersectionPoint =
-          intersectionPointsOfLines[shapesBank.getLinePositionInVector(diagonal1)]
-                                   [shapesBank.getLinePositionInVector(diagonal2)][0];
+          shapesBank.getIntersectionPointsOfLines(shapesBank.getLinePositionInVector(diagonal1), shapesBank.getLinePositionInVector(diagonal2))[0];
+
       const std::string& diagonalsIntersectionPointId =
           shapesBank.getPointsVector().at(diagonalsIntersectionPoint).getId();
 
@@ -285,9 +285,9 @@ unsigned int Expert::setRectangleDependencies(const std::shared_ptr<PolygonTypeD
                                    IDependency::Reason::RECTANGLE, {dependencyId}, IDependency::ImportanceLevel::HIGH);
     }
 
-    if (schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[0]),
+    if (heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[0]),
                                      shapesBank.getPointPositionInVector(polygonVertices[2])) &&
-        schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[1]),
+        heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[1]),
                                      shapesBank.getPointPositionInVector(polygonVertices[3]))) {
       // both diagonal exist
 
@@ -299,8 +299,8 @@ unsigned int Expert::setRectangleDependencies(const std::shared_ptr<PolygonTypeD
       const std::string& diagonal2 = shapesBank.getLineIdThrowTwoPoints(polygonVertices[1], polygonVertices[3]);
 
       const unsigned diagonalsIntersectionPoint =
-          intersectionPointsOfLines[shapesBank.getLinePositionInVector(diagonal1)]
-                                   [shapesBank.getPointPositionInVector(diagonal2)][0];
+          shapesBank.getIntersectionPointsOfLines(shapesBank.getLinePositionInVector(diagonal1), shapesBank.getPointPositionInVector(diagonal2))[0];
+
       const std::string& diagonalsIntersectionPointId =
           shapesBank.getPointsVector().at(diagonalsIntersectionPoint).getId();
 
@@ -381,17 +381,17 @@ unsigned int Expert::setParallelogramDependencies(const std::shared_ptr<PolygonT
                        polygonVertices[1], AngleType::CONVEX, IDependency::Reason::PARALLELOGRAM, {dependencyId},
                        IDependency::ImportanceLevel::HIGH);
 
-    if (schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[0]),
+    if (heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[0]),
                                      shapesBank.getPointPositionInVector(polygonVertices[2])) &&
-        schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[1]),
+        heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[1]),
                                      shapesBank.getPointPositionInVector(polygonVertices[3]))) {
       // both diagonal exist
       const std::string& diagonal1 = shapesBank.getLineIdThrowTwoPoints(polygonVertices[0], polygonVertices[2]);
       const std::string& diagonal2 = shapesBank.getLineIdThrowTwoPoints(polygonVertices[1], polygonVertices[3]);
 
       const size_t diagonalsIntersectionPoint =
-          intersectionPointsOfLines[shapesBank.getLinePositionInVector(diagonal1)]
-                                   [shapesBank.getLinePositionInVector(diagonal2)][0];
+          shapesBank.getIntersectionPointsOfLines(shapesBank.getLinePositionInVector(diagonal1), shapesBank.getLinePositionInVector(diagonal2))[0];
+
       const std::string& diagonalsIntersectionPointId =
           shapesBank.getPointsVector().at(diagonalsIntersectionPoint).getId();
 
@@ -426,17 +426,17 @@ unsigned int Expert::setKiteDependencies(const std::shared_ptr<PolygonTypeDepend
                                            polygonVertices[3], polygonVertices[0], AngleType::CONVEX,
                                            IDependency::Reason::KITE, {dependencyId}, IDependency::ImportanceLevel::HIGH);
 
-    if (schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[0]),
+    if (heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[0]),
                                      shapesBank.getPointPositionInVector(polygonVertices[2])) &&
-        schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[1]),
+        heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[1]),
                                      shapesBank.getPointPositionInVector(polygonVertices[3]))) {
       // both diagonal exist
       const std::string& diagonal1 = shapesBank.getLineIdThrowTwoPoints(polygonVertices[0], polygonVertices[2]);
       const std::string& diagonal2 = shapesBank.getLineIdThrowTwoPoints(polygonVertices[1], polygonVertices[3]);
 
       const size_t diagonalsIntersectionPoint =
-          intersectionPointsOfLines[shapesBank.getLinePositionInVector(diagonal1)]
-                                   [shapesBank.getLinePositionInVector(diagonal2)][0];
+          shapesBank.getIntersectionPointsOfLines(shapesBank.getLinePositionInVector(diagonal1), shapesBank.getLinePositionInVector(diagonal2))[0];
+
       const std::string& diagonalsIntersectionPointId =
           shapesBank.getPointsVector().at(diagonalsIntersectionPoint).getId();
 
@@ -479,9 +479,9 @@ unsigned int Expert::setRhombusDependencies(const std::shared_ptr<PolygonTypeDep
                                            polygonVertices[0], polygonVertices[1], AngleType::CONVEX,
                                            IDependency::Reason::RHOMBUS, {dependencyId}, IDependency::ImportanceLevel::HIGH);
 
-    if (schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[0]),
+    if (heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[0]),
                                      shapesBank.getPointPositionInVector(polygonVertices[2])) &&
-        schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[1]),
+        heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[1]),
                                      shapesBank.getPointPositionInVector(polygonVertices[3]))) {
       // both diagonal exist
 
@@ -492,8 +492,9 @@ unsigned int Expert::setRhombusDependencies(const std::shared_ptr<PolygonTypeDep
                                                                   IDependency::Reason::RHOMBUS_DIAGONAL, {dependencyId},
                                                                   IDependency::ImportanceLevel::HIGH);
 
-      const size_t diagonalsIntersectionPoint = intersectionPointsOfLines[shapesBank.getLinePositionInVector(diagonal1)]
-                                                                         [shapesBank.getLinePositionInVector(diagonal2)][0];
+      const size_t diagonalsIntersectionPoint =
+          shapesBank.getIntersectionPointsOfLines(shapesBank.getLinePositionInVector(diagonal1), shapesBank.getLinePositionInVector(diagonal2))[0];
+
       const std::string& diagonalsIntersectionPointId = shapesBank.getPointsVector().at(diagonalsIntersectionPoint).getId();
 
       sumOfNewDependencies +=
@@ -550,9 +551,9 @@ unsigned int Expert::setIsoscelesTrapezoidDependencies(const std::shared_ptr<Pol
                        polygonVertices[0], AngleType::CONVEX, IDependency::Reason::ISOSCELES_TRAPEZOID, {dependencyId},
                        IDependency::ImportanceLevel::HIGH);
 
-    if (schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[0]),
+    if (heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[0]),
                                      shapesBank.getPointPositionInVector(polygonVertices[2])) &&
-        schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[1]),
+        heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(polygonVertices[1]),
                                      shapesBank.getPointPositionInVector(polygonVertices[3]))) {
       // both diagonal exist
 
@@ -592,7 +593,7 @@ unsigned int Expert::setRightTrapezoidDependencies(const std::shared_ptr<Polygon
 unsigned int Expert::exploreSpecificSegmentsBasedDependencies() {
   unsigned int sumOfNewDependencies{0};
 
-  if(dependenciesBank.lastChange(IDependency::Type::MEDIAN)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::MEDIAN)) {
     const std::vector<std::shared_ptr<PolygonPointsPairDependency>> medians =
         dependenciesBank.getPolygonPointsPairDependencies(PolygonPointsPairDependencies::MEDIAN);
 
@@ -601,7 +602,7 @@ unsigned int Expert::exploreSpecificSegmentsBasedDependencies() {
     }
   }
 
-  if(dependenciesBank.lastChange(IDependency::Type::ALTITUDE)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::ALTITUDE)) {
     const std::vector<std::shared_ptr<PolygonPointsPairDependency>> altitudes =
         dependenciesBank.getPolygonPointsPairDependencies(PolygonPointsPairDependencies::ALTITUDE);
 
@@ -610,7 +611,7 @@ unsigned int Expert::exploreSpecificSegmentsBasedDependencies() {
     }
   }
 
-  if(dependenciesBank.lastChange(IDependency::Type::MID_SEGMENT)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::MID_SEGMENT)) {
     const std::vector<std::shared_ptr<PolygonPointsPairDependency>> midSegments =
         dependenciesBank.getPolygonPointsPairDependencies(PolygonPointsPairDependencies::MID_SEGMENT);
 
@@ -775,7 +776,7 @@ unsigned int Expert::setMidSegmentInTrapezoidDependencies(const std::shared_ptr<
 unsigned int Expert::exploreTangentLineAndCircleBasedDependencies() {
   unsigned int sumOfNewDependencies{0};
 
-  if(dependenciesBank.lastChange(IDependency::Type::TANGENT_LINE_TO_CIRCLE)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::TANGENT_LINE_TO_CIRCLE)) {
     const std::vector<std::shared_ptr<LineCircleDependency>> tangentLineCircle =
         dependenciesBank.getLineCircleDependencies(LineCircleDependencies::TANGENT_LINE_TO_CIRCLE);
 
@@ -784,7 +785,7 @@ unsigned int Expert::exploreTangentLineAndCircleBasedDependencies() {
     }
   }
 
-  if(dependenciesBank.lastChange(IDependency::Type::TANGENT_CIRCLE_TO_CIRCLE)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::TANGENT_CIRCLE_TO_CIRCLE)) {
     const std::vector<std::shared_ptr<CirclesDependency>> tangentCircleCircle =
         dependenciesBank.getCirclesDependencies(CirclesDependencies::TANGENT_CIRCLE_TO_CIRCLE);
 
@@ -803,13 +804,14 @@ unsigned int Expert::setTangentLineCircleDependencies(const std::shared_ptr<Line
   const std::string& circle{dependency->getSecondObject().getId()};
 
   const size_t commonPoint =
-      intersectionPointsOfLinesAndCircles[shapesBank.getLinePositionInVector(line)][shapesBank.getCirclePositionInVector(circle)][0];
+      shapesBank.getIntersectionPointsOfLinesAndCircles(shapesBank.getLinePositionInVector(line), shapesBank.getCirclePositionInVector(circle))[0];
+
   const std::string& commonPointId{shapesBank.getPointsVector().at(commonPoint).getId()};
   const std::string& circleCenterId{shapesBank.getCircle(circle).getCenterId()};
 
   const size_t dependencyId{dependency->getId()};
 
-  if (schemeGraph.checkIfEdgeExist(shapesBank.getPointPositionInVector(circleCenterId),
+  if (heuristicsBank.schemeEdgeExist(shapesBank.getPointPositionInVector(circleCenterId),
                                    shapesBank.getPointPositionInVector(commonPointId))) {
     const std::string& radiusLine = shapesBank.getLineIdThrowTwoPoints(commonPointId, circleCenterId);
 
@@ -830,7 +832,7 @@ unsigned int Expert::setTangentCircleCircleDependencies(const std::shared_ptr<Ci
 unsigned int Expert::explorePolygonCircleBasedDependencies() {
   unsigned int sumOfNewDependencies{0};
 
-  if(dependenciesBank.lastChange(IDependency::Type::INSCRIBED_CIRCLE)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::INSCRIBED_CIRCLE)) {
     const std::vector<std::shared_ptr<CirclePolygonDependency>> inscribedCircles =
         dependenciesBank.getCirclePolygonDependencies(CirclePolygonDependencies::INSCRIBED_CIRCLE);
 
@@ -839,7 +841,7 @@ unsigned int Expert::explorePolygonCircleBasedDependencies() {
     }
   }
 
-  if(dependenciesBank.lastChange(IDependency::Type::CIRCUMSCRIBED_CIRCLE)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::CIRCUMSCRIBED_CIRCLE)) {
     const std::vector<std::shared_ptr<CirclePolygonDependency>> circumscribedCircles =
         dependenciesBank.getCirclePolygonDependencies(CirclePolygonDependencies::CIRCUMSCRIBED_CIRCLE);
 
@@ -848,7 +850,7 @@ unsigned int Expert::explorePolygonCircleBasedDependencies() {
     }
   }
 
-  if(dependenciesBank.lastChange(IDependency::Type::ESCRIBED_CIRCLE)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::ESCRIBED_CIRCLE)) {
     const std::vector<std::shared_ptr<CirclePolygonDependency>> escribedCircles =
         dependenciesBank.getCirclePolygonDependencies(CirclePolygonDependencies::ESCRIBED_CIRCLE);
 
@@ -906,7 +908,7 @@ unsigned int Expert::setEscribedCircleDependencies(const std::shared_ptr<CircleP
 unsigned int Expert::exploreSpecificLineBasedDependencies() {
   unsigned int sumOfNewDependencies{0};
 
-  if(dependenciesBank.lastChange(IDependency::Type::MID_PERPENDICULAR_LINE)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::MID_PERPENDICULAR_LINE)) {
     const std::vector<std::shared_ptr<LinePointsPairDependency>> midPerpendicularLines =
         dependenciesBank.getLinePointsPairDependencies(LinePointsPairDependencies::MID_PERPENDICULAR_LINE);
 
@@ -915,7 +917,7 @@ unsigned int Expert::exploreSpecificLineBasedDependencies() {
     }
   }
 
-  if(dependenciesBank.lastChange(IDependency::Type::BISECTOR_LINE)) {
+  if(heuristicsBank.getNewDependencyFlag(IDependency::Type::BISECTOR_LINE)) {
     const std::vector<std::shared_ptr<LineAngleDependency>> bisectorLines =
         dependenciesBank.getLineAngleDependencies(LineAngleDependencies::BISECTOR_LINE);
 
@@ -937,7 +939,8 @@ unsigned int Expert::setMidPerpendicularLineDependencies(const std::shared_ptr<L
 
   const std::string& baseLine = shapesBank.getLineIdThrowTwoPoints(segmentEnd1, segmentEnd2);
   const size_t intersectionPoint =
-      intersectionPointsOfLines[shapesBank.getLinePositionInVector(baseLine)][shapesBank.getLinePositionInVector(midPerpendicularLine)][0];
+      shapesBank.getIntersectionPointsOfLines(shapesBank.getLinePositionInVector(baseLine), shapesBank.getLinePositionInVector(midPerpendicularLine))[0];
+
   const std::string& intersectionPointId = shapesBank.getPointsVector().at(intersectionPoint).getId();
 
   sumOfNewDependencies +=

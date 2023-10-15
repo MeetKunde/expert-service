@@ -1,4 +1,6 @@
 #include "ShapesBank.h"
+#include "HeuristicsBank.h"
+#include <iostream>
 
 namespace expertBackground {
 ShapesBank::ShapesBank()
@@ -10,15 +12,16 @@ ShapesBank::ShapesBank()
       pointIdsConverter{},
       lineIdsConverter{},
       circleIdsConverter{},
-      newPointAdded{false},
-      newLineAdded{false},
-      newCircleAdded{false} {}
+      heuristicsBank{nullptr} { }
 
 void ShapesBank::addPoint(const std::string& identifier, float xCoordinate, float yCoordinate, const std::string& name) {
   points.emplace_back(identifier, xCoordinate, yCoordinate, name);
   pointIdsConverter.insert(std::make_pair(identifier, pointIdCounter));
   pointIdCounter++;
-  newPointAdded = true;
+
+  if(heuristicsBank != nullptr) {
+    heuristicsBank->markNewPointsFlag();
+  }
 }
 
 json ShapesBank::getPointsAsJsonObjects() const {
@@ -67,7 +70,10 @@ void ShapesBank::addLine(const std::string& identifier, LineModel::LineType line
   lines.emplace_back(identifier, lineType, lineA, lineB, includedPointsCopy);
   lineIdsConverter.insert(std::make_pair(identifier, lineIdCounter));
   lineIdCounter++;
-  newLineAdded = true;
+
+  if(heuristicsBank != nullptr) {
+    heuristicsBank->markNewlinesFlag();
+  }
 }
 
 std::string ShapesBank::getLineIdThrowTwoPoints(const std::string& point1Id, const std::string& point2Id) const {
@@ -115,7 +121,10 @@ void ShapesBank::addCircle(const std::string& identifier, const std::string& cen
   circles.emplace_back(identifier, centerId, centerX, centerY, centerName, radius, includedPointsCopy);
   circleIdsConverter.insert(std::make_pair(identifier, circleIdCounter));
   circleIdCounter++;
-  newCircleAdded = true;
+
+  if(heuristicsBank != nullptr) {
+    heuristicsBank->markNewCirclesFlag();
+  }
 }
 
 std::string ShapesBank::getCircleIdWithTwoPoints(const std::string& centerPointId, const std::string& pointOnCircleId) const {
@@ -145,6 +154,120 @@ json ShapesBank::getCirclesAsJsonObjects() const {
   }
 
   return result;
+}
+
+void ShapesBank::findIntersectionPointsOfLines() {
+  const size_t linesNumber{lines.size()};
+
+  intersectionPointsOfLines.resize(linesNumber, std::vector<std::vector<size_t>>(linesNumber));
+  pointsOnLinesIntersections.resize(points.size(), {});
+
+  for (size_t line1Id = 0; line1Id < (linesNumber < 1 ? 0 : (linesNumber - 1)); line1Id++) {
+    for (size_t line2Id = line1Id + 1; line2Id < linesNumber; line2Id++) {
+      const std::vector<std::string>& points1 = lines[line1Id].getIncludedPoints();
+      const std::vector<std::string>& points2 = lines[line2Id].getIncludedPoints();
+
+      for (const std::string& point1Id : points1) {
+        if (std::any_of(points2.begin(), points2.end(),
+                        [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
+          const std::string& commonPointId = point1Id;
+          intersectionPointsOfLines[line1Id][line2Id].push_back(getPointPositionInVector(commonPointId));
+          intersectionPointsOfLines[line2Id][line1Id].push_back(getPointPositionInVector(commonPointId));
+          pointsOnLinesIntersections[getPointPositionInVector(commonPointId)].push_back({
+              line1Id, line2Id
+          });
+          break;
+        }
+      }
+    }
+  }
+}
+
+void ShapesBank::findIntersectionPointsOfCircles() {
+  const size_t circlesNumber{circles.size()};
+
+  intersectionPointsOfCircles.resize(circlesNumber, std::vector<std::vector<size_t>>(circlesNumber));
+  pointsOnCirclesIntersections.resize(points.size(), {});
+
+  for (size_t circle1Id = 0; circle1Id < (circlesNumber < 1 ? 0 : (circlesNumber - 1)); circle1Id++) {
+    for (size_t circle2Id = circle1Id + 1; circle2Id < circlesNumber; circle2Id++) {
+      const std::vector<std::string>& points1 = circles[circle1Id].getIncludedPoints();
+      const std::vector<std::string>& points2 = circles[circle2Id].getIncludedPoints();
+
+      size_t counter = 0;
+      for (const std::string& point1Id : points1) {
+        if (std::any_of(points2.begin(), points2.end(),
+                        [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
+          const std::string& commonPointId = point1Id;
+          intersectionPointsOfCircles[circle1Id][circle2Id].push_back(getPointPositionInVector(commonPointId));
+          intersectionPointsOfCircles[circle2Id][circle1Id].push_back(getPointPositionInVector(commonPointId));
+          pointsOnCirclesIntersections[getPointPositionInVector(commonPointId)].push_back({
+              circle1Id, circle2Id
+          });
+          counter++;
+          if (counter == 2) {
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
+void ShapesBank::findIntersectionPointsOfLinesCircles() {
+  const size_t linesNumber{lines.size()};
+  const size_t circlesNumber{circles.size()};
+
+  intersectionPointsOfLinesAndCircles.resize(linesNumber, std::vector<std::vector<size_t>>(circlesNumber));
+  pointsOnLineAndCircleIntersections.resize(points.size(), {});
+
+  for (size_t lineId = 0; lineId < linesNumber; lineId++) {
+    for (size_t circleId = 0; circleId < circlesNumber; circleId++) {
+      const std::vector<std::string>& points1 = lines[lineId].getIncludedPoints();
+      const std::vector<std::string>& points2 = circles[circleId].getIncludedPoints();
+
+      size_t counter = 0;
+      for (const std::string& point1Id : points1) {
+        if (std::any_of(points2.begin(), points2.end(),
+                        [point1Id](const std::string& otherPoint) { return otherPoint == point1Id; })) {
+          const std::string& commonPointId = point1Id;
+          intersectionPointsOfLinesAndCircles[lineId][circleId].push_back(getPointPositionInVector(commonPointId));
+          pointsOnLineAndCircleIntersections[getPointPositionInVector(commonPointId)].push_back({
+              lineId, circleId
+          });
+          counter++;
+          if (counter == 2) {
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
+void ShapesBank::findPointsOnShapes() {
+  pointsOnShapes.resize(points.size(), {false, false});
+
+  for (const LineModel& line: lines) {
+    for (const std::string& pointId: line.getIncludedPoints()) {
+      pointsOnShapes[getPointPositionInVector(pointId)][0] = true;
+    }
+  }
+
+  for (const CircleModel& circle: circles) {
+    for (const std::string& pointId: circle.getIncludedPoints()) {
+      pointsOnShapes[getPointPositionInVector(pointId)][0] = true;
+    }
+  }
+}
+
+json ShapesBank::getIntersectionPointsAsJson() {
+  return {{"line_line", json(intersectionPointsOfLines)},
+          {"circle_circle", json(intersectionPointsOfCircles)},
+          {"line_circle", json(intersectionPointsOfLinesAndCircles)},
+          {"points_on_line_line", json(pointsOnLinesIntersections)},
+          {"points_on_circle_circle", json(pointsOnCirclesIntersections)},
+          {"points_on_line_circle", json(pointsOnLineAndCircleIntersections)}};
 }
 
 bool ShapesBank::counterClockwiseComparator(const PointModel& point1, const PointModel& point2, float centerX, float centerY) {
