@@ -220,7 +220,7 @@ unsigned int Expert::findPerpendicularLinesBasedOnRightAngles() {
 
       for (size_t endNumber = 0; endNumber < 4; endNumber++) {
         evaluation = dependenciesBank.evaluateEquation(
-            ExpressionModel{DependenciesBank::getAngleMeasureVariable(linesEnds[endNumber], intersectionPoint, linesEnds[(endNumber + 1) % 4], true)},
+            ExpressionModel{dependenciesBank.getAngleMeasureVariable(linesEnds[endNumber], intersectionPoint, linesEnds[(endNumber + 1) % 4], true)},
             ExpressionModel{rightAngle});
 
         if (evaluation.first) {

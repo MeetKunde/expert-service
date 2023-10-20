@@ -165,10 +165,11 @@ class DependenciesBank {
     return getDependenciesWithType<ExpressionModel, ExpressionModel>(static_cast<IDependency::Type>(type));
   }
 
-  static inline Var getSegmentLengthVariable(const PointModel& point1,
+  inline Var getSegmentLengthVariable(const PointModel& point1,
                                       const PointModel& point2) { return Var{getSegmentName(point1, point2).first}; }
 
-  static inline Var getAngleMeasureVariable(const PointModel& point1,
+
+  inline Var getAngleMeasureVariable(const PointModel& point1,
                                      const PointModel& point2,
                                      const PointModel& point3,
                                      bool angleIsConvex) { return Var{getAngleName(point1, point2, point3, angleIsConvex).first};}
@@ -293,12 +294,16 @@ class DependenciesBank {
     return getDependenciesWithType<PolygonModel, ExpressionModel>(static_cast<IDependency::Type>(type));
   }
 
+  unsigned int extractVariables();
+
   inline const std::vector<const ExpressionModel*>& getExpressionModels() const { return expressionModels; }
+  inline const std::map<std::string, std::vector<size_t>>& getVariables() const { return variableToIndexes; }
 
   json getDependenciesAsJsonObjects() const;
   json getVariablesIndexesAsJsonObject() const;
 
   std::pair<bool, std::vector<size_t>> evaluateEquation(const ExpressionModel& leftSide, const ExpressionModel& rightSide) const;
+  std::pair<bool, std::vector<size_t>> evaluateEquation(const symbolicAlgebra::Variable& leftSide, const symbolicAlgebra::Variable& rightSide) const;
 
  private:
   unsigned int addEquationUtil(const symbolicAlgebra::Expression& leftSide, const symbolicAlgebra::Expression& rightSide,
@@ -432,10 +437,10 @@ class DependenciesBank {
 
   void addNewDependency(std::shared_ptr<IDependency> dependencyModel);
 
-  static std::pair<std::string, std::vector<std::string>> getSegmentName(const PointModel& point1,
+  std::pair<std::string, std::vector<std::string>> getSegmentName(const PointModel& point1,
                                                                          const PointModel& point2);
 
-  static std::pair<std::string, std::vector<std::string>> getAngleName(const PointModel& point1,
+  std::pair<std::string, std::vector<std::string>> getAngleName(const PointModel& point1,
                                                                        const PointModel& point2,
                                                                        const PointModel& point3,
                                                                        bool angleIsConvex);

@@ -45,7 +45,10 @@ class HeuristicsBank {
     inline void markNewEvaluationsFlag() { newEvaluationHasBeenAdded = true; }
     inline bool getNewEvaluationFlag() const { return newEvaluationHasBeenAdded; }
 
+    inline void addNewFormula(const std::vector<std::string>& variables) { variablesGraph.addFormula(variables); }
+
     inline bool schemeEdgeExist(size_t vertex1, size_t vertex2) const { return schemeGraph.checkIfEdgeExist(vertex1, vertex2); }
+    inline std::vector<std::vector<size_t>>trianglesInScheme() const { return schemeGraph.getAllTriangles(); }
     inline bool equationsAreDeterminable(const std::set<std::string>& variables) const { return variablesGraph.equationsAreDeterminable(variables); }
 
     void clearNewShapesFlags();

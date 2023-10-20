@@ -118,7 +118,7 @@ class Expert {
   static PolygonType parsePolygonType(unsigned int polygonType);
 
   // Tools.cpp
-  bool pointsLiesOnOneLine(const std::vector<std::string>& pointIds) const;
+  bool pointsLiesOnOneLine(const std::vector<size_t>& pointPoses) const;
   unsigned int setEqualSides(const std::string& segment1End1Id, const std::string& segment1End2Id,
                              const std::string& segment2End1Id, const std::string& segment2End2Id,
                              IDependency::Reason reason, const std::vector<size_t>& dependentDependencies,
@@ -151,6 +151,11 @@ class Expert {
   unsigned int findSupplementaryAngles();
   unsigned int findAlternateAngles();
   unsigned int findCorrespondingAngles();
+
+  // PolygonsTheorems
+  unsigned int explorePolygonsTheorems();
+  unsigned int findCongruentAndSimilarTriangles();
+  unsigned int setSumOfAnglesInTriangles();
 
   // SpecificPropertiesTheorems.cpp
   unsigned int explorePolygonTypeBasedDependencies();

@@ -9,6 +9,7 @@ const int MathHelper::ZERO_ANGLE_VALUE = 0;
 const int MathHelper::EQUILATERAL_TRIANGLE_INTERNAL_ANGLE_VALUE = 60;
 const int MathHelper::SQUARE_INTERNAL_ANGLE_VALUE = 90;
 const int MathHelper::RECTANGLE_INTERNAL_ANGLE_VALUE = 90;
+const int MathHelper::SUM_OF_ANGLES_IN_TRIANGLE = 180;
 
 double MathHelper::getDistance(Coordinates point1, Coordinates point2) {
   const double diffX = point1.x - point2.x;

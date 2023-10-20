@@ -27,6 +27,7 @@ class MathHelper {
   static const int EQUILATERAL_TRIANGLE_INTERNAL_ANGLE_VALUE;
   static const int SQUARE_INTERNAL_ANGLE_VALUE;
   static const int RECTANGLE_INTERNAL_ANGLE_VALUE;
+  static const int SUM_OF_ANGLES_IN_TRIANGLE;
 
   static double getDistance(Coordinates point1, Coordinates point2);
   static double getAngleCosine(Coordinates point1, Coordinates point2, Coordinates point3);

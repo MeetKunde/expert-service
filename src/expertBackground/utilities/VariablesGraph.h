@@ -28,6 +28,7 @@ class VariablesGraph {
  public:
   VariablesGraph();
 
+  void addVertex(const std::string& vertex);
   void addEdge(const std::string& vertex1, const std::string& vertex2, MathHelper::Fraction weight, size_t identifier);
   void deleteEdges(const std::string& vertex1, const std::string& vertex2);
   std::vector<std::pair<const std::string&, bool>> getVertices();

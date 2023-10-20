@@ -74,18 +74,21 @@ void Expert::useKnowledge(std::ostream& stream) {
 
     newDependenciesFoundNumber = 0;
 
-    //newDependenciesFoundNumber += explorePolygonTypeBasedDependencies();
-    //newDependenciesFoundNumber += exploreSpecificSegmentsBasedDependencies();
-    //newDependenciesFoundNumber += exploreTangentLineAndCircleBasedDependencies();
-    //newDependenciesFoundNumber += explorePolygonCircleBasedDependencies();
-    //newDependenciesFoundNumber += exploreSpecificLineBasedDependencies();
+    newDependenciesFoundNumber += dependenciesBank.extractVariables();
+
+    newDependenciesFoundNumber += explorePolygonTypeBasedDependencies();
+    newDependenciesFoundNumber += exploreSpecificSegmentsBasedDependencies();
+    newDependenciesFoundNumber += exploreTangentLineAndCircleBasedDependencies();
+    newDependenciesFoundNumber += explorePolygonCircleBasedDependencies();
+    newDependenciesFoundNumber += exploreSpecificLineBasedDependencies();
     newDependenciesFoundNumber += exploreLineBasedDependencies();
     newDependenciesFoundNumber += exploreAngleBasedTheorems();
+    newDependenciesFoundNumber += explorePolygonsTheorems();
 
     allDependenciesFoundNumber += newDependenciesFoundNumber;
     heuristicsBank.clearAllFlags();
 
-    localTimer.takeMeasurement("Round number " + std::to_string(roundsCounter) + "ended. Found " +
+    localTimer.takeMeasurement("Round number " + std::to_string(roundsCounter) + " ended. Found " +
                                std::to_string(newDependenciesFoundNumber) + " new dependencies!",
                                false, stream);
     roundsCounter++;
@@ -229,21 +232,17 @@ void Expert::addEqualismDependencies(json segments, json angles) {
   json::iterator iter;
 
   for (iter = segments.begin(); iter != segments.end(); ++iter) {
-    dependenciesBank.addPointsPairsDependency((*iter)["segment1End1Id"], (*iter)["segment1End2Id"],
-                                              (*iter)["segment2End1Id"], (*iter)["segment2End2Id"],
-                                              PointsPairsDependencies::EQUAL_SEGMENTS,
-                                              IDependency::Reason::USER_DEFINED,
-                                              {EXERCISE_DESCRIPTION_ID},
-                                              IDependency::ImportanceLevel::HIGH);
+    setEqualSides((*iter)["segment1End1Id"], (*iter)["segment1End2Id"],
+                  (*iter)["segment2End1Id"], (*iter)["segment2End2Id"],
+                  IDependency::Reason::USER_DEFINED, {EXERCISE_DESCRIPTION_ID},
+                  IDependency::ImportanceLevel::HIGH);
   }
 
   for (iter = angles.begin(); iter != angles.end(); ++iter) {
-    dependenciesBank.addAnglesDependency((*iter)["angle1End1Id"], (*iter)["angle1VertexId"], (*iter)["angle1End2Id"], AngleType::UNKNOWN,
-                                         (*iter)["angle2End1Id"], (*iter)["angle2VertexId"], (*iter)["angle2End2Id"], AngleType::UNKNOWN,
-                                         AnglesDependencies::EQUAL_ANGLES,
-                                         IDependency::Reason::USER_DEFINED,
-                                         {EXERCISE_DESCRIPTION_ID},
-                                         IDependency::ImportanceLevel::HIGH);
+    setEqualAngles((*iter)["angle1End1Id"], (*iter)["angle1VertexId"], (*iter)["angle1End2Id"],
+                   (*iter)["angle2End1Id"], (*iter)["angle2VertexId"], (*iter)["angle2End2Id"], AngleType::UNKNOWN,
+                   IDependency::Reason::USER_DEFINED,{EXERCISE_DESCRIPTION_ID},
+                   IDependency::ImportanceLevel::HIGH);
   }
 }
 

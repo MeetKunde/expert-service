@@ -33,6 +33,11 @@ void HeuristicsBank::initializeSchemeGraph() {
 }
 
 void HeuristicsBank::initializeVariablesGraph() {
+  const auto& variables = dependenciesBank->getVariables();
+  for (auto variable = variables.begin(); variable != variables.end(); ++variable) {
+    variablesGraph.addVertex(variable->first);
+  }
+
   const auto& expressions = dependenciesBank->getExpressionModels();
   for (auto expressionModel = expressions.begin(); expressionModel != expressions.end(); ++expressionModel) {
     std::set<std::string> variablesSet{};

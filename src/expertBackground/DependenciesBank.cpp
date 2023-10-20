@@ -520,6 +520,66 @@ unsigned int DependenciesBank::addPolygonExpressionDependency(const std::vector<
   return 1;
 }
 
+unsigned int DependenciesBank::extractVariables() {
+  unsigned int sumOfNewDependencies{0};
+
+  for (auto variableDescriptors = formulasIncludingVariable.begin(); variableDescriptors != formulasIncludingVariable.end(); ++variableDescriptors) {
+    if (variableDescriptors->second.size()  < 2) {
+      continue;
+    }
+
+    std::vector<symbolicAlgebra::Equation> equations{};
+    std::vector<size_t> equationIds{};
+    for (auto inputEquationId = variableDescriptors->second.begin(); inputEquationId != variableDescriptors->second.end(); ++inputEquationId) {
+      const auto inputEquation = std::dynamic_pointer_cast<EquationDependency>(dependenciesVector.at(*inputEquationId));
+      equations.emplace_back(inputEquation->getFirstObject(), inputEquation->getSecondObject());
+      equationIds.emplace_back(*inputEquationId);
+    }
+
+    const std::vector<symbolicAlgebra::Equation> partSol = symbolicAlgebra::Solve::systemOfEquations(equations);
+
+    for(auto pSol = partSol.begin(); pSol != partSol.end(); ++pSol) {
+      bool identity = false;
+      for(auto equ = equations.begin(); equ != equations.end(); ++equ) {
+        auto maybeZero1 = equ->lhs - equ->rhs - pSol->lhs + pSol->rhs;
+        auto maybeZero2 = equ->lhs - equ->rhs + pSol->lhs - pSol->rhs;
+        maybeZero1.simplify();
+        maybeZero2.simplify();
+        if(maybeZero1.canBeFullEvaluated() && fabs(maybeZero1.evaluate()) < MathHelper::COMPARISON_EPSILON ||
+           maybeZero2.canBeFullEvaluated() && fabs(maybeZero2.evaluate()) < MathHelper::COMPARISON_EPSILON) {
+          identity = true;
+        }
+      }
+
+      if(!identity) {
+        auto equalSides = pSol->lhs - pSol->rhs;
+        equalSides.simplify();
+
+       // if(equalSides.canBeFullEvaluated() && fabs(equalSides.evaluate()) < MathHelper::COMPARISON_EPSILON) {
+       //   continue;
+       // }
+
+        std::set<std::string> vars;
+        pSol->lhs.getIncludedVariables(vars);
+        pSol->rhs.getIncludedVariables(vars);
+       // if(vars.size() > 2) {
+        //  continue;
+        //}
+
+        sumOfNewDependencies += addEquationUtil(pSol->lhs, pSol->rhs, EquationDependencies::EQUATION,
+                                                IDependency::Reason::EQUATION_EXTRACTION, equationIds,
+                                                IDependency::ImportanceLevel::LOW);
+      }
+    }
+  }
+
+  if(sumOfNewDependencies > 0) {
+    heuristicsBank->markNewEvaluationsFlag();
+  }
+
+  return sumOfNewDependencies;
+}
+
 json DependenciesBank::getDependenciesAsJsonObjects() const {
   json result;
 
@@ -555,6 +615,34 @@ std::pair<bool, std::vector<size_t>> DependenciesBank::evaluateEquation(const Ex
 
   if (!heuristicsBank->equationsAreDeterminable(variables)) {
     return {false, {}};
+  }
+
+  for (const EquationDependencies type: { EquationDependencies::EQUATION, EquationDependencies::SEGMENT_LENGTH, EquationDependencies::ANGLE_MEASURE }) {
+    const auto equations = getEquationDependencies(type);
+
+    for(auto equation = equations.begin(); equation != equations.end(); ++equation) {
+      const bool cond1 = (*equation)->getFirstObject() == rightSide && (*equation)->getSecondObject() == leftSide;
+      const bool cond2 = (*equation)->getFirstObject() == leftSide && (*equation)->getSecondObject() == rightSide;
+      if (cond1 || cond2) {
+        return {true, {(*equation)->getId()}};
+      }
+    }
+  }
+
+  return {false, {}};
+}
+
+std::pair<bool, std::vector<size_t>> DependenciesBank::evaluateEquation(const symbolicAlgebra::Variable& leftSide, const symbolicAlgebra::Variable& rightSide) const {
+  std::set<std::string> variables{};
+  leftSide.getIncludedVariables(variables);
+  rightSide.getIncludedVariables(variables);
+
+  if (!heuristicsBank->equationsAreDeterminable(variables)) {
+    return {false, {}};
+  }
+
+  if(leftSide == rightSide) {
+    return {true, {}};
   }
 
   for (const EquationDependencies type: { EquationDependencies::EQUATION, EquationDependencies::SEGMENT_LENGTH, EquationDependencies::ANGLE_MEASURE }) {
@@ -608,10 +696,14 @@ unsigned int DependenciesBank::addEquationUtil(const symbolicAlgebra::Expression
     }
   }
 
+  const std::vector<std::string> namesVector(names.begin(), names.end());
+  heuristicsBank->addNewFormula(namesVector);
+
   formulas.push_back(dependencyIdCounter);
   addNewDependency(dependency);
   expressionModels.push_back(&dependency->getFirstObject());
   expressionModels.push_back(&dependency->getSecondObject());
+
   return 1;
 }
 
@@ -649,9 +741,11 @@ std::pair<std::string, std::vector<std::string>> DependenciesBank::getSegmentNam
 }
 
 std::pair<std::string, std::vector<std::string>> DependenciesBank::getAngleName(const PointModel& point1, const PointModel& point2, const PointModel& point3, bool angleIsConvex) {
-  const std::string& point1Name = point1.getName();
-  const std::string& point2Name = point2.getName();
-  const std::string& point3Name = point3.getName();
+  const std::vector<std::string> properAnglePoints = changeAngleEnds(point1.getId(), point2.getId(), point3.getId());
+
+  const std::string& point1Name = shapesBank->getPoint(properAnglePoints[0]).getName();
+  const std::string& point2Name = shapesBank->getPoint(properAnglePoints[1]).getName();
+  const std::string& point3Name = shapesBank->getPoint(properAnglePoints[2]).getName();
 
   if(point1Name.length() < point3Name.length()) {
     if(angleIsConvex) {

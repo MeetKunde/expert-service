@@ -121,7 +121,7 @@ unsigned int Expert::setScaleneRightTriangleDependencies(const std::shared_ptr<P
 
   if (polygonVerticesNumber == 3) {
     sumOfNewDependencies += dependenciesBank.addConvexAngle(
-        polygonVertices[1], polygonVertices[0], polygonVertices[2], Integer(MathHelper::RIGHT_ANGLE_VALUE),
+        polygonVertices[1], polygonVertices[2], polygonVertices[0], Integer(MathHelper::RIGHT_ANGLE_VALUE),
         IDependency::Reason::SCALENE_RIGHT_TRIANGLE, {dependencyId}, IDependency::ImportanceLevel::HIGH);
   }
 
@@ -520,6 +520,27 @@ unsigned int Expert::setScaleneTrapezoidDependencies(const std::shared_ptr<Polyg
     sumOfNewDependencies +=
         setSidesParallelism(polygonVertices[0], polygonVertices[1], polygonVertices[2], polygonVertices[3],
                             IDependency::Reason::SCALENE_TRAPEZOID, {dependencyId}, IDependency::ImportanceLevel::HIGH);
+
+    const symbolicAlgebra::Variable angle1 =
+        dependenciesBank.getAngleMeasureVariable(shapesBank.getPoint(polygonVertices[0]), shapesBank.getPoint(polygonVertices[1]), shapesBank.getPoint(polygonVertices[2]), true);
+
+    const symbolicAlgebra::Variable angle2 =
+        dependenciesBank.getAngleMeasureVariable(shapesBank.getPoint(polygonVertices[1]), shapesBank.getPoint(polygonVertices[2]), shapesBank.getPoint(polygonVertices[3]), true);
+
+    const symbolicAlgebra::Variable angle3 =
+        dependenciesBank.getAngleMeasureVariable(shapesBank.getPoint(polygonVertices[2]), shapesBank.getPoint(polygonVertices[3]), shapesBank.getPoint(polygonVertices[0]), true);
+
+    const symbolicAlgebra::Variable angle4 =
+        dependenciesBank.getAngleMeasureVariable(shapesBank.getPoint(polygonVertices[3]), shapesBank.getPoint(polygonVertices[0]), shapesBank.getPoint(polygonVertices[1]), true);
+
+    sumOfNewDependencies +=
+        dependenciesBank.addEquation(angle1 + angle2, symbolicAlgebra::Integer(MathHelper::STRAIGHT_ANGLE_VALUE),
+                                     IDependency::Reason::SUM_OF_ANGLES_AT_TRAPEZOID_ARM, {dependencyId}, IDependency::ImportanceLevel::HIGH);
+
+    sumOfNewDependencies +=
+        dependenciesBank.addEquation(angle3 + angle4, symbolicAlgebra::Integer(MathHelper::STRAIGHT_ANGLE_VALUE),
+                                     IDependency::Reason::SUM_OF_ANGLES_AT_TRAPEZOID_ARM, {dependencyId}, IDependency::ImportanceLevel::HIGH);
+
   }
 
   return sumOfNewDependencies;
@@ -660,7 +681,7 @@ unsigned int Expert::setAltitudeDependencies(const std::shared_ptr<PolygonPoints
 
   if(polygonVerticesNumber == 3) {
     const std::string& altitudeLine = shapesBank.getLineIdThrowTwoPoints(segmentEnd1, segmentEnd2);
-    const std::string& baseLine = shapesBank.getLineIdThrowTwoPoints(polygonVertices[1], polygonVertices[1]);
+    const std::string& baseLine = shapesBank.getLineIdThrowTwoPoints(polygonVertices[1], polygonVertices[2]);
 
     sumOfNewDependencies +=
         dependenciesBank.addLinesDependency(baseLine, altitudeLine, LinesDependencies::PERPENDICULAR_LINES,
@@ -718,8 +739,8 @@ unsigned int Expert::setMidSegmentInTriangleDependencies(const std::shared_ptr<P
   const PointModel& baseEnd2Point = shapesBank.getPoint(polygonVertices[2]);
 
   sumOfNewDependencies += dependenciesBank.addEquation(
-      expertBackground::DependenciesBank::getSegmentLengthVariable(segmentEnd1Point, segmentEnd2Point),
-      expertBackground::DependenciesBank::getSegmentLengthVariable(baseEnd1Point, baseEnd2Point) /
+      dependenciesBank.getSegmentLengthVariable(segmentEnd1Point, segmentEnd2Point),
+      dependenciesBank.getSegmentLengthVariable(baseEnd1Point, baseEnd2Point) /
           Integer(2),
       IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::ImportanceLevel::HIGH);
 
@@ -764,9 +785,9 @@ unsigned int Expert::setMidSegmentInTrapezoidDependencies(const std::shared_ptr<
   const PointModel& bottomBaseEnd2Point = shapesBank.getPoint(polygonVertices[3]);
 
   sumOfNewDependencies += dependenciesBank.addEquation(
-      expertBackground::DependenciesBank::getSegmentLengthVariable(segmentEnd1Point, segmentEnd2Point),
-      (expertBackground::DependenciesBank::getSegmentLengthVariable(topBaseEnd1Point, topBaseEnd2Point) +
-       expertBackground::DependenciesBank::getSegmentLengthVariable(bottomBaseEnd1Point, bottomBaseEnd2Point)) /
+      dependenciesBank.getSegmentLengthVariable(segmentEnd1Point, segmentEnd2Point),
+      (dependenciesBank.getSegmentLengthVariable(topBaseEnd1Point, topBaseEnd2Point) +
+       dependenciesBank.getSegmentLengthVariable(bottomBaseEnd1Point, bottomBaseEnd2Point)) /
           Integer(2),
       IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::ImportanceLevel::HIGH);
 

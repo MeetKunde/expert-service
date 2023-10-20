@@ -3,6 +3,13 @@
 namespace expertBackground {
   VariablesGraph::VariablesGraph() {}
 
+  void VariablesGraph::addVertex(const std::string& vertex) {
+    if (adjacencyList.find(vertex) == adjacencyList.end()) {
+      adjacencyList.insert({vertex, {}});
+      determinable.insert({vertex, false});
+    }
+  }
+
   void VariablesGraph::addEdge(const std::string& vertex1, const std::string& vertex2, MathHelper::Fraction weight, size_t identifier) {
     if (adjacencyList.find(vertex1) == adjacencyList.end()) {
       adjacencyList.insert({vertex1, {}});
