@@ -1,17 +1,14 @@
 #!/bin/bash
 
 build_types=()
-accepted_build_types=("release" "debug")
+accepted_build_types=("Release" "Debug")
 
-for arg in "$@"; do
-    for acc in ${accepted_build_types[@]}; do
-        if [[ $arg == $acc ]]; then
-            build_types+=($arg)
-        fi
-    done
+for acc in ${accepted_build_types[@]}; do
+    build_types+=($acc)
 done
 
 for build_type in ${build_types[@]}; do
     echo "Generating ${build_type} configuration..."
-    cmake .. --preset unixlike-clang-${build_type}
+    rm -rf ../build/${build_type}
+    conan install .. -s build_type=${build_type} --build=missing
 done

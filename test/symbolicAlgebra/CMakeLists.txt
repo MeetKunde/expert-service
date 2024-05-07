@@ -9,7 +9,9 @@ file(GLOB_RECURSE _SRCS "*.cpp" "*.h")
 
 add_executable(symbolicAlgebraTests ${_SRCS})
 
-target_link_libraries(symbolicAlgebraTests symbolicAlgebra Catch2::Catch2)
+target_link_libraries(symbolicAlgebraTests symbolicAlgebra Catch2::Catch2WithMain)
+
+add_test(NAME symbolicAlgebraTests COMMAND symbolicAlgebraTests)
 
 install(TARGETS symbolicAlgebraTests DESTINATION bin)
 

@@ -1,12 +1,12 @@
 #!/bin/bash
 
-accepted_build_types=("release" "debug")
+accepted_build_types=("Release" "Debug")
 
 if [ ! -z "$1" ]; then
     for acc in ${accepted_build_types[@]}; do
         clear
         if [[ $1 == $acc ]]; then
-            ../out/build/unixlike-clang-${acc}/src/app/app
+            ../build/$acc/src/app/app
         fi
     done
 else

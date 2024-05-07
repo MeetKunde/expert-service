@@ -9,7 +9,9 @@ file(GLOB_RECURSE _SRCS "*.cpp" "*.h")
 
 add_executable(expertBackgroundTests ${_SRCS} DependenciesBankAddingDependencies.cpp)
 
-target_link_libraries(expertBackgroundTests expertBackground Catch2::Catch2)
+target_link_libraries(expertBackgroundTests expertBackground Catch2::Catch2WithMain)
+
+add_test(NAME expertBackgroundTests COMMAND expertBackgroundTests)
 
 install(TARGETS expertBackgroundTests DESTINATION bin)
 

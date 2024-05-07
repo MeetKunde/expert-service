@@ -1,7 +1,7 @@
 #!/bin/bash
 
 build_types=()
-accepted_build_types=("release" "debug")
+accepted_build_types=("Release" "Debug")
 
 for arg in "$@"; do
     for acc in ${accepted_build_types[@]}; do
@@ -13,5 +13,5 @@ done
 
 for build_type in ${build_types[@]}; do
     echo "Testing in ${build_type} mode..."
-    ( cd ../out/build/unixlike-clang-${acc} && ctest -C ${build_type} --output-on-failure )
+    ( cd .. && ctest -C ${build_type} --preset test-unixlike-gcc-${build_type,,} --output-on-failure -r xml -d yes --order lex)
 done

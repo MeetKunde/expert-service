@@ -1,7 +1,9 @@
 #ifndef EXPERT_TEST_BASE_H
 #define EXPERT_TEST_BASE_H
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <Expert.h>
 

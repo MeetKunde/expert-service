@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15.0)
 
 project(expert-service
         VERSION 1.0.0
@@ -42,25 +42,24 @@ set(ENABLE_DEVELOPER_MODE TRUE CACHE BOOL "Enable 'developer mode'")
 
 set(OPT_WARNINGS_AS_ERRORS_DEVELOPER_DEFAULT TRUE)
 
-
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
     cmake_policy(SET CMP0135 NEW)
 endif ()
 
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
-    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
-    file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/0.18.1/conan.cmake"
-            "${CMAKE_BINARY_DIR}/conan.cmake"
-            TLS_VERIFY ON)
-endif()
-
-include(${CMAKE_BINARY_DIR}/conan.cmake)
-
-conan_cmake_autodetect(settings)
-
-conan_cmake_install(PATH_OR_REFERENCE ${PROJECT_SOURCE_DIR}
-        BUILD missing
-        SETTINGS ${settings})
+#if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+#    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+#    file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/0.18.1/conan.cmake"
+#            "${CMAKE_BINARY_DIR}/conan.cmake"
+#            TLS_VERIFY ON)
+#endif()
+#
+#include(${CMAKE_BINARY_DIR}/conan.cmake)
+#
+#conan_cmake_autodetect(settings)
+#
+#conan_cmake_install(PATH_OR_REFERENCE ${PROJECT_SOURCE_DIR}
+#        BUILD missing
+#        SETTINGS ${settings})
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH})
 

@@ -1,7 +1,9 @@
 #ifndef SYMBOLIC_ALGEBRA_TEST_BASE_H
 #define SYMBOLIC_ALGEBRA_TEST_BASE_H
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <symbolicAlgebra.h>
 

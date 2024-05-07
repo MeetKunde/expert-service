@@ -9,7 +9,9 @@ file(GLOB_RECURSE _SRCS "*.cpp" "*.h")
 
 add_executable(expertTests ${_SRCS})
 
-target_link_libraries(expertTests expert Catch2::Catch2)
+target_link_libraries(expertTests expert Catch2::Catch2WithMain)
+
+add_test(NAME expertTests COMMAND expertTests)
 
 install(TARGETS expertTests DESTINATION bin)
 

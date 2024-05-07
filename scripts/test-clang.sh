@@ -1,7 +1,7 @@
 #!/bin/bash
 
 build_types=()
-accepted_build_types=("release" "debug")
+accepted_build_types=("Release" "Debug")
 
 for arg in "$@"; do
     for acc in ${accepted_build_types[@]}; do
@@ -11,9 +11,7 @@ for arg in "$@"; do
     done
 done
 
-procs_number=$(nproc)
-
 for build_type in ${build_types[@]}; do
-    echo "Bulding in ${build_type} mode on $procs_number procs..."
-    cmake --build ../out/build/unixlike-clang-${build_type} -- -j $procs_number
+    echo "Testing in ${build_type} mode..."
+    ( cd .. && ctest -C ${build_type} --preset test-unixlike-clang-${build_type,,} --output-on-failure)
 done

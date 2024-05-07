@@ -5,7 +5,6 @@ find_package(httplib REQUIRED PATHS ${CMAKE_BINARY_DIR})
 
 include_directories(${EXPERT_HEADERS_DIR})
 
-
 file(GLOB_RECURSE _SRCS "*.cpp" "*.h")
 
 add_executable(app ${_SRCS})
