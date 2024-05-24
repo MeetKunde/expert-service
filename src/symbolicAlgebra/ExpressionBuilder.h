@@ -14,9 +14,6 @@ class ExpressionBuilder {
  private:
   enum class ParsingTypes { VARIABLE, NUMBER, CONSTANT, OPERATOR };
 
-  static const std::map<char, std::pair<int, bool>> operators;
-  static const std::pair<char, char> parenthesis;
-
   static inline bool isDigit(char chr) { return std::isdigit(chr) != 0; }
   static inline bool isLetter(char chr) {
     return (std::isalpha(chr) != 0) || chr == '|' || chr == '<' || chr == '>' || chr == '\'';
@@ -25,6 +22,9 @@ class ExpressionBuilder {
   static std::string toLowerCase(const std::string& str);
   static bool isSpecialFunction(const std::string& str);
   static bool isSpecialConstant(const std::string& str);
+
+  static const std::map<char, std::pair<int, bool>> operators;
+  static const std::pair<char, char> parenthesis;
 
 };
 }  // namespace symbolicAlgebra
