@@ -8,6 +8,9 @@
 
 namespace symbolicAlgebra {
 class ExpressionBuilder {
+ public:
+  static std::unique_ptr<implementation::Atom> fromString(const std::string& expression);
+
  private:
   enum class ParsingTypes { VARIABLE, NUMBER, CONSTANT, OPERATOR };
 
@@ -23,8 +26,6 @@ class ExpressionBuilder {
   static bool isSpecialFunction(const std::string& str);
   static bool isSpecialConstant(const std::string& str);
 
- public:
-  static std::unique_ptr<implementation::Atom> fromString(const std::string& expression);
 };
 }  // namespace symbolicAlgebra
 

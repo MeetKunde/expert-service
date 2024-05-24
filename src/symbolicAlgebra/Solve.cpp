@@ -64,7 +64,7 @@ std::vector<Equation> Solve::findZeros(const Expression& equation, const std::st
 }
 
 std::vector<Equation> Solve::equation(const Equation& equation, const std::string& variable) {
-  const Expression equ = equation.lhs - equation.rhs;
+  const Expression equ = equation.getLhs() - equation.getRhs();
   return findZeros(equ, variable);
 }
 
@@ -79,7 +79,7 @@ std::vector<Equation> Solve::systemOfEquations(const std::vector<Equation>& equa
     justUsedEquations.pop();
 
     for (auto iter = result.begin(); iter != result.end(); ++iter) {
-      equ.rhs.substitute(iter->lhs.getString(), iter->rhs);
+      equ.substituteRhs(iter->getLhs().getString(), iter->getRhs());
     }
 
     result.push_back(equ);
@@ -91,8 +91,8 @@ std::vector<Equation> Solve::systemOfEquations(const std::vector<Equation>& equa
   std::vector<Equation> singles;
   for (auto iter = result.begin(); iter != result.end();) {
     variables.clear();
-    iter->lhs.getIncludedVariables(variables);
-    iter->rhs.getIncludedVariables(variables);
+    iter->getLhs().getIncludedVariables(variables);
+    iter->getRhs().getIncludedVariables(variables);
 
     if (variables.size() > 1) {
       for (auto var = variables.begin(); var != variables.end(); ++var) {
@@ -123,8 +123,8 @@ void Solve::systemOfEquations(const std::vector<Equation>& equations, std::stack
 
   for (auto iter = equations.cbegin(); iter != equations.cend(); ++iter) {
     std::set<std::string> variables = {};
-    iter->lhs.getIncludedVariables(variables);
-    iter->rhs.getIncludedVariables(variables);
+    iter->getLhs().getIncludedVariables(variables);
+    iter->getRhs().getIncludedVariables(variables);
 
     if (variables.size() == 1) {
       std::vector<Equation> res = equation(*iter, *variables.begin());
@@ -140,10 +140,10 @@ void Solve::systemOfEquations(const std::vector<Equation>& equations, std::stack
   if (somethingNew) {
     for (auto iter1 = others.begin(); iter1 != others.end(); ++iter1) {
       for (auto iter2 = news.begin(); iter2 != news.end(); ++iter2) {
-        Expression newLhs = iter1->lhs;
-        Expression newRhs = iter1->rhs;
-        newLhs.substitute(iter2->lhs.getString(), iter2->rhs);
-        newRhs.substitute(iter2->lhs.getString(), iter2->rhs);
+        Expression newLhs = iter1->getLhs();
+        Expression newRhs = iter1->getRhs();
+        newLhs.substitute(iter2->getLhs().getString(), iter2->getRhs());
+        newRhs.substitute(iter2->getLhs().getString(), iter2->getRhs());
         *iter1 = Equation(newLhs, newRhs);
       }
     }
@@ -158,14 +158,14 @@ void Solve::systemOfEquations(const std::vector<Equation>& equations, std::stack
 
     for (auto iter1 = others.cbegin(); iter1 != others.cend(); ++iter1) {
       std::set<std::string> vars1;
-      iter1->lhs.getIncludedVariables(vars1);
-      iter1->rhs.getIncludedVariables(vars1);
+      iter1->getLhs().getIncludedVariables(vars1);
+      iter1->getRhs().getIncludedVariables(vars1);
 
       std::set<std::string> vars2;
       for (auto iter2 = others.cbegin(); iter2 != others.cend(); ++iter2) {
         //if(iter1 != iter2) {
-        iter2->lhs.getIncludedVariables(vars2);
-        iter2->rhs.getIncludedVariables(vars2);
+        iter2->getLhs().getIncludedVariables(vars2);
+        iter2->getRhs().getIncludedVariables(vars2);
         //}
       }
 
@@ -177,10 +177,10 @@ void Solve::systemOfEquations(const std::vector<Equation>& equations, std::stack
             justUsedEquations.push(*iter3);
             for (auto iter4 = others.cbegin(); iter4 != others.cend(); ++iter4) {
               if (iter1 != iter4) {
-                Expression newLhs = iter4->lhs;
-                newLhs.substitute(iter3->lhs.getString(), iter3->rhs);
-                Expression newRhs = iter4->rhs;
-                newRhs.substitute(iter3->lhs.getString(), iter3->rhs);
+                Expression newLhs = iter4->getLhs();
+                newLhs.substitute(iter3->getLhs().getString(), iter3->getRhs());
+                Expression newRhs = iter4->getRhs();
+                newRhs.substitute(iter3->getLhs().getString(), iter3->getRhs());
                 newEquations.emplace_back(newLhs, newRhs);
               }
             }

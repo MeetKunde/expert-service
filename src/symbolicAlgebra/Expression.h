@@ -6,15 +6,18 @@
 
 namespace symbolicAlgebra {
 class Expression {
- private:
-  std::unique_ptr<implementation::Atom> root;
-
  public:
   Expression();
   explicit Expression(std::unique_ptr<implementation::Atom> root);
   explicit Expression(const std::string& expression);
+
   Expression(const Expression& other);
+  Expression(Expression&& other);
+
   Expression& operator=(const Expression& other);
+  Expression& operator=(Expression&& other);
+
+  ~Expression();
 
   std::string getString() const;
 
@@ -51,6 +54,9 @@ class Expression {
   friend bool operator!=(const Expression& lhs, const Expression& rhs);
 
   friend std::ostream& operator<<(std::ostream& stream, const Expression& expression);
+
+private:
+  std::unique_ptr<implementation::Atom> root;
 };
 }  // namespace symbolicAlgebra
 

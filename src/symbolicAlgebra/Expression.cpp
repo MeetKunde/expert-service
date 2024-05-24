@@ -16,6 +16,10 @@ Expression::Expression(const Expression& other) {
   }
 }
 
+Expression::Expression(Expression&& other) {
+  root = std::move(other.root);
+}
+
 Expression& Expression::operator=(const Expression& other) {
   if (this != &other) {
     if (other.root == nullptr) {
@@ -28,6 +32,16 @@ Expression& Expression::operator=(const Expression& other) {
 
   return *this;
 }
+
+Expression& Expression::operator=(Expression&& other) {
+  if(this != &other) {
+    root = std::move(other.root);
+  }
+
+  return *this;
+}
+
+Expression::~Expression() {}
 
 std::string Expression::getString() const {
   if (root == nullptr) {

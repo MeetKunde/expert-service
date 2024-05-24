@@ -6,6 +6,8 @@
 namespace symbolicAlgebra {
 class Solve {
  public:
+  Solve() = delete;
+  
   static bool compare(const Expression& lhs, const Expression& rhs);
   static std::vector<Equation> findZeros(const Expression& equation, const std::string& variable);
   static std::vector<Equation> equation(const Equation& equation, const std::string& variable);
