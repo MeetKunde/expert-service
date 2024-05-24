@@ -14,8 +14,8 @@ std::unique_ptr<Atom> Power::copy() const {
 }
 
 void Power::print(std::ostream& stream) const {
-  const AtomType type1 = args.front()->type;
-  const AtomType type2 = args.back()->type;
+  const AtomType type1 = args.front()->getType();
+  const AtomType type2 = args.back()->getType();
 
   if (type1 == AtomType::SUM || type1 == AtomType::PRODUCT || type1 == AtomType::POWER || type1 == AtomType::NUMBER_FRAC) {
     stream << "(";
@@ -97,10 +97,10 @@ std::unique_ptr<Atom> Power::simplify() const {
     return std::make_unique<Number>(1);
   }
 
-  if (simplifiedBase->type == AtomType::POWER) {
+  if (simplifiedBase->getType() == AtomType::POWER) {
 
-    return std::make_unique<Power>(simplifiedBase->args.front()->copy(),
-                                   std::make_unique<Product>(simplifiedBase->args.back()->copy(), std::move(simplifiedExponent)));
+    return std::make_unique<Power>(simplifiedBase->getArgs().front()->copy(),
+                                   std::make_unique<Product>(simplifiedBase->getArgs().back()->copy(), std::move(simplifiedExponent)));
   }
 
   if (simplifiedBase->canBeEvaluated() && simplifiedExponent->canBeEvaluated()) {
@@ -110,7 +110,7 @@ std::unique_ptr<Atom> Power::simplify() const {
     }
   }
 
-  if (simplifiedBase->type == AtomType::NUMBER_FRAC && simplifiedExponent->canBeEvaluated()) {
+  if (simplifiedBase->getType() == AtomType::NUMBER_FRAC && simplifiedExponent->canBeEvaluated()) {
     Number* baseAsFrac = static_cast<Number*>(simplifiedBase.get());
     const double nominator = pow(baseAsFrac->getNominator(), simplifiedExponent->evaluate());
     const double denominator = pow(baseAsFrac->getDenominator(), simplifiedExponent->evaluate());
@@ -120,9 +120,9 @@ std::unique_ptr<Atom> Power::simplify() const {
     }
   }
 
-  if (simplifiedExponent->type == AtomType::LOG) {
-    if (simplifiedBase->compare(simplifiedExponent->args.front())) {
-      return simplifiedExponent->args.back()->copy();
+  if (simplifiedExponent->getType() == AtomType::LOG) {
+    if (simplifiedBase->compare(simplifiedExponent->getArgs().front())) {
+      return simplifiedExponent->getArgs().back()->copy();
     }
   }
 
@@ -133,10 +133,10 @@ std::unique_ptr<Atom> Power::expand() const {
   std::unique_ptr<Atom> expandedBase = args.front()->expand();
   std::unique_ptr<Atom> expandedExponent = args.back()->expand();
 
-  if (expandedExponent->type == AtomType::SUM) {
+  if (expandedExponent->getType() == AtomType::SUM) {
     std::vector<std::unique_ptr<Atom>> resultFactors = {};
 
-    std::for_each(expandedExponent->args.begin(), expandedExponent->args.end(),
+    std::for_each(expandedExponent->getArgs().begin(), expandedExponent->getArgs().end(),
                   [&resultFactors, &expandedBase](const auto& summand) {
                     resultFactors.emplace_back(std::make_unique<Power>(expandedBase->copy(), summand->copy()));
                   });
@@ -144,10 +144,10 @@ std::unique_ptr<Atom> Power::expand() const {
     return std::make_unique<Product>(std::move(resultFactors));
   }
 
-  if (expandedBase->type == AtomType::PRODUCT) {
+  if (expandedBase->getType() == AtomType::PRODUCT) {
     std::vector<std::unique_ptr<Atom>> resultFactors = {};
 
-    std::for_each(expandedBase->args.begin(), expandedBase->args.end(), [&resultFactors, &expandedExponent](const auto& factor) {
+    std::for_each(expandedBase->getArgs().begin(), expandedBase->getArgs().end(), [&resultFactors, &expandedExponent](const auto& factor) {
       resultFactors.emplace_back(std::make_unique<Power>(factor->copy(), expandedExponent->copy()));
     });
 
@@ -158,8 +158,8 @@ std::unique_ptr<Atom> Power::expand() const {
 }
 
 bool Power::compare(const std::unique_ptr<Atom>& other) const {
-  if (other->type == AtomType::POWER) {
-    return args.front()->compare(other->args.front()) && args.back()->compare(other->args.back());
+  if (other->getType() == AtomType::POWER) {
+    return args.front()->compare(other->getArgs().front()) && args.back()->compare(other->getArgs().back());
   }
 
   return false;

@@ -54,7 +54,7 @@ std::unique_ptr<Atom> Var::expand() const {
 }
 
 bool Var::compare(const std::unique_ptr<Atom>& other) const {
-  if (other->type == AtomType::VARIABLE) {
+  if (other->getType() == AtomType::VARIABLE) {
     Var* castedOther = static_cast<Var*>(other.get());
 
     return name == castedOther->name;

@@ -1,16 +1,16 @@
 #ifndef ATOM_H
 #define ATOM_H
 
-#include <bits/stdc++.h>
-#include <math.h>
 #include <algorithm>
 #include <iostream>
+#include <math.h>
 #include <memory>
 #include <numeric>
 #include <ostream>
 #include <set>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace symbolicAlgebra {
 class Expression;
@@ -24,17 +24,18 @@ class Atom {
  public:
   enum class AtomType { ANY, VARIABLE, NUMBER_INT, NUMBER_RAT, NUMBER_FRAC, CONSTANT, SUM, PRODUCT, POWER, SIN, COS, LOG };
 
-  std::vector<std::unique_ptr<Atom>> args;
-  AtomType type;
-
   Atom();
   explicit Atom(AtomType type);
-  Atom(AtomType type, std::unique_ptr<Atom> arg);
-  Atom(AtomType type, std::unique_ptr<Atom> arg1, std::unique_ptr<Atom> arg2);
-  Atom(AtomType type, std::vector<std::unique_ptr<Atom>> args);
-  Atom(const Atom& atom);
+  explicit Atom(AtomType type, std::unique_ptr<Atom> arg);
+  explicit Atom(AtomType type, std::unique_ptr<Atom> arg1, std::unique_ptr<Atom> arg2);
+  explicit Atom(AtomType type, std::vector<std::unique_ptr<Atom>> args);
+  explicit Atom(const Atom& atom);
+  Atom(Atom&& atom);
+
   Atom& operator=(const Atom& atom);
-  virtual ~Atom();
+  Atom& operator=(Atom&& atom);
+  
+  virtual ~Atom() = default;
 
   virtual std::unique_ptr<Atom> copy() const = 0;
   virtual void print(std::ostream& stream) const = 0;
@@ -48,21 +49,31 @@ class Atom {
   virtual bool compare(const std::unique_ptr<Atom>& other) const = 0;
   virtual std::unique_ptr<Atom> coefficient(const std::unique_ptr<Atom>& node) const = 0;
 
+  inline AtomType getType() const { return type; }
+
+  inline const std::vector<std::unique_ptr<Atom>>& getArgs() const { return args; }
+
+  inline std::vector<std::unique_ptr<Atom>>& getEditableArgs() { return args; }
+
   static inline bool isNumber(const std::unique_ptr<Atom>& atom) {
-    return (atom->type == AtomType::NUMBER_INT || atom->type == AtomType::NUMBER_RAT || atom->type == AtomType::NUMBER_FRAC);
+    return (atom->getType() == AtomType::NUMBER_INT || atom->getType() == AtomType::NUMBER_RAT || atom->getType() == AtomType::NUMBER_FRAC);
   }
   static inline bool isOperator(const std::unique_ptr<Atom>& atom) {
-    return (atom->type == AtomType::SUM || atom->type == AtomType::PRODUCT || atom->type == AtomType::POWER);
+    return (atom->getType() == AtomType::SUM || atom->getType() == AtomType::PRODUCT || atom->getType() == AtomType::POWER);
   }
   static inline bool isOperand(const std::unique_ptr<Atom>& atom) {
-    return (atom->type == AtomType::NUMBER_INT || atom->type == AtomType::NUMBER_RAT || atom->type == AtomType::NUMBER_FRAC ||
-            atom->type == AtomType::CONSTANT || atom->type == AtomType::VARIABLE);
+    return (atom->getType() == AtomType::NUMBER_INT || atom->getType() == AtomType::NUMBER_RAT || atom->getType() == AtomType::NUMBER_FRAC ||
+            atom->getType() == AtomType::CONSTANT || atom->getType() == AtomType::VARIABLE);
   }
   static inline bool isFunction(const std::unique_ptr<Atom>& atom) {
-    return (atom->type == AtomType::SIN || atom->type == AtomType::COS || atom->type == AtomType::LOG);
+    return (atom->getType() == AtomType::SIN || atom->getType() == AtomType::COS || atom->getType() == AtomType::LOG);
   }
 
   friend std::ostream& operator<<(std::ostream& stream, const Atom& atom);
+
+ protected:
+  AtomType type;
+  std::vector<std::unique_ptr<Atom>> args;
 };
 }  // namespace symbolicAlgebra::implementation
 

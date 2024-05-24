@@ -19,7 +19,16 @@ class Cot;
 namespace symbolicAlgebra::implementation {
 class Cot : public Product {
  public:
+  Cot() = delete;
   explicit Cot(std::unique_ptr<Atom> arg);
+
+  Cot(const Cot& cot) = default;
+  Cot(Cot&& cot) = default;
+
+  Cot& operator=(const Cot& cot) = default;
+  Cot& operator=(Cot&& cot) = default;
+
+  ~Cot() override = default;
 };
 }  // namespace symbolicAlgebra::implementation
 

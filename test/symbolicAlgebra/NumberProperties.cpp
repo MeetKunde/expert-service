@@ -76,7 +76,7 @@ TEST_CASE("Number differentiating", "[symbolicAlgebra]") {
   const Number numAtom(intVal);
 
   const std::unique_ptr<Atom> numDiff = numAtom.differentiate("e");
-  REQUIRE(numDiff->type == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
+  REQUIRE(numDiff->getType() == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
   REQUIRE_THAT(numDiff->evaluate(), Catch::Matchers::WithinAbs(0.0, EPSILON));
 }
 
@@ -127,10 +127,10 @@ TEST_CASE("Number coefficient getting", "[symbolicAlgebra]") {
   const std::unique_ptr<Atom> coeff1 = numAtom1->coefficient(numAtom2);
   const std::unique_ptr<Atom> coeff2 = numAtom1->coefficient(numAtom3);
 
-  REQUIRE(coeff1->type == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
+  REQUIRE(coeff1->getType() == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
   REQUIRE_THAT(coeff1->evaluate(), Catch::Matchers::WithinAbs(1.0, EPSILON));
 
-  REQUIRE(coeff2->type == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
+  REQUIRE(coeff2->getType() == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
   REQUIRE_THAT(coeff2->evaluate(), Catch::Matchers::WithinAbs(0.0, EPSILON));
 }
 
@@ -144,7 +144,7 @@ TEST_CASE("Number operations", "[symbolicAlgebra]") {
   const Number frac1(-3, 4);
   const Number frac2(5, -8);
 
-  Number res;
+  Number res(0);
   std::stringstream streamOutput;
 
   // ADDITION

@@ -7,8 +7,6 @@
 #define ATOM_NUMBER
 
 namespace symbolicAlgebra::implementation {
-Number::Number() : Atom(AtomType::NUMBER_INT), nominator(1), denominator(1), rational(0) {}
-
 Number::Number(int value) : Atom(AtomType::NUMBER_INT), nominator(value), denominator(1), rational(1.0 * value) {}
 
 Number::Number(double value)

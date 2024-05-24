@@ -38,6 +38,8 @@ class Utilities {
  public:
   static constexpr double EPSILON = 0.00001;
 
+  Utilities() = delete;
+
   inline static bool isInt(double val) { return fabs(val - static_cast<int>(val)) < Utilities::EPSILON; }
   inline static bool isZero(double val) { return fabs(val) < Utilities::EPSILON; }
   inline static bool isOne(double val) { return fabs(val - 1.0) < Utilities::EPSILON; }

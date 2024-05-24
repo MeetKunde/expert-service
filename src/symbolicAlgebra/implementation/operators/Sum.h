@@ -19,10 +19,13 @@ class Sum;
 namespace symbolicAlgebra::implementation {
 class Sum : public Atom {
  public:
-  explicit Sum();
+  Sum();
   explicit Sum(std::unique_ptr<Atom> addend);
   explicit Sum(std::unique_ptr<Atom> addend1, std::unique_ptr<Atom> addend2);
   explicit Sum(std::vector<std::unique_ptr<Atom>> summands);
+
+  Sum(const Sum& sum) = default;
+  Sum(Sum&& sum) = default;
 
   std::unique_ptr<Atom> copy() const override;
   void print(std::ostream& stream) const override;

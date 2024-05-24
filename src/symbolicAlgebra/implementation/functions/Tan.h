@@ -19,7 +19,16 @@ class Tan;
 namespace symbolicAlgebra::implementation {
 class Tan : public Product {
  public:
+  Tan() = delete;
   explicit Tan(std::unique_ptr<Atom> arg);
+
+  Tan(const Tan& tan) = default;
+  Tan(Tan&& tan) = default;
+
+  Tan& operator=(const Tan& tan) = default;
+  Tan& operator=(Tan&& tan) = default;
+
+  ~Tan() override = default;
 };
 }  // namespace symbolicAlgebra::implementation
 

@@ -68,8 +68,8 @@ std::unique_ptr<Atom> Log::simplify() const {
     return std::make_unique<Number>(1);
   }
 
-  if (simplifiedArgument2->type == AtomType::POWER && simplifiedArgument2->args.front()->compare(simplifiedArgument1)) {
-    return simplifiedArgument2->args.back()->copy();
+  if (simplifiedArgument2->getType() == AtomType::POWER && simplifiedArgument2->getArgs().front()->compare(simplifiedArgument1)) {
+    return simplifiedArgument2->getArgs().back()->copy();
   }
 
   return std::make_unique<Log>(std::move(simplifiedArgument1), std::move(simplifiedArgument2));
@@ -80,8 +80,8 @@ std::unique_ptr<Atom> Log::expand() const {
 }
 
 bool Log::compare(const std::unique_ptr<Atom>& other) const {
-  if (other->type == AtomType::LOG) {
-    return args.front()->compare(other->args.front()) && args.back()->compare(other->args.back());
+  if (other->getType() == AtomType::LOG) {
+    return args.front()->compare(other->getArgs().front()) && args.back()->compare(other->getArgs().back());
   }
 
   return false;

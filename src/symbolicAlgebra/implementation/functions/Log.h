@@ -19,7 +19,16 @@ class Log;
 namespace symbolicAlgebra::implementation {
 class Log : public Atom {
  public:
+  Log() = delete;
   explicit Log(std::unique_ptr<Atom> base, std::unique_ptr<Atom> argument);
+
+  Log(const Log& log) = default;
+  Log(Log&& log) = default;
+
+  Log& operator=(const Log& log) = default;
+  Log& operator=(Log&& log) = default;
+
+  ~Log() override = default;
 
   std::unique_ptr<Atom> copy() const override;
   void print(std::ostream& stream) const override;

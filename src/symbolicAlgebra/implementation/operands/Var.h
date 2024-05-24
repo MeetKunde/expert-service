@@ -18,11 +18,17 @@ class Var;
 
 namespace symbolicAlgebra::implementation {
 class Var : public Atom {
- private:
-  std::string name;
-
  public:
+  Var() = delete;
   explicit Var(std::string name);
+
+  Var(const Var& variable) = default;
+  Var(Var&& variable) = default;
+
+  Var& operator=(const Var& variable) = default;
+  Var& operator=(Var&& variable) = default;
+
+  ~Var() override = default;
 
   inline std::string getName() const { return name; }
 
@@ -37,6 +43,9 @@ class Var : public Atom {
   std::unique_ptr<Atom> expand() const override;
   bool compare(const std::unique_ptr<Atom>& other) const override;
   std::unique_ptr<Atom> coefficient(const std::unique_ptr<Atom>& node) const override;
+
+ private:
+  std::string name;
 };
 }  // namespace symbolicAlgebra::implementation
 

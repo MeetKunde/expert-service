@@ -53,7 +53,7 @@ TEST_CASE("Getting variable names from const", "[symbolicAlgebra]") {
 TEST_CASE("Const differentiating", "[symbolicAlgebra]") {
   const Const constAtom("e");
   const std::unique_ptr<Atom> constDiff = constAtom.differentiate("e");
-  REQUIRE(constDiff->type == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
+  REQUIRE(constDiff->getType() == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
   REQUIRE_THAT(constDiff->evaluate(), Catch::Matchers::WithinAbs(0.0, EPSILON));
 }
 
@@ -96,9 +96,9 @@ TEST_CASE("Const coefficient getting", "[symbolicAlgebra]") {
   const std::unique_ptr<Atom> coeff1 = constAtom1->coefficient(constAtom2);
   const std::unique_ptr<Atom> coeff2 = constAtom1->coefficient(constAtom3);
 
-  REQUIRE(coeff1->type == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
+  REQUIRE(coeff1->getType() == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
   REQUIRE_THAT(coeff1->evaluate(), Catch::Matchers::WithinAbs(1.0, EPSILON));
 
-  REQUIRE(coeff2->type == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
+  REQUIRE(coeff2->getType() == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
   REQUIRE_THAT(coeff2->evaluate(), Catch::Matchers::WithinAbs(0.0, EPSILON));
 }

@@ -11,15 +11,15 @@ Sum::Sum() : Atom(AtomType::SUM) {}
 Sum::Sum(std::unique_ptr<Atom> addend) : Atom(AtomType::SUM, std::move(addend)) {}
 
 Sum::Sum(std::unique_ptr<Atom> addend1, std::unique_ptr<Atom> addend2) : Atom(Atom::AtomType::SUM) {
-  if (addend1->type == AtomType::SUM) {
-    std::move(std::begin(addend1->args), std::end(addend1->args), std::back_inserter(args));
+  if (addend1->getType() == AtomType::SUM) {
+    std::move(std::begin(addend1->getEditableArgs()), std::end(addend1->getEditableArgs()), std::back_inserter(args));
   }
   else {
     args.push_back(std::move(addend1));
   }
 
-  if (addend2->type == AtomType::SUM) {
-    std::move(std::begin(addend2->args), std::end(addend2->args), std::back_inserter(args));
+  if (addend2->getType() == AtomType::SUM) {
+    std::move(std::begin(addend2->getEditableArgs()), std::end(addend2->getEditableArgs()), std::back_inserter(args));
   }
   else {
     args.push_back(std::move(addend2));
@@ -43,10 +43,10 @@ void Sum::print(std::ostream& stream) const {
     stream << 0;
   }
 
-  for (std::vector<std::unique_ptr<Atom>>::const_iterator iter = args.cbegin(); iter != args.cend(); ++iter) {
+  for (auto iter = args.cbegin(); iter != args.cend(); ++iter) {
     const bool cond1 = (Atom::isNumber(*iter) && iter->get()->evaluate() < 0);
-    const bool cond2 = iter->get()->type == AtomType::PRODUCT && !iter->get()->args.empty() &&
-                       Atom::isNumber(iter->get()->args.front()) && (iter->get()->args.front()->evaluate() < 0);
+    const bool cond2 = iter->get()->getType() == AtomType::PRODUCT && !iter->get()->getArgs().empty() &&
+                       Atom::isNumber(iter->get()->getArgs().front()) && (iter->get()->getArgs().front()->evaluate() < 0);
 
     const bool printHasMinusAtBegin = cond1 || cond2;
 
@@ -115,21 +115,21 @@ std::unique_ptr<Atom> Sum::simplify() const {
 
   for (const std::unique_ptr<Atom>& summand : args) {  // a + (b + c) + d converts to a + b + c + d
     std::unique_ptr<Atom> simplifiedSummand = summand->simplify();
-    if (simplifiedSummand->type == AtomType::SUM) {
-      std::move(std::begin(simplifiedSummand->args), std::end(simplifiedSummand->args), std::back_inserter(result));
+    if (simplifiedSummand->getType() == AtomType::SUM) {
+      std::move(std::begin(simplifiedSummand->getEditableArgs()), std::end(simplifiedSummand->getEditableArgs()), std::back_inserter(result));
     }
     else {
       result.emplace_back(std::move(simplifiedSummand));
     }
   }
 
-  for (std::vector<std::unique_ptr<Atom>>::iterator iter1 = result.begin(); iter1 != result.end();) {
+  for (auto iter1 = result.begin(); iter1 != result.end();) {
     if (Atom::isNumber(*iter1)) {  // number will be grouped on the end of function
       ++iter1;
       continue;
     }
 
-    if ((*iter1)->type == AtomType::POWER && Atom::isNumber((*iter1)->args.front()) && Atom::isNumber((*iter1)->args.back())) {
+    if ((*iter1)->getType() == AtomType::POWER && Atom::isNumber((*iter1)->getArgs().front()) && Atom::isNumber((*iter1)->getArgs().back())) {
       ++iter1;
       continue;
     }
@@ -137,15 +137,15 @@ std::unique_ptr<Atom> Sum::simplify() const {
     std::unique_ptr<Atom> product1Coeff = std::make_unique<Number>(1);
     std::unique_ptr<Atom> element1 = (*iter1)->copy();
 
-    if (element1->type == AtomType::PRODUCT) {  // if first factor of product is number then save it and divide product by it
-      if (!element1->args.empty() && element1->args.front()->canBeEvaluated()) {
-        product1Coeff = std::move(element1->args.front());
-        element1->args.erase(element1->args.begin());
+    if (element1->getType() == AtomType::PRODUCT) {  // if first factor of product is number then save it and divide product by it
+      if (!element1->getArgs().empty() && element1->getArgs().front()->canBeEvaluated()) {
+        product1Coeff = std::move(element1->getEditableArgs().front());
+        element1->getEditableArgs().erase(element1->getEditableArgs().begin());
         element1 = element1->simplify();
       }
     }
 
-    std::vector<std::unique_ptr<Atom>>::iterator iter2 = iter1;
+    auto iter2 = iter1;
     ++iter2;
 
     for (; iter2 != result.end();) {
@@ -154,7 +154,7 @@ std::unique_ptr<Atom> Sum::simplify() const {
         continue;
       }
 
-      if ((*iter2)->type == AtomType::POWER && Atom::isNumber((*iter2)->args.front()) && Atom::isNumber((*iter2)->args.back())) {
+      if ((*iter2)->getType() == AtomType::POWER && Atom::isNumber((*iter2)->getArgs().front()) && Atom::isNumber((*iter2)->getArgs().back())) {
         ++iter2;
         continue;
       }
@@ -162,11 +162,11 @@ std::unique_ptr<Atom> Sum::simplify() const {
       std::unique_ptr<Atom> product2Coeff = std::make_unique<Number>(1);
       std::unique_ptr<Atom> element2 = (*iter2)->copy();
 
-      if (element2->type == AtomType::PRODUCT) {  // if first factor of product is number then save it and divide product by it
-        if (!element2->args.empty() && element2->args.front()->canBeEvaluated() &&
-            (Atom::isNumber(element2->args.front()) || element2->args.front()->type == AtomType::POWER)) {
-          product2Coeff = std::move(element2->args.front());
-          element2->args.erase(element2->args.begin());
+      if (element2->getType() == AtomType::PRODUCT) {  // if first factor of product is number then save it and divide product by it
+        if (!element2->getArgs().empty() && element2->getArgs().front()->canBeEvaluated() &&
+            (Atom::isNumber(element2->getArgs().front()) || element2->getArgs().front()->getType() == AtomType::POWER)) {
+          product2Coeff = std::move(element2->getEditableArgs().front());
+          element2->getEditableArgs().erase(element2->getEditableArgs().begin());
           element2 = element2->simplify();
         }
       }
@@ -190,16 +190,16 @@ std::unique_ptr<Atom> Sum::simplify() const {
   }
 
   Number numbersSum(0);
-  for (std::vector<std::unique_ptr<Atom>>::iterator iter = result.begin(); iter != result.end();) {
+  for (auto iter = result.begin(); iter != result.end();) {
     if (Atom::isNumber(*iter)) {
       Number* casted = static_cast<Number*>(iter->get());
       numbersSum += (*casted);
 
       iter = result.erase(iter);
     }
-    else if ((*iter)->type == AtomType::POWER && Atom::isNumber((*iter)->args.front()) && Atom::isNumber((*iter)->args.back())) {
-      Number* casted1 = static_cast<Number*>((*iter)->args.front().get());
-      Number* casted2 = static_cast<Number*>((*iter)->args.back().get());
+    else if ((*iter)->getType() == AtomType::POWER && Atom::isNumber((*iter)->getArgs().front()) && Atom::isNumber((*iter)->getArgs().back())) {
+      Number* casted1 = static_cast<Number*>((*iter)->getArgs().front().get());
+      Number* casted2 = static_cast<Number*>((*iter)->getArgs().back().get());
       numbersSum += ((*casted1) ^ (*casted2));
 
       iter = result.erase(iter);
@@ -239,13 +239,13 @@ std::unique_ptr<Atom> Sum::expand() const {
 bool Sum::compare(const std::unique_ptr<Atom>& other) const {
   const std::unique_ptr<Atom> expSimOther = other->expand()->simplify();
 
-  if (expSimOther->type != Atom::AtomType::SUM) {
+  if (expSimOther->getType() != Atom::AtomType::SUM) {
     return false;
   }
 
   std::unique_ptr<Atom> result = copy()->expand()->simplify();
-  std::for_each(expSimOther->args.begin(), expSimOther->args.end(), [&result](const std::unique_ptr<Atom>& arg) {
-    result->args.push_back(std::make_unique<Product>(std::make_unique<Number>(-1), arg->copy()));
+  std::for_each(expSimOther->getArgs().begin(), expSimOther->getArgs().end(), [&result](const std::unique_ptr<Atom>& arg) {
+    result->getEditableArgs().push_back(std::make_unique<Product>(std::make_unique<Number>(-1), arg->copy()));
   });
 
   const std::unique_ptr<Atom> zero = result->expand()->simplify();

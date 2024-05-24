@@ -19,7 +19,16 @@ class Sin;
 namespace symbolicAlgebra::implementation {
 class Sin : public Atom {
  public:
+  Sin() = delete;
   explicit Sin(std::unique_ptr<Atom> arg);
+
+  Sin(const Sin& sin) = default;
+  Sin(Sin&& sin) = default;
+
+  Sin& operator=(const Sin& sin) = default;
+  Sin& operator=(Sin&& sin) = default;
+
+  ~Sin() override = default;
 
   std::unique_ptr<Atom> copy() const override;
   void print(std::ostream& stream) const override;

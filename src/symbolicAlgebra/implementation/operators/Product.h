@@ -19,10 +19,18 @@ class Product;
 namespace symbolicAlgebra::implementation {
 class Product : public Atom {
  public:
-  explicit Product();
+  Product();
   explicit Product(std::unique_ptr<Atom> factor);
   explicit Product(std::unique_ptr<Atom> factor1, std::unique_ptr<Atom> factor2);
   explicit Product(std::vector<std::unique_ptr<Atom>> factors);
+
+  Product(const Product& product) = default;
+  Product(Product&& product) = default;
+
+  Product& operator=(const Product& product) = default;
+  Product& operator=(Product&& product) = default;
+
+  ~Product() override = default;
 
   std::unique_ptr<Atom> copy() const override;
   void print(std::ostream& stream) const override;

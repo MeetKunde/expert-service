@@ -19,7 +19,16 @@ class Power;
 namespace symbolicAlgebra::implementation {
 class Power : public Atom {
  public:
+  Power() = delete;
   explicit Power(std::unique_ptr<Atom> base, std::unique_ptr<Atom> exponent);
+
+  Power(const Power& power) = default;
+  Power(Power&& power) = default;
+
+  Power& operator=(const Power& power) = default;
+  Power& operator=(Power&& power) = default;
+
+  ~Power() override = default;
 
   std::unique_ptr<Atom> copy() const override;
   void print(std::ostream& stream) const override;

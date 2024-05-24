@@ -19,7 +19,16 @@ class Sqrt;
 namespace symbolicAlgebra::implementation {
 class Sqrt : public Power {
  public:
+  Sqrt() = delete;
   explicit Sqrt(std::unique_ptr<Atom> arg);
+
+  Sqrt(const Sqrt& sqrt) = default;
+  Sqrt(Sqrt&& sqrt) = default;
+
+  Sqrt& operator=(const Sqrt& sqrt) = default;
+  Sqrt& operator=(Sqrt&& sqrt) = default;
+
+  ~Sqrt() override = default;
 };
 }  // namespace symbolicAlgebra::implementation
 

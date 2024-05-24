@@ -19,15 +19,18 @@ class Number;
 namespace symbolicAlgebra::implementation {
 class Number : public Atom {
  public:
-  int nominator;
-  int denominator;
-  double rational;
-
- public:
-  explicit Number();
+  Number() = delete;
   explicit Number(int value);
   explicit Number(double value);
   explicit Number(int nominatorValue, int denominatorValue);
+
+  Number(const Number& number) = default;
+  Number(Number&& number) = default;
+
+  Number& operator=(const Number& number) = default;
+  Number& operator=(Number&& number) = default;
+
+  ~Number() override = default;
 
   std::unique_ptr<Atom> copy() const override;
   void print(std::ostream& stream) const override;
@@ -71,6 +74,11 @@ class Number : public Atom {
 
   friend bool operator==(const Number& lhs, const Number& rhs);
   friend bool operator!=(const Number& lhs, const Number& rhs);
+
+ protected:
+  int nominator;
+  int denominator;
+  double rational;
 };
 }  // namespace symbolicAlgebra::implementation
 

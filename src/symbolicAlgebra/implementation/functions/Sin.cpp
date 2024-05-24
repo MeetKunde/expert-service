@@ -45,9 +45,9 @@ std::unique_ptr<Atom> Sin::simplify() const {
     return std::make_unique<Number>(0);
   }
 
-  if (simplifiedArgument->type == AtomType::PRODUCT && !simplifiedArgument->args.empty() &&
-      Atom::isNumber(simplifiedArgument->args.front()) && simplifiedArgument->args.front()->evaluate() < 0.0) {
-    *simplifiedArgument->args.begin() = std::make_unique<Number>(-simplifiedArgument->args.front()->evaluate());
+  if (simplifiedArgument->getType() == AtomType::PRODUCT && !simplifiedArgument->getArgs().empty() &&
+      Atom::isNumber(simplifiedArgument->getArgs().front()) && simplifiedArgument->getArgs().front()->evaluate() < 0.0) {
+    *simplifiedArgument->getEditableArgs().begin() = std::make_unique<Number>(-simplifiedArgument->getArgs().front()->evaluate());
 
     return std::make_unique<Product>(std::make_unique<Number>(-1), std::make_unique<Sin>(std::move(simplifiedArgument)));
   }
@@ -60,8 +60,8 @@ std::unique_ptr<Atom> Sin::expand() const {
 }
 
 bool Sin::compare(const std::unique_ptr<Atom>& other) const {
-  if (other->type == AtomType::SIN) {
-    return args.front()->compare(other->args.front());
+  if (other->getType() == AtomType::SIN) {
+    return args.front()->compare(other->getArgs().front());
   }
 
   return false;

@@ -19,7 +19,16 @@ class Cos;
 namespace symbolicAlgebra::implementation {
 class Cos : public Atom {
  public:
+  Cos() = delete;
   explicit Cos(std::unique_ptr<Atom> arg);
+
+  Cos(const Cos& cos) = default;
+  Cos(Cos&& cos) = default;
+
+  Cos& operator=(const Cos& cos) = default;
+  Cos& operator=(Cos&& cos) = default;
+
+  ~Cos() override = default;
 
   std::unique_ptr<Atom> copy() const override;
   void print(std::ostream& stream) const override;

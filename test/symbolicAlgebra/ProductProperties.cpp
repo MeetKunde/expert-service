@@ -87,10 +87,10 @@ TEST_CASE("Product copying", "[symbolicAlgebra]") {
   const Product productAtom(std::move(args));
   const std::unique_ptr<Atom> productAtomCopy = productAtom.copy();
 
-  for (auto iter1 = productAtom.args.cbegin(),
-            iter2 = productAtomCopy->args.cbegin();
-       iter1 != productAtom.args.cend() &&
-       iter2 != productAtomCopy->args.cend();
+  for (auto iter1 = productAtom.getArgs().cbegin(),
+            iter2 = productAtomCopy->getArgs().cbegin();
+       iter1 != productAtom.getArgs().cend() &&
+       iter2 != productAtomCopy->getArgs().cend();
        ++iter1, ++iter2) {
     REQUIRE(&(*iter1) != &(*iter2));
   }
@@ -328,26 +328,26 @@ TEST_CASE("Product simplifying", "[symbolicAlgebra]") {
   std::stringstream streamOutput;
 
   //REQUIRE(symbolicAlgebra::implementation::Atom::isNumber(productAtom1Simplified));
-  REQUIRE(productAtom1Simplified->type ==
+  REQUIRE(productAtom1Simplified->getType() ==
           symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
   REQUIRE_THAT(productAtom1Simplified->evaluate(),
                Catch::Matchers::WithinAbs(1.0, EPSILON));
 
-  REQUIRE(productAtom2Simplified->type ==
+  REQUIRE(productAtom2Simplified->getType() ==
           symbolicAlgebra::implementation::Atom::AtomType::VARIABLE);
   productAtom2Simplified->print(streamOutput);
   REQUIRE(streamOutput.str() == "x");
   streamOutput.str("");
 
-  REQUIRE(productAtom3Simplified->type ==
+  REQUIRE(productAtom3Simplified->getType() ==
           symbolicAlgebra::implementation::Atom::AtomType::PRODUCT);
   productAtom3Simplified->print(streamOutput);
   REQUIRE(streamOutput.str() == "x*y*z");
   streamOutput.str("");
 
-  REQUIRE(productAtom4Simplified->type ==
+  REQUIRE(productAtom4Simplified->getType() ==
           symbolicAlgebra::implementation::Atom::AtomType::PRODUCT);
-  REQUIRE(productAtom4Simplified->args.size() == 4);
+  REQUIRE(productAtom4Simplified->getArgs().size() == 4);
   productAtom4Simplified->print(streamOutput);
   REQUIRE(streamOutput.str() == "a*b*c*d");
   streamOutput.str("");

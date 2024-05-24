@@ -47,9 +47,9 @@ std::unique_ptr<Atom> Cos::simplify() const {
     return std::make_unique<Number>(1);
   }
 
-  if (simplifiedArgument->type == AtomType::PRODUCT && !simplifiedArgument->args.empty() &&
-      Atom::isNumber(simplifiedArgument->args.front()) && simplifiedArgument->args.front()->evaluate() < 0.0) {
-    *simplifiedArgument->args.begin() = std::make_unique<Number>(-simplifiedArgument->args.front()->evaluate());
+  if (simplifiedArgument->getType() == AtomType::PRODUCT && !simplifiedArgument->getArgs().empty() &&
+      Atom::isNumber(simplifiedArgument->getArgs().front()) && simplifiedArgument->getArgs().front()->evaluate() < 0.0) {
+    *simplifiedArgument->getEditableArgs().begin() = std::make_unique<Number>(-simplifiedArgument->getArgs().front()->evaluate());
 
     return std::make_unique<Cos>(std::move(simplifiedArgument));
   }
@@ -62,8 +62,8 @@ std::unique_ptr<Atom> Cos::expand() const {
 }
 
 bool Cos::compare(const std::unique_ptr<Atom>& other) const {
-  if (other->type == AtomType::COS) {
-    return args.front()->compare(other->args.front());
+  if (other->getType() == AtomType::COS) {
+    return args.front()->compare(other->getArgs().front());
   }
 
   return false;

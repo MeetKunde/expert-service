@@ -57,8 +57,8 @@ TEST_CASE("Sum copying", "[symbolicAlgebra]") {
   const Sum sumAtom(std::move(args));
   const std::unique_ptr<Atom> sumAtomCopy = sumAtom.copy();
 
-  for (auto iter1 = sumAtom.args.cbegin(), iter2 = sumAtomCopy->args.cbegin();
-       iter1 != sumAtom.args.cend() && iter2 != sumAtomCopy->args.cend(); ++iter1, ++iter2) {
+  for (auto iter1 = sumAtom.getArgs().cbegin(), iter2 = sumAtomCopy->getArgs().cbegin();
+       iter1 != sumAtom.getArgs().cend() && iter2 != sumAtomCopy->getArgs().cend(); ++iter1, ++iter2) {
     REQUIRE(&(*iter1) != &(*iter2));
   }
 }
@@ -191,21 +191,21 @@ TEST_CASE("Sum simplifying", "[symbolicAlgebra]") {
   std::stringstream streamOutput;
 
   //REQUIRE(symbolicAlgebra::implementation::Atom::isNumber(sumAtom1Simplified));
-  REQUIRE(sumAtom1Simplified->type == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
+  REQUIRE(sumAtom1Simplified->getType() == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
   REQUIRE_THAT(sumAtom1Simplified->evaluate(), Catch::Matchers::WithinAbs(0.0, EPSILON));
 
-  REQUIRE(sumAtom2Simplified->type == symbolicAlgebra::implementation::Atom::AtomType::VARIABLE);
+  REQUIRE(sumAtom2Simplified->getType() == symbolicAlgebra::implementation::Atom::AtomType::VARIABLE);
   sumAtom2Simplified->print(streamOutput);
   REQUIRE(streamOutput.str() == "x");
   streamOutput.str("");
 
-  REQUIRE(sumAtom3Simplified->type == symbolicAlgebra::implementation::Atom::AtomType::SUM);
+  REQUIRE(sumAtom3Simplified->getType() == symbolicAlgebra::implementation::Atom::AtomType::SUM);
   sumAtom3Simplified->print(streamOutput);
   REQUIRE(streamOutput.str() == "x+y+z");
   streamOutput.str("");
 
-  REQUIRE(sumAtom4Simplified->type == symbolicAlgebra::implementation::Atom::AtomType::SUM);
-  REQUIRE(sumAtom4Simplified->args.size() == 4);
+  REQUIRE(sumAtom4Simplified->getType() == symbolicAlgebra::implementation::Atom::AtomType::SUM);
+  REQUIRE(sumAtom4Simplified->getArgs().size() == 4);
   sumAtom4Simplified->print(streamOutput);
   REQUIRE(streamOutput.str() == "a+b+c+d");
   streamOutput.str("");

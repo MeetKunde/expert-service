@@ -18,11 +18,17 @@ class Const;
 
 namespace symbolicAlgebra::implementation {
 class Const : public Atom {
- private:
-  std::string name;
-
  public:
+  Const() = delete;
   explicit Const(std::string name);
+
+  Const(const Const& constant) = default;
+  Const(Const&& constant) = default;
+
+  Const& operator=(const Const& constant) = default;
+  Const& operator=(Const&& constant) = default;
+
+  ~Const() override = default;
 
   inline std::string getName() const { return name; }
 
@@ -37,6 +43,9 @@ class Const : public Atom {
   std::unique_ptr<Atom> expand() const override;
   bool compare(const std::unique_ptr<Atom>& other) const override;
   std::unique_ptr<Atom> coefficient(const std::unique_ptr<Atom>& node) const override;
+
+ private:
+  std::string name;
 };
 }  // namespace symbolicAlgebra::implementation
 

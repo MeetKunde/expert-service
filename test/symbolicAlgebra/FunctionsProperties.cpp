@@ -61,7 +61,7 @@ TEST_CASE("Sin simplifying", "[symbolicAlgebra]") {
 
   const Sin sinAtom1(std::make_unique<Number>(0));
   const std::unique_ptr<Atom> simplifiedAtom1 = sinAtom1.simplify();
-  REQUIRE(simplifiedAtom1->type == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
+  REQUIRE(simplifiedAtom1->getType() == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
   REQUIRE_THAT(simplifiedAtom1->evaluate(), Catch::Matchers::WithinAbs(0.0, EPSILON));
 
   const Sin sinAtom2(std::make_unique<Product>(std::make_unique<Number>(-2), std::make_unique<Var>("x")));
@@ -138,7 +138,7 @@ TEST_CASE("Cos simplifying", "[symbolicAlgebra]") {
 
   const Cos cosAtom1(std::make_unique<Number>(0));
   const std::unique_ptr<Atom> simplifiedAtom1 = cosAtom1.simplify();
-  REQUIRE(simplifiedAtom1->type == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
+  REQUIRE(simplifiedAtom1->getType() == symbolicAlgebra::implementation::Atom::AtomType::NUMBER_INT);
   REQUIRE_THAT(simplifiedAtom1->evaluate(), Catch::Matchers::WithinAbs(1.0, EPSILON));
 
   const Cos cosAtom2(std::make_unique<Product>(std::make_unique<Number>(-2), std::make_unique<Var>("x")));

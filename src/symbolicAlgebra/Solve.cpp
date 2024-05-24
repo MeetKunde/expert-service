@@ -78,7 +78,7 @@ std::vector<Equation> Solve::systemOfEquations(const std::vector<Equation>& equa
     Equation equ = justUsedEquations.top();
     justUsedEquations.pop();
 
-    for (std::vector<Equation>::iterator iter = result.begin(); iter != result.end(); ++iter) {
+    for (auto iter = result.begin(); iter != result.end(); ++iter) {
       equ.rhs.substitute(iter->lhs.getString(), iter->rhs);
     }
 
@@ -89,15 +89,15 @@ std::vector<Equation> Solve::systemOfEquations(const std::vector<Equation>& equa
 
   std::set<std::string> variables;
   std::vector<Equation> singles;
-  for (std::vector<Equation>::iterator iter = result.begin(); iter != result.end();) {
+  for (auto iter = result.begin(); iter != result.end();) {
     variables.clear();
     iter->lhs.getIncludedVariables(variables);
     iter->rhs.getIncludedVariables(variables);
 
     if (variables.size() > 1) {
-      for (std::set<std::string>::iterator var = variables.begin(); var != variables.end(); ++var) {
+      for (auto var = variables.begin(); var != variables.end(); ++var) {
         std::vector<Equation> solutions = equation(*iter, *var);
-        for (std::vector<Equation>::iterator sol = solutions.begin(); sol != solutions.end(); ++sol) {
+        for (auto sol = solutions.begin(); sol != solutions.end(); ++sol) {
           singles.push_back(*sol);
         }
       }
@@ -121,7 +121,7 @@ void Solve::systemOfEquations(const std::vector<Equation>& equations, std::stack
   std::vector<Equation> others;
   std::vector<Equation> news;
 
-  for (std::vector<Equation>::const_iterator iter = equations.cbegin(); iter != equations.cend(); ++iter) {
+  for (auto iter = equations.cbegin(); iter != equations.cend(); ++iter) {
     std::set<std::string> variables = {};
     iter->lhs.getIncludedVariables(variables);
     iter->rhs.getIncludedVariables(variables);
@@ -138,8 +138,8 @@ void Solve::systemOfEquations(const std::vector<Equation>& equations, std::stack
   }
 
   if (somethingNew) {
-    for (std::vector<Equation>::iterator iter1 = others.begin(); iter1 != others.end(); ++iter1) {
-      for (std::vector<Equation>::iterator iter2 = news.begin(); iter2 != news.end(); ++iter2) {
+    for (auto iter1 = others.begin(); iter1 != others.end(); ++iter1) {
+      for (auto iter2 = news.begin(); iter2 != news.end(); ++iter2) {
         Expression newLhs = iter1->lhs;
         Expression newRhs = iter1->rhs;
         newLhs.substitute(iter2->lhs.getString(), iter2->rhs);
@@ -152,30 +152,30 @@ void Solve::systemOfEquations(const std::vector<Equation>& equations, std::stack
   }
   else {
     notUsed.clear();
-    for (std::vector<Equation>::iterator iter = others.begin(); iter != others.end(); ++iter) {
+    for (auto iter = others.begin(); iter != others.end(); ++iter) {
       notUsed.push_back(*iter);
     }
 
-    for (std::vector<Equation>::const_iterator iter1 = others.cbegin(); iter1 != others.cend(); ++iter1) {
+    for (auto iter1 = others.cbegin(); iter1 != others.cend(); ++iter1) {
       std::set<std::string> vars1;
       iter1->lhs.getIncludedVariables(vars1);
       iter1->rhs.getIncludedVariables(vars1);
 
       std::set<std::string> vars2;
-      for (std::vector<Equation>::const_iterator iter2 = others.cbegin(); iter2 != others.cend(); ++iter2) {
+      for (auto iter2 = others.cbegin(); iter2 != others.cend(); ++iter2) {
         //if(iter1 != iter2) {
         iter2->lhs.getIncludedVariables(vars2);
         iter2->rhs.getIncludedVariables(vars2);
         //}
       }
 
-      for (std::set<std::string>::const_iterator iter2 = vars1.cbegin(); iter2 != vars1.cend(); ++iter2) {
+      for (auto iter2 = vars1.cbegin(); iter2 != vars1.cend(); ++iter2) {
         if (vars2.find(*iter2) != vars2.cend()) {
           std::vector<Equation> solution = equation(*iter1, *iter2);
-          for (std::vector<Equation>::iterator iter3 = solution.begin(); iter3 != solution.end(); ++iter3) {
+          for (auto iter3 = solution.begin(); iter3 != solution.end(); ++iter3) {
             std::vector<Equation> newEquations;
             justUsedEquations.push(*iter3);
-            for (std::vector<Equation>::const_iterator iter4 = others.cbegin(); iter4 != others.cend(); ++iter4) {
+            for (auto iter4 = others.cbegin(); iter4 != others.cend(); ++iter4) {
               if (iter1 != iter4) {
                 Expression newLhs = iter4->lhs;
                 newLhs.substitute(iter3->lhs.getString(), iter3->rhs);

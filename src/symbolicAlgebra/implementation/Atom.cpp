@@ -18,20 +18,35 @@ Atom::Atom(AtomType type, std::vector<std::unique_ptr<Atom>> args) : args(std::m
 
 Atom::Atom(const Atom& atom) : type(atom.type) {
   std::for_each(atom.args.begin(), atom.args.end(),
-                [this](const std::unique_ptr<Atom>& arg) { this->args.push_back(arg->copy()); });
+                [this](const std::unique_ptr<Atom>& arg) { args.push_back(arg->copy()); });
 }
 
+Atom::Atom(Atom&& atom) : type(atom.type), args(std::move(atom.args)) {}
+
 Atom& Atom::operator=(const Atom& atom) {
-  this->type = atom.type;
-  this->args = std::vector<std::unique_ptr<Atom>>();
+  if (this == &atom) {
+    return *this;
+  }
+
+  type = atom.type;
+  args = std::vector<std::unique_ptr<Atom>>();
 
   std::for_each(atom.args.begin(), atom.args.end(),
-                [this](const std::unique_ptr<Atom>& arg) { this->args.push_back(arg->copy()); });
+                [this](const std::unique_ptr<Atom>& arg) { args.push_back(arg->copy()); });
 
   return *this;
 }
 
-Atom::~Atom() = default;
+Atom& Atom::operator=(Atom&& atom) {
+  if (this == &atom) {
+    return *this;
+  }
+
+  type = atom.type;
+  args = std::move(atom.args);
+
+  return *this;
+}
 
 std::ostream& operator<<(std::ostream& stream, const Atom& atom) {
   atom.print(stream);
