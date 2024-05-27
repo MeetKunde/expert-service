@@ -57,7 +57,7 @@ namespace nlohmann {
 /**
 * @brief Streamable to json concept for nlohmann::json and std::string
 */
-nlohmann::json& operator<<(nlohmann::json &j, const std::string& str) {
+inline nlohmann::json& operator<<(nlohmann::json &j, const std::string& str) {
   j = str;
   return j;
 }

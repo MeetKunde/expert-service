@@ -11,7 +11,6 @@
 #include <memory>
 #include <string>
 
-
 namespace expertBackground {
 typedef Dependency<ExpressionModel, ExpressionModel> EquationDependency;
 typedef Dependency<std::string, std::string> LinesDependency;
@@ -100,11 +99,11 @@ class DependenciesBank {
   };
 
   explicit DependenciesBank();
-  explicit DependenciesBank(std::shared_ptr<ShapesBank> shapesBank);
+  explicit DependenciesBank(ShapesBank* shapesBank);
 
   inline std::size_t getDependenciesNumber() const { return dependencyIdCounter; }
 
-  inline const std::unique_ptr<IDependency>& getDependencyById(size_t dependencyId) const { return dependenciesVector.at(dependencyId); }
+  inline const std::shared_ptr<IDependency>& getDependencyById(size_t dependencyId) const { return dependenciesVector.at(dependencyId); }
 
   unsigned int addEquation(const symbolicAlgebra::Expression& leftSide, const symbolicAlgebra::Expression& rightSide,
                            IDependency::Reason reason, std::vector<size_t> basedOn,
@@ -121,7 +120,7 @@ class DependenciesBank {
                                const symbolicAlgebra::Expression& value, IDependency::Reason reason,
                                std::vector<size_t> basedOn, IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<EquationDependency>> getEquationDependencies(EquationDependencies type) const {
+  std::vector<std::shared_ptr<EquationDependency>>getEquationDependencies(EquationDependencies type) const {
     return getDependenciesWithType<ExpressionModel, ExpressionModel>(static_cast<IDependency::Type>(type));
   }
 
@@ -129,7 +128,7 @@ class DependenciesBank {
                                   IDependency::Reason reason, std::vector<size_t> basedOn,
                                   IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<LinesDependency>> getLinesDependencies(LinesDependencies type) const {
+  std::vector<std::shared_ptr<LinesDependency>>getLinesDependencies(LinesDependencies type) const {
     return getDependenciesWithType<std::string, std::string>(static_cast<IDependency::Type>(type));
   }
 
@@ -137,7 +136,7 @@ class DependenciesBank {
                                     IDependency::Reason reason, std::vector<size_t> basedOn,
                                     IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<CirclesDependency>> getCirclesDependencies(CirclesDependencies type) const {
+  std::vector<std::shared_ptr<CirclesDependency>>getCirclesDependencies(CirclesDependencies type) const {
     return getDependenciesWithType<std::string, std::string>(static_cast<IDependency::Type>(type));
   }
 
@@ -146,7 +145,7 @@ class DependenciesBank {
                                        PointsPairsDependencies type, IDependency::Reason reason,
                                        std::vector<size_t> basedOn, IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<PointsPairsDependency>> getPointsPairsDependencies(PointsPairsDependencies type) const {
+  std::vector<std::shared_ptr<PointsPairsDependency>>getPointsPairsDependencies(PointsPairsDependencies type) const {
     return getDependenciesWithType<PointsPairModel, PointsPairModel>(static_cast<IDependency::Type>(type));
   }
 
@@ -157,7 +156,7 @@ class DependenciesBank {
                                    AnglesDependencies type, IDependency::Reason reason,
                                    std::vector<size_t> basedOn, IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<AnglesDependency>> getAnglesDependencies(AnglesDependencies type) const {
+  std::vector<std::shared_ptr<AnglesDependency>>getAnglesDependencies(AnglesDependencies type) const {
     return getDependenciesWithType<AngleModel, AngleModel>(static_cast<IDependency::Type>(type));
   }
 
@@ -167,7 +166,7 @@ class DependenciesBank {
                                      PolygonsDependencies type, IDependency::Reason reason,
                                      std::vector<size_t> basedOn, IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<PolygonsDependency>> getPolygonDependencies(PolygonsDependencies type) const {
+  std::vector<std::shared_ptr<PolygonsDependency>>getPolygonDependencies(PolygonsDependencies type) const {
     return getDependenciesWithType<PolygonModel, PolygonModel>(static_cast<IDependency::Type>(type));
   }
 
@@ -175,7 +174,7 @@ class DependenciesBank {
                                        LineCircleDependencies type, IDependency::Reason reason,
                                        std::vector<size_t> basedOn, IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<LineCircleDependency>> getLineCircleDependencies(LineCircleDependencies type) const {
+  std::vector<std::shared_ptr<LineCircleDependency>>getLineCircleDependencies(LineCircleDependencies type) const {
     return getDependenciesWithType<std::string, std::string>(static_cast<IDependency::Type>(type));
   }
 
@@ -184,7 +183,7 @@ class DependenciesBank {
                                           IDependency::Reason reason, std::vector<size_t> basedOn,
                                           IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<LinePointsPairDependency>> getLinePointsPairDependencies(LinePointsPairDependencies type) const {
+  std::vector<std::shared_ptr<LinePointsPairDependency>>getLinePointsPairDependencies(LinePointsPairDependencies type) const {
     return getDependenciesWithType<std::string, PointsPairModel>(static_cast<IDependency::Type>(type));
   }
 
@@ -194,7 +193,7 @@ class DependenciesBank {
                                       IDependency::Reason reason, std::vector<size_t> basedOn,
                                       IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<LineAngleDependency>> getLineAngleDependencies(LineAngleDependencies type) const {
+  std::vector<std::shared_ptr<LineAngleDependency>>getLineAngleDependencies(LineAngleDependencies type) const {
     return getDependenciesWithType<std::string, AngleModel>(static_cast<IDependency::Type>(type));
   }
 
@@ -203,7 +202,7 @@ class DependenciesBank {
                                           CirclePolygonDependencies type, IDependency::Reason reason,
                                           std::vector<size_t> basedOn, IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<CirclePolygonDependency>> getCirclePolygonDependencies(CirclePolygonDependencies type) const {
+  std::vector<std::shared_ptr<CirclePolygonDependency>>getCirclePolygonDependencies(CirclePolygonDependencies type) const {
     return getDependenciesWithType<std::string, PolygonModel>(static_cast<IDependency::Type>(type));
   }
 
@@ -212,7 +211,7 @@ class DependenciesBank {
                                         IDependency::Reason reason, std::vector<size_t> basedOn,
                                         IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<PolygonTypeDependency>> getPolygonTypeDependencies(PolygonTypeDependencies /*type*/) const {
+  std::vector<std::shared_ptr<PolygonTypeDependency>>getPolygonTypeDependencies(PolygonTypeDependencies /*type*/) const {
     return getDependenciesWithType<PolygonModel>(IDependency::Type::POLYGON_TYPE);
   }
 
@@ -223,7 +222,7 @@ class DependenciesBank {
                                                      IDependency::Reason reason,std::vector<size_t> basedOn,
                                                      IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<TriplePointsPairDependency>> getTriplePointsPairDependencies(TriplePointsPairDependencies type) const {
+  std::vector<std::shared_ptr<TriplePointsPairDependency>>getTriplePointsPairDependencies(TriplePointsPairDependencies type) const {
     return getDependenciesWithType<PointsPairModel, PointsPairModel, PointsPairModel>(static_cast<IDependency::Type>(type));
   }
 
@@ -232,7 +231,7 @@ class DependenciesBank {
                                               PolygonPointsPairDependencies type, IDependency::Reason reason, 
                                               std::vector<size_t> basedOn, IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<PolygonPointsPairDependency>> getPolygonPointsPairDependencies(PolygonPointsPairDependencies type) const {
+  std::vector<std::shared_ptr<PolygonPointsPairDependency>>getPolygonPointsPairDependencies(PolygonPointsPairDependencies type) const {
     return getDependenciesWithType<PolygonModel, PointsPairModel>(static_cast<IDependency::Type>(type));
   }
 
@@ -241,7 +240,7 @@ class DependenciesBank {
                                               PolygonExpressionDependencies type, IDependency::Reason reason,
                                               std::vector<size_t> basedOn, IDependency::Importance importance);
 
-  std::vector<std::unique_ptr<PolygonExpressionDependency>> getPolygonExpressionDependencies(PolygonExpressionDependencies type) const {
+  std::vector<std::shared_ptr<PolygonExpressionDependency>>getPolygonExpressionDependencies(PolygonExpressionDependencies type) const {
     return getDependenciesWithType<PolygonModel, ExpressionModel>(static_cast<IDependency::Type>(type));
   }
 
@@ -251,11 +250,11 @@ class DependenciesBank {
  private:
   template <typename... Args>
   requires AllStreamable<Args...> && AllJSONStreamable<Args...> && AllComparable<Args...>
-  std::vector<std::unique_ptr<Dependency<Args...>>> getDependenciesWithType(IDependency::Type type) const {
-    std::vector<std::unique_ptr<Dependency<Args...>>> result;
+  std::vector<std::shared_ptr<Dependency<Args...>>> getDependenciesWithType(IDependency::Type type) const {
+    std::vector<std::shared_ptr<Dependency<Args...>>> result;
     std::vector<size_t> dependenciesIds = dependenciesMap.at(type);
 
-    for (std::vector<size_t>::const_iterator vIt = dependenciesIds.begin(); vIt != dependenciesIds.end(); ++vIt) {
+    for (auto vIt = dependenciesIds.begin(); vIt != dependenciesIds.end(); ++vIt) {
       result.push_back(std::dynamic_pointer_cast<Dependency<Args...>>(dependenciesVector[*vIt]));
     }
 
@@ -264,10 +263,10 @@ class DependenciesBank {
 
   template <typename... Args>
   requires AllStreamable<Args...> && AllJSONStreamable<Args...> && AllComparable<Args...>
-  bool checkIfDependencyExist(const std::unique_ptr<Dependency<Args...>>& dependency) const {
+  bool checkIfDependencyExist(const std::shared_ptr<Dependency<Args...>>& dependency) const {
     IDependency::Type type = dependency->getType();
     for (auto vIt = dependenciesMap.at(dependency->getType()).begin(); vIt != dependenciesMap.at(dependency->getType()).end(); ++vIt) {
-      const std::unique_ptr<Dependency<Args...>>& currentDependency = std::dynamic_pointer_cast<Dependency<Args...>>(dependenciesVector[*vIt]);
+      const std::shared_ptr<Dependency<Args...>>& currentDependency = std::dynamic_pointer_cast<Dependency<Args...>>(dependenciesVector[*vIt]);
       if(dependency == currentDependency) {
         return true;
       }
@@ -278,7 +277,7 @@ class DependenciesBank {
 
   template <typename... Args>
   requires AllStreamable<Args...> && AllJSONStreamable<Args...> && AllComparable<Args...>
-  void addDependency(const std::unique_ptr<Dependency<Args...>>& dependency) {
+  void addDependency(const std::shared_ptr<Dependency<Args...>>& dependency) {
     dependenciesVector.push_back(dependency);
     dependenciesMap[dependency->getType()].push_back(dependencyIdCounter);
 
@@ -305,14 +304,14 @@ class DependenciesBank {
   /**
    * @brief Pointer to generated shapes bank
   */
-  std::shared_ptr<const ShapesBank> shapesBank;
+  ShapesBank* shapesBank;
 
   /**
    * @brief Vector with pointers to all dependency objects
    *
    * Index in vector is equal to object ID
    */
-  std::vector<std::unique_ptr<IDependency>> dependenciesVector;
+  std::vector<std::shared_ptr<IDependency>> dependenciesVector;
 
   /**
    * @brief Map with dependencies divided to types.

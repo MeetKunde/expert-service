@@ -35,7 +35,7 @@ class PolygonModel {
   };
 
   PolygonModel() = delete;
-  explicit PolygonModel(Type type, std::vector<std::string> vertices);
+  explicit PolygonModel(Type type, bool fixedPointsOrder, std::vector<std::string> vertices);
   
   PolygonModel(const PolygonModel& polygonModel) = default;
   PolygonModel(PolygonModel&& polygonModel) = default;
@@ -46,6 +46,7 @@ class PolygonModel {
   ~PolygonModel()  = default;
 
   inline Type getType() const { return type; }
+  inline bool getFixedPointsOrder() const { return fixedPointsOrder; }
   inline const std::vector<std::string>& getVerticesIds() const { return verticesIds; }
 
   json getJson() const ;
@@ -62,6 +63,7 @@ class PolygonModel {
  
  private:
   Type type;
+  bool fixedPointsOrder;
   std::vector<std::string> verticesIds;
 };
 }  // namespace expertBackground

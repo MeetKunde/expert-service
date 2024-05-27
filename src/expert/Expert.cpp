@@ -22,8 +22,7 @@ void Expert::importTask(json task) {
   for (iter = circles.begin(); iter != circles.end(); ++iter) {
     const std::string centerName = shapesBank.getPoint((*iter)["centerId"]).getName();
 
-    shapesBank.addCircle((*iter)["id"], (*iter)["centerId"], (*iter)["cx"], (*iter)["cy"],
-                         centerName, (*iter)["r"], (*iter)["pointsOn"]);
+    shapesBank.addCircle((*iter)["id"], (*iter)["centerId"], (*iter)["r"], (*iter)["pointsOn"]);
   }
 
   schemeGraph = expertBackground::Graph(shapesBank.getPointsNumber());
@@ -75,12 +74,12 @@ void Expert::importTask(json task) {
 json Expert::exportSolution() {
   localTimer.startMeasurement();
 
-  json output = {{"points", shapesBank.getPointsAsJsonObjects()},
-                 {"lines", shapesBank.getLinesAsJsonObjects()},
-                 {"circles", shapesBank.getCirclesAsJsonObjects()},
-                 {"intersections", getIntersectionPointsAsJson()},
-                 {"indexes_of_variables", dependenciesBank.getVariablesIndexesAsJsonObject()},
-                 {"dependencies", dependenciesBank.getDependenciesAsJsonObjects()}};
+  json output = {{"points", shapesBank.getPointsJson()},
+                 {"lines", shapesBank.getLinesJson()},
+                 {"circles", shapesBank.getCirclesJson()},
+                 {"intersections", getIntersectionPointsJson()},
+                 {"indexes_of_variables", dependenciesBank.getVariablesIndexesJson()},
+                 {"dependencies", dependenciesBank.getDependenciesJson()}};
 
   localTimer.takeMeasurement("Exporting data", false, std::cout);
 
@@ -122,19 +121,19 @@ void Expert::addValues(json lengths, json angleValues, json formulas, json perim
   for (iter = lengths.begin(); iter != lengths.end(); ++iter) {
     dependenciesBank.addLength((*iter)["segmentEnd1Id"], (*iter)["segmentEnd2Id"],
                                expertBackground::ExpressionModel(static_cast<std::string>((*iter)["length"])),
-                               IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+                               IDependency::Reason::USER_DEFINED, {}, IDependency::Importance::HIGH);
   }
 
   for (iter = angleValues.begin(); iter != angleValues.end(); ++iter) {
     if (parseAngleType((*iter)["angleIsConvex"]) == AngleType::CONCAVE) {
       dependenciesBank.addConcaveAngle((*iter)["angleEnd1Id"], (*iter)["angleVertexId"], (*iter)["angleEnd2Id"],
                                        expertBackground::ExpressionModel(static_cast<std::string>((*iter)["measure"])),
-                                       IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+                                       IDependency::Reason::USER_DEFINED, {}, IDependency::Importance::HIGH);
     }
     else if (parseAngleType((*iter)["angleIsConvex"]) == AngleType::CONVEX) {
       dependenciesBank.addConvexAngle((*iter)["angleEnd1Id"], (*iter)["angleVertexId"], (*iter)["angleEnd2Id"],
                                       expertBackground::ExpressionModel(static_cast<std::string>((*iter)["measure"])),
-                                      IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+                                      IDependency::Reason::USER_DEFINED, {}, IDependency::Importance::HIGH);
     }
   }
 
@@ -166,19 +165,19 @@ void Expert::addValues(json lengths, json angleValues, json formulas, json perim
     }
 
     dependenciesBank.addEquation(symbolicAlgebra::Expression(leftSide), symbolicAlgebra::Expression(rightSide),
-                                 IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+                                 IDependency::Reason::USER_DEFINED, {}, IDependency::Importance::HIGH);
   }
 
   for (iter = perimeters.begin(); iter != perimeters.end(); ++iter) {
     dependenciesBank.addPolygonExpressionDependency((*iter)["polygonVerticesIds"], false, symbolicAlgebra::Expression{(*iter)["perimeter"]},
                                                     PolygonExpressionDependencies::POLYGON_PERIMETER, 
-                                                    IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+                                                    IDependency::Reason::USER_DEFINED, {}, IDependency::Importance::HIGH);
   }
 
   for (iter = areas.begin(); iter != areas.end(); ++iter) {
     dependenciesBank.addPolygonExpressionDependency((*iter)["polygonVerticesIds"], false, symbolicAlgebra::Expression{(*iter)["area"]},
                                                     PolygonExpressionDependencies::POLYGON_AREA, 
-                                                    IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+                                                    IDependency::Reason::USER_DEFINED, {}, IDependency::Importance::HIGH);
   }
 }
 
@@ -187,12 +186,12 @@ void Expert::addLinesDependencies(json perpendicular, json parallel) {
 
   for (iter = perpendicular.begin(); iter != perpendicular.end(); ++iter) {
     dependenciesBank.addLinesDependency((*iter)["line1Id"], (*iter)["line2Id"], LinesDependencies::PERPENDICULAR_LINES,
-                                        IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+                                        IDependency::Reason::USER_DEFINED, {}, IDependency::Importance::HIGH);
   }
 
   for (iter = parallel.begin(); iter != parallel.end(); ++iter) {
     dependenciesBank.addLinesDependency((*iter)["line1Id"], (*iter)["line2Id"], LinesDependencies::PARALLEL_LINES,
-                                        IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+                                        IDependency::Reason::USER_DEFINED, {}, IDependency::Importance::HIGH);
   }
 }
 
@@ -202,19 +201,19 @@ void Expert::addEqualismDependencies(json segments, json angles) {
   for (iter = segments.begin(); iter != segments.end(); ++iter) {
     dependenciesBank.addPointsPairsDependency((*iter)["segment1End1Id"], (*iter)["segment1End2Id"], (*iter)["segment2End1Id"], (*iter)["segment2End2Id"],
                                               PointsPairsDependencies::EQUAL_SEGMENTS, IDependency::Reason::USER_DEFINED,
-                                              {}, IDependency::ImportanceLevel::HIGH);
+                                              {}, IDependency::Importance::HIGH);
   }
 
   for (iter = angles.begin(); iter != angles.end(); ++iter) {
     dependenciesBank.addAnglesDependency((*iter)["angle1End1Id"], (*iter)["angle1VertexId"], (*iter)["angle1End2Id"], AngleType::CONVEX,
                                          (*iter)["angle2End1Id"], (*iter)["angle2VertexId"], (*iter)["angle2End2Id"], AngleType::CONVEX,
                                          AnglesDependencies::EQUAL_ANGLES, IDependency::Reason::USER_DEFINED, {},
-                                         IDependency::ImportanceLevel::HIGH);
+                                         IDependency::Importance::HIGH);
 
     dependenciesBank.addAnglesDependency((*iter)["angle1End1Id"], (*iter)["angle1VertexId"], (*iter)["angle1End2Id"], AngleType::CONCAVE,
                                          (*iter)["angle2End1Id"], (*iter)["angle2VertexId"], (*iter)["angle2End2Id"], AngleType::CONCAVE,
                                          AnglesDependencies::EQUAL_ANGLES, IDependency::Reason::USER_DEFINED, {},
-                                         IDependency::ImportanceLevel::HIGH);
+                                         IDependency::Importance::HIGH);
   }
 }
 
@@ -224,12 +223,12 @@ void Expert::addTangentLinesAndCircles(json lines, json circles) {
   for (iter = lines.begin(); iter != lines.end(); ++iter) {
     dependenciesBank.addLineCircleDependency((*iter)["lineId"], (*iter)["circleId"],
                                              LineCircleDependencies::TANGENT_LINE_TO_CIRCLE, IDependency::Reason::USER_DEFINED,
-                                             {}, IDependency::ImportanceLevel::HIGH);
+                                             {}, IDependency::Importance::HIGH);
   }
 
   for (iter = circles.begin(); iter != circles.end(); ++iter) {
     dependenciesBank.addCirclesDependency((*iter)["circle1Id"], (*iter)["circle2Id"], CirclesDependencies::TANGENT_CIRCLE_TO_CIRCLE,
-                                          IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+                                          IDependency::Reason::USER_DEFINED, {}, IDependency::Importance::HIGH);
   }
 }
 
@@ -239,19 +238,19 @@ void Expert::addCirclePolygonDependencies(json inscribed, json circumscribed, js
   for (iter = inscribed.begin(); iter != inscribed.end(); ++iter) {
     dependenciesBank.addCirclePolygonDependency((*iter)["circleId"], (*iter)["polygonVerticesIds"],
                                                 CirclePolygonDependencies::INSCRIBED_CIRCLE, IDependency::Reason::USER_DEFINED,
-                                                {}, IDependency::ImportanceLevel::HIGH);
+                                                {}, IDependency::Importance::HIGH);
   }
 
   for (iter = circumscribed.begin(); iter != circumscribed.end(); ++iter) {
     dependenciesBank.addCirclePolygonDependency((*iter)["circleId"], (*iter)["polygonVerticesIds"],
                                                 CirclePolygonDependencies::CIRCUMSCRIBED_CIRCLE, IDependency::Reason::USER_DEFINED,
-                                                {}, IDependency::ImportanceLevel::HIGH);
+                                                {}, IDependency::Importance::HIGH);
   }
 
   for (iter = escribed.begin(); iter != escribed.end(); ++iter) {
     dependenciesBank.addCirclePolygonDependency((*iter)["circleId"], (*iter)["polygonVerticesIds"],
                                                 CirclePolygonDependencies ::ESCRIBED_CIRCLE, IDependency::Reason::USER_DEFINED,
-                                                {}, IDependency::ImportanceLevel::HIGH);
+                                                {}, IDependency::Importance::HIGH);
   }
 }
 
@@ -261,7 +260,7 @@ void Expert::addBisectors(json bisectorLines) {
   for (iter = bisectorLines.begin(); iter != bisectorLines.end(); ++iter) {
     dependenciesBank.addLineAngleDependency((*iter)["lineId"], (*iter)["angleEnd1Id"], (*iter)["angleVertexId"], (*iter)["angleEnd2Id"],
                                             parseAngleType((*iter)["angleType"]), LineAngleDependencies::BISECTOR_LINE,
-                                            IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+                                            IDependency::Reason::USER_DEFINED, {}, IDependency::Importance::HIGH);
   }
 }
 
@@ -271,7 +270,7 @@ void Expert::addMidPerpendiculars(json midPerpendicularLines) {
   for (iter = midPerpendicularLines.begin(); iter != midPerpendicularLines.end(); ++iter) {
     dependenciesBank.addLinePointsPairDependency((*iter)["lineId"], (*iter)["segmentEnd1Id"], (*iter)["segmentEnd2Id"],
                                                  LinePointsPairDependencies::MID_PERPENDICULAR_LINE,
-                                                 IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+                                                 IDependency::Reason::USER_DEFINED, {}, IDependency::Importance::HIGH);
   }
 }
 
@@ -280,7 +279,7 @@ void Expert::addPolygonTypes(json types) {
 
   for (iter = types.begin(); iter != types.end(); ++iter) {
     dependenciesBank.addPolygonTypeDependency((*iter)["polygonVerticesIds"], (*iter)["polygonType"], PolygonTypeDependencies::POLYGON_TYPE,
-                                              IDependency::Reason::USER_DEFINED, {}, IDependency::ImportanceLevel::HIGH);
+                                              IDependency::Reason::USER_DEFINED, {}, IDependency::Importance::HIGH);
   }
 }
 
@@ -290,20 +289,20 @@ void Expert::addSpecialSegments(json medians, json altitudes, json midSegments) 
   for (iter = medians.begin(); iter != medians.end(); ++iter) {
     dependenciesBank.addPolygonPointsPairDependency((*iter)["polygonVerticesIds"], true, (*iter)["segmentEnd1Id"], (*iter)["segmentEnd2Id"],
                                               PolygonPointsPairDependencies::MEDIAN, IDependency::Reason::USER_DEFINED, {},
-                                              IDependency::ImportanceLevel::HIGH);
+                                              IDependency::Importance::HIGH);
   }
 
   for (iter = altitudes.begin(); iter != altitudes.end(); ++iter) {
     dependenciesBank.addPolygonPointsPairDependency((*iter)["polygonVerticesIds"], true, (*iter)["segmentEnd1Id"], (*iter)["segmentEnd2Id"],
                                                  PolygonPointsPairDependencies::ALTITUDE, IDependency::Reason::USER_DEFINED,
-                                                 {}, IDependency::ImportanceLevel::HIGH);
+                                                 {}, IDependency::Importance::HIGH);
   }
 
   for (iter = midSegments.begin(); iter != midSegments.end(); ++iter) {
     dependenciesBank.addPolygonPointsPairDependency((*iter)["polygonVerticesIds"], true, (*iter)["segmentEnd1Id"], (*iter)["segmentEnd2Id"],
                                                     PolygonPointsPairDependencies::MID_SEGMENT,
                                                     IDependency::Reason::USER_DEFINED, {},
-                                                    IDependency::ImportanceLevel::HIGH);
+                                                    IDependency::Importance::HIGH);
   }
 }
 
@@ -461,7 +460,7 @@ void Expert::checkPointsOnShapes() {
   }
 }
 
-json Expert::getIntersectionPointsAsJson() {
+json Expert::getIntersectionPointsJson() {
   return {{"line_line", json(intersectionPointsOfLines)},
           {"circle_circle", json(intersectionPointsOfCircles)},
           {"line_circle", json(intersectionPointsOfLinesAndCircles)},

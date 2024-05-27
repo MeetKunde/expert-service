@@ -30,7 +30,7 @@ unsigned int Expert::setRightAnglesBasedOnPerpendicularities() {
           linesEnds[(endNumber + 1) % 4] != intersectionPoint) {
         result += dependenciesBank.addConvexAngle(
             linesEnds[endNumber], intersectionPoint, linesEnds[(endNumber + 1) % 4], Integer(MathHelper::RIGHT_ANGLE_VALUE),
-            IDependency::Reason::PERPENDICULAR_LINES, {dependency->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+            IDependency::Reason::PERPENDICULAR_LINES, {dependency->getId()}, IDependency::Importance::MEDIUM);
       }
     }
   }
@@ -57,22 +57,22 @@ unsigned int Expert::findParallelLinesBasedOnParallelLines() {
       if (line1Id == line3Id) {
         result += dependenciesBank.addLinesDependency(
             line2Id, line4Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PARALLELISM_TRANSITIVITY,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::Importance::MEDIUM);
       }
       else if (line1Id == line4Id) {
         result += dependenciesBank.addLinesDependency(
             line2Id, line3Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PARALLELISM_TRANSITIVITY,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::Importance::MEDIUM);
       }
       else if (line2Id == line3Id) {
         result += dependenciesBank.addLinesDependency(
             line1Id, line4Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PARALLELISM_TRANSITIVITY,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::Importance::MEDIUM);
       }
       else if (line2Id == line4Id) {
         result += dependenciesBank.addLinesDependency(
             line1Id, line3Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PARALLELISM_TRANSITIVITY,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::Importance::MEDIUM);
       }
     }
   }
@@ -99,22 +99,22 @@ unsigned int Expert::findParallelLinesBasedOnPerpendicularLines() {
       if (line1Id == line3Id) {
         result += dependenciesBank.addLinesDependency(
             line2Id, line4Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PERPENDICULARITY_COMPOSITION,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::Importance::MEDIUM);
       }
       else if (line1Id == line4Id) {
         result += dependenciesBank.addLinesDependency(
             line2Id, line3Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PERPENDICULARITY_COMPOSITION,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::Importance::MEDIUM);
       }
       else if (line2Id == line3Id) {
         result += dependenciesBank.addLinesDependency(
             line1Id, line4Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PERPENDICULARITY_COMPOSITION,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::Importance::MEDIUM);
       }
       else if (line2Id == line4Id) {
         result += dependenciesBank.addLinesDependency(
             line1Id, line3Id, IDependency::Type::PARALLEL_LINES, IDependency::Reason::PERPENDICULARITY_COMPOSITION,
-            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::UsefulnessLevel::MEDIUM);
+            {(*dependency1)->getId(), (*dependency2)->getId()}, IDependency::Importance::MEDIUM);
       }
     }
   }
@@ -141,25 +141,25 @@ unsigned int Expert::findPerpendicularLinesBasedOnLines() {
         result += dependenciesBank.addLinesDependency(line2Id, line4Id, IDependency::Type::PERPENDICULAR_LINES,
                                                       IDependency::Reason::PERPENDICULARITY_AND_PARALLELISM_COMPOSITION,
                                                       {dependency1->getId(), dependency2->getId()},
-                                                      IDependency::UsefulnessLevel::MEDIUM);
+                                                      IDependency::Importance::MEDIUM);
       }
       else if (line1Id == line4Id) {
         result += dependenciesBank.addLinesDependency(line2Id, line3Id, IDependency::Type::PERPENDICULAR_LINES,
                                                       IDependency::Reason::PERPENDICULARITY_AND_PARALLELISM_COMPOSITION,
                                                       {dependency1->getId(), dependency2->getId()},
-                                                      IDependency::UsefulnessLevel::MEDIUM);
+                                                      IDependency::Importance::MEDIUM);
       }
       else if (line2Id == line3Id) {
         result += dependenciesBank.addLinesDependency(line1Id, line4Id, IDependency::Type::PERPENDICULAR_LINES,
                                                       IDependency::Reason::PERPENDICULARITY_AND_PARALLELISM_COMPOSITION,
                                                       {dependency1->getId(), dependency2->getId()},
-                                                      IDependency::UsefulnessLevel::MEDIUM);
+                                                      IDependency::Importance::MEDIUM);
       }
       else if (line2Id == line4Id) {
         result += dependenciesBank.addLinesDependency(line1Id, line3Id, IDependency::Type::PERPENDICULAR_LINES,
                                                       IDependency::Reason::PERPENDICULARITY_AND_PARALLELISM_COMPOSITION,
                                                       {dependency1->getId(), dependency2->getId()},
-                                                      IDependency::UsefulnessLevel::MEDIUM);
+                                                      IDependency::Importance::MEDIUM);
       }
     }
   }
@@ -194,7 +194,7 @@ unsigned int Expert::findPerpendicularLinesBasedOnRightAngles() {
         if (evaluation.first == EvaluationResult::SUCCESS) {
           result += dependenciesBank.addLinesDependency(line1Id, line2Id, IDependency::Type::PERPENDICULAR_LINES,
                                                         IDependency::Reason::RIGHT_ANGLE, evaluation.second,
-                                                        IDependency::UsefulnessLevel::MEDIUM);
+                                                        IDependency::Importance::MEDIUM);
 
           break;
         }

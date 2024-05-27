@@ -8,10 +8,10 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
 
   const std::vector<PointModel> points = { pointA, pointB, pointC, pointD };
 
-  const LineModel lineK{"line k", LineModel::LineType::SLANTED, 1.0F, -7.0,
+  const LineModel lineK{"line k", LineModel::Type::SLANTED, 1.0F, -7.0,
                         std::vector<std::string>{pointA.getId(), pointB.getId()}};
 
-  const LineModel lineL{"line l", LineModel::LineType::SLANTED, -1.0F, 5.0,
+  const LineModel lineL{"line l", LineModel::Type::SLANTED, -1.0F, 5.0,
                         std::vector<std::string>{pointA.getId(), pointC.getId()}};
 
   const std::vector<LineModel> lines = { lineK, lineL };
@@ -26,8 +26,8 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
   const std::vector<size_t> basedOn1 = {11, 13};
   const std::vector<size_t> basedOn2 = {1, 91, 0, 3};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::MEDIUM};
+  const IDependency::Importance Importance1{IDependency::Importance::LOW};
+  const IDependency::Importance Importance2{IDependency::Importance::MEDIUM};
 
   const ExpressionModel expressionWithExternalVar1{"y + z + 6"};
   const ExpressionModel expressionWithExternalVar2{"x^2 + 3*x + 1"};
@@ -43,7 +43,7 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
   }
 
   for(const auto& line: lines) {
-    shapesBank.addLine(line.getId(), line.getLineType(), line.getLineA(), line.getLineB(), line.getIncludedPoints());
+    shapesBank.addLine(line.getId(), line.getType(), line.getCoeffA(), line.getCoeffB(), line.getIncludedPoints());
   }
 
   DependenciesBank dependenciesBank{&shapesBank};
@@ -76,7 +76,7 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
       {"type", type1},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   const json dependency2Json = {
@@ -93,7 +93,7 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
       {"type", type2},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   const json dependency3Json = {
@@ -110,63 +110,63 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
       {"type", type3},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
   REQUIRE(dependenciesBank.addEquation(expressionWithExternalVar1, expressionWithExternalVar2, reason1, basedOn1,
-                                       importanceLevel1) == 1);
+                                       Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency
   REQUIRE(dependenciesBank.addLength(pointA.getId(), pointB.getId(), expressionWithExternalVar1, reason1, basedOn1,
-                                     importanceLevel1) == 1);
+                                     Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency
   REQUIRE(dependenciesBank.addConvexAngle(pointC.getId(), pointB.getId(), pointA.getId(), expressionWithExternalVar2,
-                                          reason1, basedOn1, importanceLevel1) == 1);
+                                          reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency
   REQUIRE(dependenciesBank.addConcaveAngle(pointC.getId(), pointB.getId(), pointA.getId(), expressionWithExternalVar3,
-                                           reason1, basedOn1, importanceLevel1) == 1);
+                                           reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // attempt to add the same dependency
   // but with other method
   REQUIRE(dependenciesBank.addEquation(expressionLenVar, expressionWithExternalVar1, reason1, basedOn1,
-                                       importanceLevel1) == 0);
+                                       Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // attempt to add the same dependency
   // but with other method
   REQUIRE(dependenciesBank.addEquation(expressionConvexAngleVar, expressionWithExternalVar2, reason1, basedOn1,
-                                       importanceLevel1) == 0);
+                                       Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // attempt to add the same dependency
   // but with other method
   REQUIRE(dependenciesBank.addEquation(expressionConcaveAngleVar, expressionWithExternalVar3, reason1, basedOn1,
-                                       importanceLevel1) == 0);
+                                       Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // attempt to add the same dependency
   // but with other dependent dependencies and importance
   REQUIRE(dependenciesBank.addEquation(expressionWithExternalVar1, expressionWithExternalVar2, reason1, basedOn2,
-                                       importanceLevel2) == 0);
+                                       Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // attempt to add the same dependency
   // but with other expressions order
   REQUIRE(dependenciesBank.addEquation(expressionWithExternalVar2, expressionWithExternalVar1, reason1, basedOn1,
-                                       importanceLevel1) == 0);
+                                       Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // attempt to add the same dependency
   // but with other first expression
   REQUIRE(dependenciesBank.addEquation(expressionWithExternalVar3, expressionWithExternalVar2, reason1, basedOn1,
-                                       importanceLevel1) == 1);
+                                       Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 5));
 
   const std::vector<std::shared_ptr<EquationDependency>> equations =
@@ -194,8 +194,8 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(equations.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(equations.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(equations.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(equations.front()->getImportance() == Importance1);
+  REQUIRE(equations.front()->getJson() == dependency1Json);
 
   REQUIRE(lengths.back()->getCategory() == IDependency::Category::FORMULA);
   REQUIRE(lengths.back()->getType() == IDependency::Type::SEGMENT_LENGTH);
@@ -204,8 +204,8 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(lengths.back()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(lengths.back()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(lengths.back()->getObjectAsJson() == dependency2Json);
+  REQUIRE(lengths.back()->getImportance() == Importance1);
+  REQUIRE(lengths.back()->getJson() == dependency2Json);
 
   REQUIRE(measures.back()->getCategory() == IDependency::Category::FORMULA);
   REQUIRE(measures.back()->getType() == IDependency::Type::ANGLE_MEASURE);
@@ -214,8 +214,8 @@ TEST_CASE("Adding EquationDependencies to DependenciesBank", "[expertBackground]
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(measures.back()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(measures.back()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(measures.back()->getObjectAsJson() == dependency3Json);
+  REQUIRE(measures.back()->getImportance() == Importance1);
+  REQUIRE(measures.back()->getJson() == dependency3Json);
 }
 
 TEST_CASE("Adding LinesDependencies to DependenciesBank", "[expertBackground]") {
@@ -232,8 +232,8 @@ TEST_CASE("Adding LinesDependencies to DependenciesBank", "[expertBackground]") 
   const std::vector<size_t> basedOn1 = {1, 3};
   const std::vector<size_t> basedOn2 = {11, 9};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::HIGH};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::MEDIUM};
+  const IDependency::Importance Importance1{IDependency::Importance::HIGH};
+  const IDependency::Importance Importance2{IDependency::Importance::MEDIUM};
 
   DependenciesBank dependenciesBank{};
 
@@ -255,7 +255,7 @@ TEST_CASE("Adding LinesDependencies to DependenciesBank", "[expertBackground]") 
       {"type", type1},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   const json dependency4Json = {
@@ -270,37 +270,37 @@ TEST_CASE("Adding LinesDependencies to DependenciesBank", "[expertBackground]") 
       {"type", type2},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
-  REQUIRE(dependenciesBank.addLinesDependency(lineA, lineB, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLinesDependency(lineA, lineB, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
-  REQUIRE(dependenciesBank.addLinesDependency(lineA, lineB, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addLinesDependency(lineA, lineB, type1, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
   // but in other lines order
-  REQUIRE(dependenciesBank.addLinesDependency(lineB, lineA, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addLinesDependency(lineB, lineA, type1, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency but with other
   // dependent dependencies and other importance
-  REQUIRE(dependenciesBank.addLinesDependency(lineA, lineB, type1, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.addLinesDependency(lineA, lineB, type1, reason1, basedOn2, Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other reason
-  REQUIRE(dependenciesBank.addLinesDependency(lineA, lineB, type1, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLinesDependency(lineA, lineB, type1, reason2, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency = other second line
-  REQUIRE(dependenciesBank.addLinesDependency(lineA, lineC, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLinesDependency(lineA, lineC, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency = other type
-  REQUIRE(dependenciesBank.addLinesDependency(lineA, lineB, type2, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLinesDependency(lineA, lineB, type2, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   const std::vector<std::shared_ptr<LinesDependency>> perpendiculars =
@@ -323,8 +323,8 @@ TEST_CASE("Adding LinesDependencies to DependenciesBank", "[expertBackground]") 
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(perpendiculars.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(perpendiculars.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(perpendiculars.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(perpendiculars.front()->getImportance() == Importance1);
+  REQUIRE(perpendiculars.front()->getJson() == dependency1Json);
 
   REQUIRE(parallels.front()->getCategory() == IDependency::Category::OF_LINES);
   REQUIRE(parallels.front()->getType() == static_cast<IDependency::Type>(type2));
@@ -333,8 +333,8 @@ TEST_CASE("Adding LinesDependencies to DependenciesBank", "[expertBackground]") 
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(parallels.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(parallels.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(parallels.front()->getObjectAsJson() == dependency4Json);
+  REQUIRE(parallels.front()->getImportance() == Importance1);
+  REQUIRE(parallels.front()->getJson() == dependency4Json);
 }
 
 TEST_CASE("Adding CirclesDependencies to DependenciesBank", "[expertBackground]") {
@@ -350,8 +350,8 @@ TEST_CASE("Adding CirclesDependencies to DependenciesBank", "[expertBackground]"
   const std::vector<size_t> basedOn1 = {0, 5};
   const std::vector<size_t> basedOn2 = {9, 0, 9};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::MEDIUM};
+  const IDependency::Importance Importance1{IDependency::Importance::LOW};
+  const IDependency::Importance Importance2{IDependency::Importance::MEDIUM};
 
   DependenciesBank dependenciesBank{};
 
@@ -372,33 +372,33 @@ TEST_CASE("Adding CirclesDependencies to DependenciesBank", "[expertBackground]"
       {"type", type},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
-  REQUIRE(dependenciesBank.addCirclesDependency(circleA, circleB, type, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addCirclesDependency(circleA, circleB, type, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
-  REQUIRE(dependenciesBank.addCirclesDependency(circleA, circleB, type, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addCirclesDependency(circleA, circleB, type, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
   // but in other circles order
-  REQUIRE(dependenciesBank.addCirclesDependency(circleB, circleA, type, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addCirclesDependency(circleB, circleA, type, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency but with other
   // dependent dependencies and other importance
-  REQUIRE(dependenciesBank.addCirclesDependency(circleA, circleB, type, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.addCirclesDependency(circleA, circleB, type, reason1, basedOn2, Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other reason
-  REQUIRE(dependenciesBank.addCirclesDependency(circleA, circleB, type, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addCirclesDependency(circleA, circleB, type, reason2, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency = other second line
-  REQUIRE(dependenciesBank.addCirclesDependency(circleA, circleC, type, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addCirclesDependency(circleA, circleC, type, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   const std::vector<std::shared_ptr<CirclesDependency>> tangentCircles =
@@ -416,8 +416,8 @@ TEST_CASE("Adding CirclesDependencies to DependenciesBank", "[expertBackground]"
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(tangentCircles.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(tangentCircles.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(tangentCircles.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(tangentCircles.front()->getImportance() == Importance1);
+  REQUIRE(tangentCircles.front()->getJson() == dependency1Json);
 }
 
 TEST_CASE("Adding LineCircleDependencies to DependenciesBank", "[expertBackground]") {
@@ -436,8 +436,8 @@ TEST_CASE("Adding LineCircleDependencies to DependenciesBank", "[expertBackgroun
   const std::vector<size_t> basedOn1 = {17, 1};
   const std::vector<size_t> basedOn2 = {1, 6};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::MEDIUM};
+  const IDependency::Importance Importance1{IDependency::Importance::LOW};
+  const IDependency::Importance Importance2{IDependency::Importance::MEDIUM};
 
   DependenciesBank dependenciesBank{};
 
@@ -460,37 +460,37 @@ TEST_CASE("Adding LineCircleDependencies to DependenciesBank", "[expertBackgroun
       {"type", type},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
-  REQUIRE(dependenciesBank.addLineCircleDependency(lineA, circleA, type, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLineCircleDependency(lineA, circleA, type, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
-  REQUIRE(dependenciesBank.addLineCircleDependency(lineA, circleA, type, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addLineCircleDependency(lineA, circleA, type, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other line
-  REQUIRE(dependenciesBank.addLineCircleDependency(lineB, circleA, type, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLineCircleDependency(lineB, circleA, type, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency = other circle
-  REQUIRE(dependenciesBank.addLineCircleDependency(lineA, circleB, type, reason1, basedOn2, importanceLevel2) == 1);
+  REQUIRE(dependenciesBank.addLineCircleDependency(lineA, circleB, type, reason1, basedOn2, Importance2) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // attempt to add the same dependency but with other
   // dependent dependencies and other importance
-  REQUIRE(dependenciesBank.addLineCircleDependency(lineA, circleA, type, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.addLineCircleDependency(lineA, circleA, type, reason1, basedOn2, Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency = other reason
-  REQUIRE(dependenciesBank.addLineCircleDependency(lineA, circleA, type, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLineCircleDependency(lineA, circleA, type, reason2, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // new dependency = swiped line and circle
   REQUIRE(dependenciesBank.addLineCircleDependency(swipedLineAToCircleA, swipedCircleAToLineA, type, reason1, basedOn1,
-                                                   importanceLevel1) == 1);
+                                                   Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 5));
 
   const std::vector<std::shared_ptr<LinesDependency>> tangentLines =
@@ -508,8 +508,8 @@ TEST_CASE("Adding LineCircleDependencies to DependenciesBank", "[expertBackgroun
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(tangentLines.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(tangentLines.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(tangentLines.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(tangentLines.front()->getImportance() == Importance1);
+  REQUIRE(tangentLines.front()->getJson() == dependency1Json);
 }
 
 TEST_CASE("Adding CirclePolygonDependencies to DependenciesBank", "[expertBackground]") {
@@ -528,8 +528,8 @@ TEST_CASE("Adding CirclePolygonDependencies to DependenciesBank", "[expertBackgr
   const std::vector<size_t> basedOn1 = {14, 22};
   const std::vector<size_t> basedOn2 = {3, 81};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::HIGH};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::MEDIUM};
+  const IDependency::Importance Importance1{IDependency::Importance::HIGH};
+  const IDependency::Importance Importance2{IDependency::Importance::MEDIUM};
 
   DependenciesBank dependenciesBank{};
 
@@ -552,7 +552,7 @@ TEST_CASE("Adding CirclePolygonDependencies to DependenciesBank", "[expertBackgr
       {"type", type1},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   const json dependency5Json = {
@@ -567,36 +567,36 @@ TEST_CASE("Adding CirclePolygonDependencies to DependenciesBank", "[expertBackgr
       {"type", type2},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
-  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleA, polygonA, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleA, polygonA, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
-  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleA, polygonA, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleA, polygonA, type1, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other circle
-  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleB, polygonA, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleB, polygonA, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency other polygon
-  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleA, polygonB, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleA, polygonB, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // attempt to add the same dependency
   // but with other dependent dependencies and importance
-  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleA, polygonA, type1, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleA, polygonA, type1, reason1, basedOn2, Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency = other reason
-  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleA, polygonA, type1, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleA, polygonA, type1, reason2, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // new dependency = other type
-  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleA, polygonA, type2, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addCirclePolygonDependency(circleA, polygonA, type2, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 5));
 
   const std::vector<std::shared_ptr<CirclePolygonDependency>> escribedCircles =
@@ -619,8 +619,8 @@ TEST_CASE("Adding CirclePolygonDependencies to DependenciesBank", "[expertBackgr
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(escribedCircles.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(escribedCircles.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(escribedCircles.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(escribedCircles.front()->getImportance() == Importance1);
+  REQUIRE(escribedCircles.front()->getJson() == dependency1Json);
 
   REQUIRE(inscribedCircles.front()->getCategory() == IDependency::Category::OF_CIRCLE_AND_POLYGON);
   REQUIRE(inscribedCircles.front()->getType() == static_cast<IDependency::Type>(type2));
@@ -629,8 +629,8 @@ TEST_CASE("Adding CirclePolygonDependencies to DependenciesBank", "[expertBackgr
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(inscribedCircles.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(inscribedCircles.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(inscribedCircles.front()->getObjectAsJson() == dependency5Json);
+  REQUIRE(inscribedCircles.front()->getImportance() == Importance1);
+  REQUIRE(inscribedCircles.front()->getJson() == dependency5Json);
 }
 
 TEST_CASE("Adding PointsPairsDependencies to DependenciesBank", "[expertBackground]") {
@@ -649,8 +649,8 @@ TEST_CASE("Adding PointsPairsDependencies to DependenciesBank", "[expertBackgrou
   const std::vector<size_t> basedOn1 = {4, 2};
   const std::vector<size_t> basedOn2 = {43, 8};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::MEDIUM};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::LOW};
+  const IDependency::Importance Importance1{IDependency::Importance::MEDIUM};
+  const IDependency::Importance Importance2{IDependency::Importance::LOW};
 
   DependenciesBank dependenciesBank{};
 
@@ -673,51 +673,51 @@ TEST_CASE("Adding PointsPairsDependencies to DependenciesBank", "[expertBackgrou
       {"type", type1},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
   REQUIRE(dependenciesBank.addPointsPairsDependency(pointA, pointB, pointC, pointD, type1, reason1, basedOn1,
-                                                    importanceLevel1) == 1);
+                                                    Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
   REQUIRE(dependenciesBank.addPointsPairsDependency(pointA, pointB, pointC, pointD, type1, reason1, basedOn1,
-                                                    importanceLevel1) == 0);
+                                                    Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
   // but in other PointsPairModels order
   REQUIRE(dependenciesBank.addPointsPairsDependency(pointD, pointC, pointB, pointA, type1, reason1, basedOn1,
-                                                    importanceLevel1) == 0);
+                                                    Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
   // but in other points order in first PointsPairModel
   REQUIRE(dependenciesBank.addPointsPairsDependency(pointB, pointA, pointC, pointD, type1, reason1, basedOn1,
-                                                    importanceLevel1) == 0);
+                                                    Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
   // but in other points order in second PointsPairModel
   REQUIRE(dependenciesBank.addPointsPairsDependency(pointA, pointB, pointD, pointC, type1, reason1, basedOn1,
-                                                    importanceLevel1) == 0);
+                                                    Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency but with other
   // dependent dependencies and other importance
   REQUIRE(dependenciesBank.addPointsPairsDependency(pointA, pointB, pointC, pointD, type1, reason1, basedOn2,
-                                                    importanceLevel2) == 0);
+                                                    Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other reason
   REQUIRE(dependenciesBank.addPointsPairsDependency(pointA, pointB, pointC, pointD, type1, reason2, basedOn1,
-                                                    importanceLevel1) == 1);
+                                                    Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency = other second line
   REQUIRE(dependenciesBank.addPointsPairsDependency(pointA, pointB, pointE, pointF, type1, reason1, basedOn1,
-                                                    importanceLevel1) == 1);
+                                                    Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
 
@@ -736,8 +736,8 @@ TEST_CASE("Adding PointsPairsDependencies to DependenciesBank", "[expertBackgrou
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(equalSegments.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(equalSegments.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(equalSegments.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(equalSegments.front()->getImportance() == Importance1);
+  REQUIRE(equalSegments.front()->getJson() == dependency1Json);
 }
 
 TEST_CASE("Adding AnglesDependencies to DependenciesBank", "[expertBackground]") {
@@ -752,17 +752,17 @@ TEST_CASE("Adding AnglesDependencies to DependenciesBank", "[expertBackground]")
 
   const std::vector<PointModel> points = { pointA, pointB, pointC, pointD, pointE, pointF, pointG, pointH };
 
-  const LineModel lineK{"line k", LineModel::LineType::SLANTED, 1.0F, -7.0,
+  const LineModel lineK{"line k", LineModel::Type::SLANTED, 1.0F, -7.0,
         std::vector<std::string>{pointA.getId(), pointB.getId(), pointE.getId(), pointG.getId()}};
 
-  const LineModel lineL{"line l", LineModel::LineType::SLANTED, -1.0F, 5.0,
+  const LineModel lineL{"line l", LineModel::Type::SLANTED, -1.0F, 5.0,
         std::vector<std::string>{pointA.getId(), pointC.getId(), pointD.getId(), pointF.getId()}};
 
   const std::vector<LineModel> lines = { lineK, lineL };
 
-  const AngleModel::AngleType convexAngleType{AngleModel::AngleType::CONVEX};
-  const AngleModel::AngleType concaveAngleType{AngleModel::AngleType::CONCAVE};
-  const AngleModel::AngleType unknownAngleType{AngleModel::AngleType::UNKNOWN};
+  const AngleModel::Type convexAngleType{AngleModel::Type::CONVEX};
+  const AngleModel::Type concaveAngleType{AngleModel::Type::CONCAVE};
+  const AngleModel::Type unknownAngleType{AngleModel::Type::UNKNOWN};
 
   const DependenciesBank::AnglesDependencies type{DependenciesBank::AnglesDependencies::EQUAL_ANGLES};
 
@@ -772,8 +772,8 @@ TEST_CASE("Adding AnglesDependencies to DependenciesBank", "[expertBackground]")
   const std::vector<size_t> basedOn1 = {14, 2, 9};
   const std::vector<size_t> basedOn2 = {2, 8, 3};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::HIGH};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::LOW};
+  const IDependency::Importance Importance1{IDependency::Importance::HIGH};
+  const IDependency::Importance Importance2{IDependency::Importance::LOW};
 
   ShapesBank shapesBank{};
 
@@ -782,7 +782,7 @@ TEST_CASE("Adding AnglesDependencies to DependenciesBank", "[expertBackground]")
   }
 
   for(const auto& line: lines) {
-    shapesBank.addLine(line.getId(), line.getLineType(), line.getLineA(), line.getLineB(), line.getIncludedPoints());
+    shapesBank.addLine(line.getId(), line.getType(), line.getCoeffA(), line.getCoeffB(), line.getIncludedPoints());
   }
 
   DependenciesBank dependenciesBank{&shapesBank};
@@ -811,72 +811,72 @@ TEST_CASE("Adding AnglesDependencies to DependenciesBank", "[expertBackground]")
       {"type", type},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
   REQUIRE(dependenciesBank.addAnglesDependency(pointB.getId(), pointA.getId(), pointC.getId(), convexAngleType,
                                        pointF.getId(), pointA.getId(), pointG.getId(), convexAngleType,
-                                       type, reason1, basedOn1, importanceLevel1) == 1);
+                                       type, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
   REQUIRE(dependenciesBank.addAnglesDependency(pointB.getId(), pointA.getId(), pointC.getId(), convexAngleType,
                                        pointF.getId(), pointA.getId(), pointG.getId(), convexAngleType,
-                                       type, reason1, basedOn1, importanceLevel1) == 0);
+                                       type, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
   // but in other AngleModels order
   REQUIRE(dependenciesBank.addAnglesDependency(pointF.getId(), pointA.getId(), pointG.getId(), convexAngleType,
                                        pointB.getId(), pointA.getId(), pointC.getId(), convexAngleType,
-                                       type, reason1, basedOn1, importanceLevel1) == 0);
+                                       type, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
   // but in other points order in first and second AngleModel
   REQUIRE(dependenciesBank.addAnglesDependency(pointC.getId(), pointA.getId(), pointB.getId(), convexAngleType,
                                        pointG.getId(), pointA.getId(), pointF.getId(), convexAngleType,
-                                       type, reason1, basedOn1, importanceLevel1) == 0);
+                                       type, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
   // but in other points on angle arms
   REQUIRE(dependenciesBank.addAnglesDependency(pointB.getId(), pointA.getId(), pointC.getId(), convexAngleType,
                                        pointD.getId(), pointA.getId(), pointE.getId(), convexAngleType,
-                                       type, reason1, basedOn1, importanceLevel1) == 0);
+                                       type, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other angle types
   REQUIRE(dependenciesBank.addAnglesDependency(pointB.getId(), pointA.getId(), pointC.getId(), concaveAngleType,
                                        pointD.getId(), pointA.getId(), pointE.getId(), concaveAngleType,
-                                       type, reason1, basedOn1, importanceLevel1) == 1);
+                                       type, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // attempt to add the same dependency but with other
   // dependent dependencies and other importance
   REQUIRE(dependenciesBank.addAnglesDependency(pointB.getId(), pointA.getId(), pointC.getId(), convexAngleType,
                                        pointD.getId(), pointA.getId(), pointE.getId(), convexAngleType,
-                                       type, reason1, basedOn2, importanceLevel2) == 0);
+                                       type, reason1, basedOn2, Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency = other reason
   REQUIRE(dependenciesBank.addAnglesDependency(pointB.getId(), pointA.getId(), pointC.getId(), convexAngleType,
                                        pointD.getId(), pointA.getId(), pointE.getId(), convexAngleType,
-                                       type, reason2, basedOn1, importanceLevel1) == 1);
+                                       type, reason2, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency = other second vertex of second AngleModel
   REQUIRE(dependenciesBank.addAnglesDependency(pointB.getId(), pointA.getId(), pointC.getId(), convexAngleType,
                                        pointD.getId(), pointH.getId(), pointE.getId(), convexAngleType,
-                                       type, reason1, basedOn1, importanceLevel1) == 1);
+                                       type, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // attempt to add the same dependency
   // but with other angle type(unknown is compatible with convex and concave(
   REQUIRE(dependenciesBank.addAnglesDependency(pointB.getId(), pointA.getId(), pointC.getId(), unknownAngleType,
                                        pointD.getId(), pointA.getId(), pointE.getId(), unknownAngleType,
-                                       type, reason1, basedOn1, importanceLevel1) == 0);
+                                       type, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   const std::vector<std::shared_ptr<AnglesDependency>> equalAngles =
@@ -894,8 +894,8 @@ TEST_CASE("Adding AnglesDependencies to DependenciesBank", "[expertBackground]")
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(equalAngles.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(equalAngles.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(equalAngles.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(equalAngles.front()->getImportance() == Importance1);
+  REQUIRE(equalAngles.front()->getJson() == dependency1Json);
 }
 
 TEST_CASE("Adding PolygonsDependencies to DependenciesBank", "[expertBackground]") {
@@ -920,8 +920,8 @@ TEST_CASE("Adding PolygonsDependencies to DependenciesBank", "[expertBackground]
   const std::vector<size_t> basedOn1 = {12, 4, 9};
   const std::vector<size_t> basedOn2 = {3, 1, 22};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::HIGH};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::LOW};
+  const IDependency::Importance Importance1{IDependency::Importance::HIGH};
+  const IDependency::Importance Importance2{IDependency::Importance::LOW};
 
   DependenciesBank dependenciesBank{};
 
@@ -944,7 +944,7 @@ TEST_CASE("Adding PolygonsDependencies to DependenciesBank", "[expertBackground]
       {"type", type1},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   const json dependency5Json = {
@@ -959,61 +959,61 @@ TEST_CASE("Adding PolygonsDependencies to DependenciesBank", "[expertBackground]
       {"type", type2},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // add new dependency
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // add the same dependency
   // but with other polygons order
-  REQUIRE(dependenciesBank.addPolygonsDependency(rectangleABCD, triangleABC, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(rectangleABCD, triangleABC, fixedPointsOrder, type1, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // add the same dependency
   // but with other first polygon vertices permutation
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleBCA, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleBCA, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // add the same dependency
   // but with other first polygon vertices permutation
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleCAB, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleCAB, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // add the same dependency
   // but with other second polygon vertices permutation
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleBADC, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleBADC, fixedPointsOrder, type1, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // add the same dependency
   // but with other second polygon vertices permutation
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleDCBA, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleDCBA, fixedPointsOrder, type1, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other second polygon vertices permutation
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleACBD, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleACBD, fixedPointsOrder, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // add the same dependency
   // but with other dependent dependencies and importance
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type1, reason1, basedOn2, Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency = other reason
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type1, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type1, reason2, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency = other second polygon
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, triangleCDE, fixedPointsOrder, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, triangleCDE, fixedPointsOrder, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // new dependency = other type
-  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type2, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonsDependency(triangleABC, rectangleABCD, fixedPointsOrder, type2, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 5));
 
   const std::vector<std::shared_ptr<PolygonsDependency>> similarTriangles =
@@ -1036,8 +1036,8 @@ TEST_CASE("Adding PolygonsDependencies to DependenciesBank", "[expertBackground]
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(similarTriangles.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(similarTriangles.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(similarTriangles.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(similarTriangles.front()->getImportance() == Importance1);
+  REQUIRE(similarTriangles.front()->getJson() == dependency1Json);
 
   REQUIRE(congruentTriangles.front()->getCategory() == IDependency::Category::OF_POLYGONS);
   REQUIRE(congruentTriangles.front()->getType() == static_cast<IDependency::Type>(type2));
@@ -1046,16 +1046,16 @@ TEST_CASE("Adding PolygonsDependencies to DependenciesBank", "[expertBackground]
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(congruentTriangles.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(congruentTriangles.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(congruentTriangles.front()->getObjectAsJson() == dependency5Json);
+  REQUIRE(congruentTriangles.front()->getImportance() == Importance1);
+  REQUIRE(congruentTriangles.front()->getJson() == dependency5Json);
 }
 
 TEST_CASE("Adding PolygonTypeDependencies to DependenciesBank", "[expertBackground]") {
   const std::vector<std::string> triangleABC{"pointA", "pointB", "pointC"};
   const std::vector<std::string> rectangleABCD{"pointA", "pointB", "pointC", "pointD"};
 
-  const PolygonModel::PolygonType polygonType1{PolygonModel::PolygonType::EQUILATERAL_TRIANGLE};
-  const PolygonModel::PolygonType polygonType2{PolygonModel::PolygonType::SQUARE};
+  const PolygonModel::Type polygonType1{PolygonModel::Type::EQUILATERAL_TRIANGLE};
+  const PolygonModel::Type polygonType2{PolygonModel::Type::SQUARE};
 
   const DependenciesBank::PolygonTypeDependencies type{DependenciesBank::PolygonTypeDependencies::POLYGON_TYPE};
 
@@ -1065,8 +1065,8 @@ TEST_CASE("Adding PolygonTypeDependencies to DependenciesBank", "[expertBackgrou
   const std::vector<size_t> basedOn1 = {2, 4};
   const std::vector<size_t> basedOn2 = {3, 1};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::MEDIUM};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::HIGH};
+  const IDependency::Importance Importance1{IDependency::Importance::MEDIUM};
+  const IDependency::Importance Importance2{IDependency::Importance::HIGH};
 
   DependenciesBank dependenciesBank{};
 
@@ -1088,32 +1088,32 @@ TEST_CASE("Adding PolygonTypeDependencies to DependenciesBank", "[expertBackgrou
       {"type", type},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
-  REQUIRE(dependenciesBank.addPolygonTypeDependency(triangleABC, polygonType1, type, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonTypeDependency(triangleABC, polygonType1, type, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
-  REQUIRE(dependenciesBank.addPolygonTypeDependency(triangleABC, polygonType1, type, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonTypeDependency(triangleABC, polygonType1, type, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other polygon
-  REQUIRE(dependenciesBank.addPolygonTypeDependency(rectangleABCD, polygonType1, type, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonTypeDependency(rectangleABCD, polygonType1, type, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency other polygon type
-  REQUIRE(dependenciesBank.addPolygonTypeDependency(triangleABC, polygonType2, type, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonTypeDependency(triangleABC, polygonType2, type, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // attempt to add the same dependency
   // but with other dependent dependencies and importance
-  REQUIRE(dependenciesBank.addPolygonTypeDependency(triangleABC, polygonType1, type, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.addPolygonTypeDependency(triangleABC, polygonType1, type, reason1, basedOn2, Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency = other reason
-  REQUIRE(dependenciesBank.addPolygonTypeDependency(triangleABC, polygonType1, type, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonTypeDependency(triangleABC, polygonType1, type, reason2, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   const std::vector<std::shared_ptr<PolygonTypeDependency>> polygonTypes =
@@ -1131,8 +1131,8 @@ TEST_CASE("Adding PolygonTypeDependencies to DependenciesBank", "[expertBackgrou
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(polygonTypes.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(polygonTypes.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(polygonTypes.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(polygonTypes.front()->getImportance() == Importance1);
+  REQUIRE(polygonTypes.front()->getJson() == dependency1Json);
 }
 
 TEST_CASE("Adding LinePointPairDependencies to DependenciesBank", "[expertBackground]") {
@@ -1151,8 +1151,8 @@ TEST_CASE("Adding LinePointPairDependencies to DependenciesBank", "[expertBackgr
   const std::vector<size_t> basedOn1 = {2, 4};
   const std::vector<size_t> basedOn2 = {3, 1};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::MEDIUM};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::HIGH};
+  const IDependency::Importance Importance1{IDependency::Importance::MEDIUM};
+  const IDependency::Importance Importance2{IDependency::Importance::HIGH};
 
   DependenciesBank dependenciesBank{};
 
@@ -1175,32 +1175,32 @@ TEST_CASE("Adding LinePointPairDependencies to DependenciesBank", "[expertBackgr
       {"type", type1},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
-  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointA, pointB, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointA, pointB, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
-  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointA, pointB, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointA, pointB, type1, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other line
-  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineB, pointA, pointB, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineB, pointA, pointB, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency = other points pair
-  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointC, pointB, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointC, pointB, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // attempt to add the same dependency
   // but with other dependent dependencies and importance
-  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointA, pointB, type1, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointA, pointB, type1, reason1, basedOn2, Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency = other reason
-  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointA, pointB, type1, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addLinePointsPairDependency(lineA, pointA, pointB, type1, reason2, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   const std::vector<std::shared_ptr<LinePointPairDependency>> midPerpendiculars =
@@ -1218,8 +1218,8 @@ TEST_CASE("Adding LinePointPairDependencies to DependenciesBank", "[expertBackgr
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(midPerpendiculars.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(midPerpendiculars.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(midPerpendiculars.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(midPerpendiculars.front()->getImportance() == Importance1);
+  REQUIRE(midPerpendiculars.front()->getJson() == dependency1Json);
 }
 
 TEST_CASE("Adding LineAngleDependencies to DependenciesBank", "[expertBackground]") {
@@ -1231,8 +1231,8 @@ TEST_CASE("Adding LineAngleDependencies to DependenciesBank", "[expertBackground
   const std::string pointC{"pointC"};
   const std::string pointD{"pointD"};
 
-  const AngleModel::AngleType angleType1{AngleModel::AngleType::CONVEX};
-  const AngleModel::AngleType angleType2{AngleModel::AngleType::CONCAVE};
+  const AngleModel::Type angleType1{AngleModel::Type::CONVEX};
+  const AngleModel::Type angleType2{AngleModel::Type::CONCAVE};
 
   const DependenciesBank::LineAngleDependencies type{DependenciesBank::LineAngleDependencies::BISECTOR_LINE};
 
@@ -1242,8 +1242,8 @@ TEST_CASE("Adding LineAngleDependencies to DependenciesBank", "[expertBackground
   const std::vector<size_t> basedOn1 = {4, 5, 6};
   const std::vector<size_t> basedOn2 = {1};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::HIGH};
+  const IDependency::Importance Importance1{IDependency::Importance::LOW};
+  const IDependency::Importance Importance2{IDependency::Importance::HIGH};
 
   DependenciesBank dependenciesBank{};
 
@@ -1270,48 +1270,48 @@ TEST_CASE("Adding LineAngleDependencies to DependenciesBank", "[expertBackground
       {"type", type},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
   REQUIRE(dependenciesBank.addLineAngleDependency(lineA, pointA, pointB, pointC, angleType1, type, reason1, basedOn1,
-                                                  importanceLevel1) == 1);
+                                                  Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
   REQUIRE(dependenciesBank.addLineAngleDependency(lineA, pointA, pointB, pointC, angleType1, type, reason1, basedOn1,
-                                                  importanceLevel1) == 0);
+                                                  Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other line
   REQUIRE(dependenciesBank.addLineAngleDependency(lineB, pointA, pointB, pointC, angleType1, type, reason1, basedOn1,
-                                                  importanceLevel1) == 1);
+                                                  Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency = other AngleModel's point
   REQUIRE(dependenciesBank.addLineAngleDependency(lineA, pointC, pointB, pointD, angleType1, type, reason1, basedOn1,
-                                                  importanceLevel1) == 1);
+                                                  Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency = other AngleModel's point
   REQUIRE(dependenciesBank.addLineAngleDependency(lineA, pointC, pointD, pointC, angleType1, type, reason1, basedOn1,
-                                                  importanceLevel1) == 1);
+                                                  Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // new dependency = other AngleModel's type
   REQUIRE(dependenciesBank.addLineAngleDependency(lineA, pointC, pointB, pointC, angleType2, type, reason1, basedOn1,
-                                                  importanceLevel1) == 1);
+                                                  Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 5));
 
   // attempt to add the same dependency
   // but with other dependent dependencies and importance
   REQUIRE(dependenciesBank.addLineAngleDependency(lineA, pointA, pointB, pointC, angleType1, type, reason1, basedOn2,
-                                                  importanceLevel2) == 0);
+                                                  Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 5));
 
   // new dependency = other reason
   REQUIRE(dependenciesBank.addLineAngleDependency(lineA, pointA, pointB, pointC, angleType1, type, reason2, basedOn1,
-                                                  importanceLevel1) == 1);
+                                                  Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 6));
 
   const std::vector<std::shared_ptr<LineAngleDependency>> bisectors =
@@ -1329,8 +1329,8 @@ TEST_CASE("Adding LineAngleDependencies to DependenciesBank", "[expertBackground
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(bisectors.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(bisectors.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(bisectors.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(bisectors.front()->getImportance() == Importance1);
+  REQUIRE(bisectors.front()->getJson() == dependency1Json);
 }
 
 /*
@@ -1351,8 +1351,8 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
   const std::vector<size_t> basedOn1 = {0, 2};
   const std::vector<size_t> basedOn2 = {2, 7};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::HIGH};
+  const IDependency::Importance Importance1{IDependency::Importance::LOW};
+  const IDependency::Importance Importance2{IDependency::Importance::HIGH};
 
   DependenciesBank dependenciesBank{};
 
@@ -1379,7 +1379,7 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
       {"type", type},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
@@ -1387,7 +1387,7 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
       pointA, pointB,
       pointC, pointD,
       pointE, pointF,
-      type, reason1, basedOn1, importanceLevel1
+      type, reason1, basedOn1, Importance1
   ) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
@@ -1396,7 +1396,7 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
       pointA, pointB,
       pointC, pointD,
       pointE, pointF,
-      type, reason1, basedOn1, importanceLevel1
+      type, reason1, basedOn1, Importance1
   ) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
@@ -1406,7 +1406,7 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
       pointB, pointA,
       pointC, pointD,
       pointE, pointF,
-      type, reason1, basedOn1, importanceLevel1
+      type, reason1, basedOn1, Importance1
   ) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
@@ -1416,7 +1416,7 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
       pointC, pointD,
       pointA, pointB,
       pointE, pointF,
-      type, reason1, basedOn1, importanceLevel1
+      type, reason1, basedOn1, Importance1
   ) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
@@ -1426,7 +1426,7 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
       pointA, pointB,
       pointC, pointD,
       pointF, pointE,
-      type, reason1, basedOn1, importanceLevel1
+      type, reason1, basedOn1, Importance1
   ) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
@@ -1436,7 +1436,7 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
       pointA, pointB,
       pointC, pointD,
       pointE, pointF,
-      type, reason1, basedOn2, importanceLevel2
+      type, reason1, basedOn2, Importance2
   ) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
@@ -1445,7 +1445,7 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
       pointA, pointB,
       pointC, pointD,
       pointE, pointF,
-      type, reason2, basedOn1, importanceLevel1
+      type, reason2, basedOn1, Importance1
   ) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
@@ -1454,7 +1454,7 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
       pointA, pointD,
       pointC, pointD,
       pointE, pointF,
-      type, reason1, basedOn1, importanceLevel1
+      type, reason1, basedOn1, Importance1
   ) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
@@ -1463,7 +1463,7 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
       pointA, pointB,
       pointC, pointD,
       pointA, pointF,
-      type, reason1, basedOn1, importanceLevel1
+      type, reason1, basedOn1, Importance1
   ) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
@@ -1480,8 +1480,8 @@ TEST_CASE("Adding TriplePointsPairDependencies to DependenciesBank", "[expertBac
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(midSegments.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(midSegments.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(midSegments.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(midSegments.front()->getImportance() == Importance1);
+  REQUIRE(midSegments.front()->getJson() == dependency1Json);
 }
 */
 
@@ -1503,8 +1503,8 @@ TEST_CASE("Adding PolygonPointsPairDependency to DependenciesBank", "[expertBack
   const std::vector<size_t> basedOn1 = {21, 3, 1};
   const std::vector<size_t> basedOn2 = {9, 7, 11, 3};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::LOW};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::HIGH};
+  const IDependency::Importance Importance1{IDependency::Importance::LOW};
+  const IDependency::Importance Importance2{IDependency::Importance::HIGH};
 
   DependenciesBank dependenciesBank{};
 
@@ -1528,7 +1528,7 @@ TEST_CASE("Adding PolygonPointsPairDependency to DependenciesBank", "[expertBack
       {"type", type1},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   const json dependency5Json = {
@@ -1544,36 +1544,36 @@ TEST_CASE("Adding PolygonPointsPairDependency to DependenciesBank", "[expertBack
       {"type", type2},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
-  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
-  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type1, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other polygon
-  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleDEF, fixedPointsOrder, pointG, pointH, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleDEF, fixedPointsOrder, pointG, pointH, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency = other points pair
-  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointI, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointI, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // attempt to add the same dependency
   // but with other dependent dependencies and importance
-  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type1, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type1, reason1, basedOn2, Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency = other reason
-  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type1, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type1, reason2, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // new dependency = other type
-  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type2, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonPointsPairDependency(triangleABC, fixedPointsOrder, pointG, pointH, type2, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 5));
 
   const std::vector<std::shared_ptr<PolygonPointsPairDependency>> altitudes =
@@ -1596,8 +1596,8 @@ TEST_CASE("Adding PolygonPointsPairDependency to DependenciesBank", "[expertBack
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(altitudes.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(altitudes.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(altitudes.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(altitudes.front()->getImportance() == Importance1);
+  REQUIRE(altitudes.front()->getJson() == dependency1Json);
 
   REQUIRE(medians.front()->getCategory() == IDependency::Category::OF_POLYGON_AND_POINTS_PAIRS);
   REQUIRE(medians.front()->getType() == static_cast<IDependency::Type>(type2));
@@ -1606,8 +1606,8 @@ TEST_CASE("Adding PolygonPointsPairDependency to DependenciesBank", "[expertBack
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(medians.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(medians.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(medians.front()->getObjectAsJson() == dependency5Json);
+  REQUIRE(medians.front()->getImportance() == Importance1);
+  REQUIRE(medians.front()->getJson() == dependency5Json);
 }
 
 TEST_CASE("Adding PolygonExpressionDependency to DependenciesBank", "[expertBackground]") {
@@ -1628,8 +1628,8 @@ TEST_CASE("Adding PolygonExpressionDependency to DependenciesBank", "[expertBack
   const std::vector<size_t> basedOn1 = {21};
   const std::vector<size_t> basedOn2 = {13, 11, 9};
 
-  const IDependency::ImportanceLevel importanceLevel1{IDependency::ImportanceLevel::MEDIUM};
-  const IDependency::ImportanceLevel importanceLevel2{IDependency::ImportanceLevel::LOW};
+  const IDependency::Importance Importance1{IDependency::Importance::MEDIUM};
+  const IDependency::Importance Importance2{IDependency::Importance::LOW};
 
   DependenciesBank dependenciesBank{};
 
@@ -1653,7 +1653,7 @@ TEST_CASE("Adding PolygonExpressionDependency to DependenciesBank", "[expertBack
       {"type", type1},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   const json dependency5Json = {
@@ -1669,36 +1669,36 @@ TEST_CASE("Adding PolygonExpressionDependency to DependenciesBank", "[expertBack
       {"type", type2},
       {"reason", reason1},
       {"basedOn", basedOn1},
-      {"importance", importanceLevel1}
+      {"importance", Importance1}
   };
 
   // new dependency
-  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // attempt to add the same dependency
-  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type1, reason1, basedOn1, importanceLevel1) == 0);
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type1, reason1, basedOn1, Importance1) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 1));
 
   // new dependency = other polygon
-  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleDEF, fixedPointsOrder, expression1, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleDEF, fixedPointsOrder, expression1, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 2));
 
   // new dependency other expression
-  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression2, type1, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression2, type1, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // attempt to add the same dependency
   // but with other dependent dependencies and importance
-  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type1, reason1, basedOn2, importanceLevel2) == 0);
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type1, reason1, basedOn2, Importance2) == 0);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 3));
 
   // new dependency = other reason
-  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type1, reason2, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type1, reason2, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 4));
 
   // new dependency = other type
-  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type2, reason1, basedOn1, importanceLevel1) == 1);
+  REQUIRE(dependenciesBank.addPolygonExpressionDependency(triangleABC, fixedPointsOrder, expression1, type2, reason1, basedOn1, Importance1) == 1);
   REQUIRE(dependenciesBank.getDependenciesNumber() == (baseDependenciesNumber + 5));
 
   const std::vector<std::shared_ptr<PolygonExpressionDependency>> perimeters =
@@ -1721,8 +1721,8 @@ TEST_CASE("Adding PolygonExpressionDependency to DependenciesBank", "[expertBack
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(perimeters.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(perimeters.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(perimeters.front()->getObjectAsJson() == dependency1Json);
+  REQUIRE(perimeters.front()->getImportance() == Importance1);
+  REQUIRE(perimeters.front()->getJson() == dependency1Json);
 
   REQUIRE(areas.front()->getCategory() == IDependency::Category::OF_POLYGON_AND_EXPRESSION);
   REQUIRE(areas.front()->getType() == static_cast<IDependency::Type>(type2));
@@ -1731,6 +1731,6 @@ TEST_CASE("Adding PolygonExpressionDependency to DependenciesBank", "[expertBack
   for(size_t i = 0; i < basedOn1.size(); i++) {
     REQUIRE(areas.front()->getDependentDependencies().at(i) == basedOn1.at(i));
   }
-  REQUIRE(areas.front()->getImportanceLevel() == importanceLevel1);
-  REQUIRE(areas.front()->getObjectAsJson() == dependency5Json);
+  REQUIRE(areas.front()->getImportance() == Importance1);
+  REQUIRE(areas.front()->getJson() == dependency5Json);
 }

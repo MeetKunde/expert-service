@@ -23,11 +23,11 @@ unsigned int Expert::findVerticalAngles() {
 
       result += setEqualAngles(line1Points.front(), intersectionPointId, line2Points.front(), line1Points.back(),
                                intersectionPointId, line2Points.back(), AngleType::CONVEX, IDependency::Reason::VERTICAL_ANGLES,
-                               IDependency::UsefulnessLevel::MEDIUM);
+                               IDependency::Importance::MEDIUM);
 
       result += setEqualAngles(line1Points.front(), intersectionPointId, line2Points.back(), line1Points.back(),
                                intersectionPointId, line2Points.front(), AngleType::CONVEX, IDependency::Reason::VERTICAL_ANGLES,
-                               IDependency::UsefulnessLevel::MEDIUM);
+                               IDependency::Importance::MEDIUM);
     }
   }
 
@@ -64,7 +64,7 @@ unsigned int Expert::findSupplementaryAngles() {
               firstPoint, vertexPoint, line2Points.front(),
               Integer(MathHelper::STRAIGHT_ANGLE_VALUE) -
                   dependenciesBank.getConvexAngleVariable(line2Points.front(), vertexPoint, lastPoint),
-              IDependency::Reason::SUPPLEMENTARY_ANGLES, {}, IDependency::UsefulnessLevel::MEDIUM);
+              IDependency::Reason::SUPPLEMENTARY_ANGLES, {}, IDependency::Importance::MEDIUM);
         }
 
         if (vertexPoint != line2Points.back()) {
@@ -72,7 +72,7 @@ unsigned int Expert::findSupplementaryAngles() {
               firstPoint, vertexPoint, line2Points.back(),
               Integer(MathHelper::STRAIGHT_ANGLE_VALUE) -
                   dependenciesBank.getConvexAngleVariable(line2Points.back(), vertexPoint, lastPoint),
-              IDependency::Reason::SUPPLEMENTARY_ANGLES, {}, IDependency::UsefulnessLevel::MEDIUM);
+              IDependency::Reason::SUPPLEMENTARY_ANGLES, {}, IDependency::Importance::MEDIUM);
         }
       }
 
@@ -82,7 +82,7 @@ unsigned int Expert::findSupplementaryAngles() {
               dependenciesBank.addConvexAngle(firstPoint, vertexPoint, pointId,
                                               Integer(MathHelper::STRAIGHT_ANGLE_VALUE) -
                                                   dependenciesBank.getConvexAngleVariable(pointId, vertexPoint, lastPoint),
-                                              IDependency::Reason::SUPPLEMENTARY_ANGLES, {}, IDependency::UsefulnessLevel::LOW);
+                                              IDependency::Reason::SUPPLEMENTARY_ANGLES, {}, IDependency::Importance::LOW);
         }
       }
     }
@@ -268,7 +268,7 @@ unsigned int Expert::findAlternateAngles() {
               result +=
                   setEqualAngles(leftTopPoints[point1Id], vertex1Id, transversalPointsBottomMiddle[point3Id],
                                  rightBottomPoints[point2Id], vertex2Id, transversalPointsTopMiddle[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::ALTERNATE_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+                                 IDependency::Reason::ALTERNATE_ANGLES, IDependency::Importance::MEDIUM);
 
               goto exit1;
             }
@@ -285,7 +285,7 @@ unsigned int Expert::findAlternateAngles() {
               result +=
                   setEqualAngles(rightTopPoints[point1Id], vertex1Id, transversalPointsBottomMiddle[point3Id],
                                  leftBottomPoints[point2Id], vertex2Id, transversalPointsTopMiddle[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::ALTERNATE_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+                                 IDependency::Reason::ALTERNATE_ANGLES, IDependency::Importance::MEDIUM);
 
               goto exit2;
             }
@@ -302,7 +302,7 @@ unsigned int Expert::findAlternateAngles() {
               result +=
                   setEqualAngles(leftTopPoints[point1Id], vertex1Id, transversalPointsTop[point3Id], rightBottomPoints[point2Id],
                                  vertex2Id, transversalPointsBottom[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::ALTERNATE_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+                                 IDependency::Reason::ALTERNATE_ANGLES, IDependency::Importance::MEDIUM);
 
               goto exit3;
             }
@@ -319,7 +319,7 @@ unsigned int Expert::findAlternateAngles() {
               result +=
                   setEqualAngles(rightTopPoints[point1Id], vertex1Id, transversalPointsTop[point3Id], leftBottomPoints[point2Id],
                                  vertex2Id, transversalPointsBottom[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::ALTERNATE_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+                                 IDependency::Reason::ALTERNATE_ANGLES, IDependency::Importance::MEDIUM);
 
               goto exit4;
             }
@@ -511,7 +511,7 @@ unsigned int Expert::findCorrespondingAngles() {
               result +=
                   setEqualAngles(leftTopPoints[point1Id], vertex1Id, transversalPointsTop[point3Id], leftBottomPoints[point2Id],
                                  vertex2Id, transversalPointsTopMiddle[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::CORRESPONDING_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+                                 IDependency::Reason::CORRESPONDING_ANGLES, IDependency::Importance::MEDIUM);
 
               goto exit1;
             }
@@ -528,7 +528,7 @@ unsigned int Expert::findCorrespondingAngles() {
               result +=
                   setEqualAngles(rightTopPoints[point1Id], vertex1Id, transversalPointsTop[point3Id], rightBottomPoints[point2Id],
                                  vertex2Id, transversalPointsTopMiddle[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::CORRESPONDING_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+                                 IDependency::Reason::CORRESPONDING_ANGLES, IDependency::Importance::MEDIUM);
 
               goto exit2;
             }
@@ -545,7 +545,7 @@ unsigned int Expert::findCorrespondingAngles() {
               result +=
                   setEqualAngles(leftTopPoints[point1Id], vertex1Id, transversalPointsBottomMiddle[point3Id],
                                  leftBottomPoints[point2Id], vertex2Id, transversalPointsBottom[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::CORRESPONDING_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+                                 IDependency::Reason::CORRESPONDING_ANGLES, IDependency::Importance::MEDIUM);
 
               goto exit3;
             }
@@ -562,7 +562,7 @@ unsigned int Expert::findCorrespondingAngles() {
               result +=
                   setEqualAngles(rightTopPoints[point1Id], vertex1Id, transversalPointsBottomMiddle[point3Id],
                                  rightBottomPoints[point2Id], vertex2Id, transversalPointsBottom[point4Id], AngleType::CONVEX,
-                                 IDependency::Reason::CORRESPONDING_ANGLES, IDependency::UsefulnessLevel::MEDIUM);
+                                 IDependency::Reason::CORRESPONDING_ANGLES, IDependency::Importance::MEDIUM);
 
               goto exit4;
             }

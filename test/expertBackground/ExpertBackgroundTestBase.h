@@ -16,7 +16,6 @@ typedef expertBackground::IDependency IDependency;
 typedef expertBackground::PointModel PointModel;
 typedef expertBackground::LineModel LineModel;
 typedef expertBackground::CircleModel CircleModel;
-typedef expertBackground::IdentifierModel IdentifierModel;
 typedef expertBackground::AngleModel AngleModel;
 typedef expertBackground::PolygonModel PolygonModel;
 typedef expertBackground::ExpressionModel ExpressionModel;
@@ -32,7 +31,7 @@ typedef expertBackground::CirclePolygonDependency CirclePolygonDependency;
 typedef expertBackground::PointsPairsDependency PointsPairsDependency;
 typedef expertBackground::LinePointsPairDependency LinePointPairDependency;
 typedef expertBackground::LineAngleDependency LineAngleDependency;
-typedef expertBackground::PointsPairPairPointsPairDependency PointsPairPairPointsPairDependency;
+typedef expertBackground::TriplePointsPairDependency TriplePointsPairDependency;
 typedef expertBackground::PolygonPointsPairDependency PolygonPointsPairDependency;
 typedef expertBackground::PolygonExpressionDependency PolygonExpressionDependency;
 

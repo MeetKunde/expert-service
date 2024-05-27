@@ -8,21 +8,21 @@ TEST_CASE("Creating empty ShapesBank", "[expertBackground]") {
   REQUIRE_THROWS(emptyShapesBank.getPoint(shapeId));
   REQUIRE(emptyShapesBank.getPointsNumber() == 0);
   REQUIRE(emptyShapesBank.getPointsVector().empty());
-  REQUIRE(emptyShapesBank.getPointsAsJsonObjects().empty());
+  REQUIRE(emptyShapesBank.getPointsJson().empty());
   REQUIRE_THROWS(emptyShapesBank.getPointPositionInVector(shapeId));
 
   REQUIRE_THROWS(emptyShapesBank.getLine(shapeId));
   REQUIRE_THROWS(emptyShapesBank.getLineIdThrowTwoPoints(shapeId, shapeId));
   REQUIRE(emptyShapesBank.getLinesNumber() == 0);
   REQUIRE(emptyShapesBank.getLinesVector().empty());
-  REQUIRE(emptyShapesBank.getLinesAsJsonObjects().empty());
+  REQUIRE(emptyShapesBank.getLinesJson().empty());
   REQUIRE_THROWS(emptyShapesBank.getLinePositionInVector(shapeId));
 
   REQUIRE_THROWS(emptyShapesBank.getCircle(shapeId));
   REQUIRE_THROWS(emptyShapesBank.getCircleIdWithTwoPoints(shapeId, shapeId));
   REQUIRE(emptyShapesBank.getCirclesNumber() == 0);
   REQUIRE(emptyShapesBank.getCirclesVector().empty());
-  REQUIRE(emptyShapesBank.getCirclesAsJsonObjects().empty());
+  REQUIRE(emptyShapesBank.getCirclesJson().empty());
   REQUIRE_THROWS(emptyShapesBank.getCirclePositionInVector(shapeId));
 }
 
@@ -48,8 +48,8 @@ TEST_CASE("Adding point to ShapesBank", "[expertBackground]") {
   REQUIRE(shapesBank.getPointsNumber() == 1);
   REQUIRE(shapesBank.getPointsVector().size() == 1);
   REQUIRE(shapesBank.getPointsVector().at(0) == shapesBank.getPoint(pointId));
-  REQUIRE(shapesBank.getPointsAsJsonObjects().size() == 1);
-  REQUIRE(shapesBank.getPointsAsJsonObjects().at(0) == pointJson);
+  REQUIRE(shapesBank.getPointsJson().size() == 1);
+  REQUIRE(shapesBank.getPointsJson().at(0) == pointJson);
   REQUIRE(shapesBank.getPointPositionInVector(pointId) == pointPositionInPointsVector);
 }
 
@@ -94,7 +94,7 @@ TEST_CASE("Adding line to ShapesBank", "[expertBackground]") {
   const size_t pointsNumber{7};
 
   const std::string line1Id{"line 1 id"};
-  const LineModel::LineType line1Type{LineModel::LineType::SLANTED};
+  const LineModel::Type line1Type{LineModel::Type::SLANTED};
   const float line1A{0.75F};
   const float line1B{1.25F};
   const std::vector<std::string> line1Points{point4Id, point5Id, point6Id, point7Id};
@@ -106,14 +106,14 @@ TEST_CASE("Adding line to ShapesBank", "[expertBackground]") {
   };
 
   const std::string line2Id{"line 2 id"};
-  const LineModel::LineType line2Type{LineModel::LineType::HORIZONTAL};
+  const LineModel::Type line2Type{LineModel::Type::HORIZONTAL};
   const float line2A{0.0F};
   const float line2B{2.0F};
   const std::vector<std::string> line2Points{point1Id, point2Id, point5Id};
   const std::vector<std::string> line2PointsOrder{point2Id, point5Id, point1Id};
 
   const std::string line3Id{"line 3 id"};
-  const LineModel::LineType line3Type{LineModel::LineType::VERTICAL};
+  const LineModel::Type line3Type{LineModel::Type::VERTICAL};
   const float line3A{0.0F};
   const float line3B{-3.0F};
   const std::vector<std::string> line3Points{point2Id, point3Id, point4Id};
@@ -136,15 +136,15 @@ TEST_CASE("Adding line to ShapesBank", "[expertBackground]") {
   REQUIRE(shapesBank.getPointsNumber() == pointsNumber);
 
   REQUIRE(shapesBank.getLine(line1Id).getId() == line1Id);
-  REQUIRE(shapesBank.getLine(line1Id).getLineType() == line1Type);
-  REQUIRE_THAT(shapesBank.getLine(line1Id).getLineA(), Catch::Matchers::WithinAbs(line1A, EPSILON));
-  REQUIRE_THAT(shapesBank.getLine(line1Id).getLineB(), Catch::Matchers::WithinAbs(line1B, EPSILON));
+  REQUIRE(shapesBank.getLine(line1Id).getType() == line1Type);
+  REQUIRE_THAT(shapesBank.getLine(line1Id).getCoeffA(), Catch::Matchers::WithinAbs(line1A, EPSILON));
+  REQUIRE_THAT(shapesBank.getLine(line1Id).getCoeffB(), Catch::Matchers::WithinAbs(line1B, EPSILON));
   REQUIRE(shapesBank.getLine(line1Id).getIncludedPoints().size() == line1Points.size());
   REQUIRE(shapesBank.getLinesNumber() == linesNumber);
   REQUIRE(shapesBank.getLinesVector().size() == linesNumber);
   REQUIRE(shapesBank.getLinesVector().at(0) == shapesBank.getLine(line1Id));
-  REQUIRE(shapesBank.getLinesAsJsonObjects().size() == linesNumber);
-  REQUIRE(shapesBank.getLinesAsJsonObjects().at(0) == line1Json);
+  REQUIRE(shapesBank.getLinesJson().size() == linesNumber);
+  REQUIRE(shapesBank.getLinesJson().at(0) == line1Json);
   REQUIRE(shapesBank.getLinePositionInVector(line1Id) == line1PositionInLinesVector);
   REQUIRE(shapesBank.getLineIdThrowTwoPoints(point7Id, point5Id) == line1Id);
 
@@ -211,22 +211,19 @@ TEST_CASE("Adding circle to ShapesBank", "[expertBackground]") {
   shapesBank.addPoint(point4Id, point4CoordX, point4CoordY, point4Name);
   shapesBank.addPoint(point5Id, point5CoordX, point5CoordY, point5Name);
 
-  shapesBank.addCircle(circleId, circleCenterId, circleCenterCoordX, circleCenterCoordY, circleCenterName, circleRadius, circlePoints);
+  shapesBank.addCircle(circleId, circleCenterId, circleRadius, circlePoints);
 
   REQUIRE(shapesBank.getPointsNumber() == pointsNumber);
 
   REQUIRE(shapesBank.getCircle(circleId).getId() == circleId);
   REQUIRE(shapesBank.getCircle(circleId).getCenterId() == circleCenterId);
-  REQUIRE_THAT(shapesBank.getCircle(circleId).getCenterX(), Catch::Matchers::WithinAbs(circleCenterCoordX, EPSILON));
-  REQUIRE_THAT(shapesBank.getCircle(circleId).getCenterY(), Catch::Matchers::WithinAbs(circleCenterCoordY, EPSILON));
-  REQUIRE(shapesBank.getCircle(circleId).getCenterName() == circleCenterName);
   REQUIRE_THAT(shapesBank.getCircle(circleId).getRadius(), Catch::Matchers::WithinAbs(circleRadius, EPSILON));
   REQUIRE(shapesBank.getCircle(circleId).getIncludedPoints().size() == circlePoints.size());
   REQUIRE(shapesBank.getCirclesNumber() == 1);
   REQUIRE(shapesBank.getCirclesVector().size() == 1);
   REQUIRE(shapesBank.getCirclesVector().at(0) == shapesBank.getCircle(circleId));
-  REQUIRE(shapesBank.getCirclesAsJsonObjects().size() == 1);
-  REQUIRE(shapesBank.getCirclesAsJsonObjects().at(0) == circleJson);
+  REQUIRE(shapesBank.getCirclesJson().size() == 1);
+  REQUIRE(shapesBank.getCirclesJson().at(0) == circleJson);
   REQUIRE(shapesBank.getCirclePositionInVector(circleId) == circlePositionInCirclesVector);
   REQUIRE(shapesBank.getCircleIdWithTwoPoints(circleCenterId, circlePoints.back()) == circleId);
 

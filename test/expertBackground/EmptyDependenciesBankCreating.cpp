@@ -4,7 +4,7 @@ TEST_CASE("Creating empty DependenciesBank", "[expertBackground]") {
   const DependenciesBank emptyDependenciesBank;
 
   json emptyDependenciesJson{};
-  for(const IDependency::Type& type: IDependency::dependencyTypes) {
+  for(IDependency::Type type = IDependency::TypeBegin; type != IDependency::TypeEnd; ++type) {
     emptyDependenciesJson.push_back({{"dependencies", std::vector<IDependency::Type>()}, {"type", type}});
   }
 
@@ -15,8 +15,8 @@ TEST_CASE("Creating empty DependenciesBank", "[expertBackground]") {
   REQUIRE(emptyDependenciesBank.getDependenciesNumber() == 0);
   REQUIRE_THROWS(emptyDependenciesBank.getDependencyById(equationId));
 
-  REQUIRE(emptyDependenciesBank.getDependenciesAsJsonObjects() == emptyDependenciesJson);
-  REQUIRE(emptyDependenciesBank.getVariablesIndexesAsJsonObject() == emptyVariablesIndexesJson);
+  REQUIRE(emptyDependenciesBank.getDependenciesJson() == emptyDependenciesJson);
+  REQUIRE(emptyDependenciesBank.getVariablesIndexesJson() == emptyVariablesIndexesJson);
 
   REQUIRE(emptyDependenciesBank.getEquationDependencies(DependenciesBank::EquationDependencies::EQUATION).empty());
   REQUIRE(emptyDependenciesBank.getEquationDependencies(DependenciesBank::EquationDependencies::SEGMENT_LENGTH).empty());
@@ -159,7 +159,7 @@ TEST_CASE("Creating DependenciesBank based on ShapesBank", "[expertBackground]")
 
   const DependenciesBank dependenciesBank{&shapesBank};
 
-  const json variables = dependenciesBank.getVariablesIndexesAsJsonObject();
+  const json variables = dependenciesBank.getVariablesIndexesJson();
 
   const std::vector<std::shared_ptr<EquationDependency>> equations =
     dependenciesBank.getEquationDependencies(DependenciesBank::EquationDependencies::EQUATION);
@@ -205,8 +205,8 @@ TEST_CASE("Creating DependenciesBank based on ShapesBank", "[expertBackground]")
     bool found = false;
 
     for(const auto& expEqu: expectedLengths) {
-      if(equ->getFirstObject() == expEqu[0] && equ->getSecondObject() == expEqu[1] && equ->getDependentDependencies().empty() &&
-          equ->getImportanceLevel() == IDependency::ImportanceLevel::LOW && equ->getCategory() == IDependency::Category::FORMULA &&
+      if(get<0>(equ->getArgs()) == expEqu[0] && get<1>(equ->getArgs()) == expEqu[1] && equ->getDependentDependencies().empty() &&
+          equ->getImportance() == IDependency::Importance::LOW && equ->getCategory() == IDependency::Category::FORMULA &&
           equ->getType() == IDependency::Type::SEGMENT_LENGTH && equ->getReason() == IDependency::Reason::POINTS_ARE_THE_SAME) {
             found = true;
       }
@@ -220,16 +220,16 @@ TEST_CASE("Creating DependenciesBank based on ShapesBank", "[expertBackground]")
     bool found = false;
 
     for(const auto& expEqu: expectedMeasures1) {
-      if(equ->getFirstObject() == expEqu[0] && equ->getSecondObject() == expEqu[1] && equ->getDependentDependencies().empty() &&
-          equ->getImportanceLevel() == IDependency::ImportanceLevel::LOW && equ->getCategory() == IDependency::Category::FORMULA &&
+      if(get<0>(equ->getArgs()) == expEqu[0] && get<1>(equ->getArgs()) == expEqu[1] && equ->getDependentDependencies().empty() &&
+          equ->getImportance() == IDependency::Importance::LOW && equ->getCategory() == IDependency::Category::FORMULA &&
           equ->getType() == IDependency::Type::ANGLE_MEASURE && equ->getReason() == IDependency::Reason::POINTS_ARE_THE_SAME) {
             found = true;
       }
     }
 
     for(const auto& expEqu: expectedMeasures2) {
-      if(equ->getFirstObject() == expEqu[0] && equ->getSecondObject() == expEqu[1] && equ->getDependentDependencies().empty() &&
-          equ->getImportanceLevel() == IDependency::ImportanceLevel::LOW && equ->getCategory() == IDependency::Category::FORMULA &&
+      if(get<0>(equ->getArgs()) == expEqu[0] && get<1>(equ->getArgs()) == expEqu[1] && equ->getDependentDependencies().empty() &&
+          equ->getImportance() == IDependency::Importance::LOW && equ->getCategory() == IDependency::Category::FORMULA &&
           equ->getType() == IDependency::Type::ANGLE_MEASURE && equ->getReason() == IDependency::Reason::ARMS_ARE_THE_SAME) {
             found = true;
       }

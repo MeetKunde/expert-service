@@ -45,9 +45,11 @@ class Dependency : public IDependency {
     j["reason"] = static_cast<int>(reason);
     j["basedOn"] = basedOn;
     j["importance"] = static_cast<int>(importance);
-    for (size_t i = 0; i < sizeof...(Args); ++i) {
-      j["arg" + std::to_string(i + 1)] = std::get<i>(args).getJson();
-    }
+
+    std::apply([&j](const auto&... elems) {
+        std::size_t index = 0;
+        ((j["arg" + std::to_string(index++)] << elems), ...);
+    }, args);
 
     return j;
   }

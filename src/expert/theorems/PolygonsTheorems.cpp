@@ -15,11 +15,11 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
       newDependenciesNumber +=
           setEqualSides(vertices[0], vertices[2], vertices[1], vertices[2], IDependency::Reason::ISOSCELES_ACUTE_TRIANGLE,
-                        {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                        {dependencyId}, IDependency::Importance::HIGH);
 
       newDependenciesNumber +=
           setEqualAngles(vertices[2], vertices[0], vertices[1], vertices[2], vertices[1], vertices[0], AngleType::CONVEX,
-                         IDependency::Reason::ISOSCELES_ACUTE_TRIANGLE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                         IDependency::Reason::ISOSCELES_ACUTE_TRIANGLE, {dependencyId}, IDependency::Importance::HIGH);
 
       return newDependenciesNumber;
     case PolygonType::EQUILATERAL_TRIANGLE:
@@ -31,14 +31,14 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
         newDependenciesNumber +=
             setEqualSides(vertices[vertexId], vertices[(vertexId + 1) % verticesNumber],
                           vertices[(vertexId + 1) % verticesNumber], vertices[(vertexId + 2) % verticesNumber],
-                          IDependency::Reason::EQUILATERAL_TRIANGLE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          IDependency::Reason::EQUILATERAL_TRIANGLE, {dependencyId}, IDependency::Importance::HIGH);
       }
 
       for (size_t vertexId = 0; vertexId < verticesNumber; vertexId++) {
         newDependenciesNumber += dependenciesBank.addConvexAngle(
             vertices[vertexId], vertices[(vertexId + 1) % verticesNumber], vertices[(vertexId + 2) % verticesNumber],
             Integer(MathHelper::EQUILATERAL_TRIANGLE_INTERNAL_ANGLE_VALUE), IDependency::Reason::EQUILATERAL_TRIANGLE,
-            {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+            {dependencyId}, IDependency::Importance::HIGH);
       }
 
       return newDependenciesNumber;
@@ -49,7 +49,7 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
       newDependenciesNumber += dependenciesBank.addConvexAngle(
           vertices[1], vertices[0], vertices[2], Integer(MathHelper::RIGHT_ANGLE_VALUE),
-          IDependency::Reason::SCALENE_RIGHT_TRIANGLE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+          IDependency::Reason::SCALENE_RIGHT_TRIANGLE, {dependencyId}, IDependency::Importance::HIGH);
 
       return newDependenciesNumber;
     case PolygonType::ISOSCELES_RIGHT_TRIANGLE:
@@ -59,15 +59,15 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
       newDependenciesNumber +=
           setEqualSides(vertices[0], vertices[1], vertices[0], vertices[2], IDependency::Reason::ISOSCELES_RIGHT_TRIANGLE,
-                        {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                        {dependencyId}, IDependency::Importance::HIGH);
 
       newDependenciesNumber +=
           setEqualAngles(vertices[0], vertices[1], vertices[2], vertices[0], vertices[2], vertices[1], AngleType::CONVEX,
-                         IDependency::Reason::ISOSCELES_RIGHT_TRIANGLE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                         IDependency::Reason::ISOSCELES_RIGHT_TRIANGLE, {dependencyId}, IDependency::Importance::HIGH);
 
       newDependenciesNumber += dependenciesBank.addConvexAngle(
           vertices[1], vertices[0], vertices[2], Integer(MathHelper::RIGHT_ANGLE_VALUE),
-          IDependency::Reason::ISOSCELES_RIGHT_TRIANGLE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+          IDependency::Reason::ISOSCELES_RIGHT_TRIANGLE, {dependencyId}, IDependency::Importance::HIGH);
 
       return newDependenciesNumber;
     case PolygonType::OBTUSE_ISOSCELES_TRIANGLE:
@@ -77,11 +77,11 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
       newDependenciesNumber +=
           setEqualSides(vertices[0], vertices[2], vertices[1], vertices[2], IDependency::Reason::OBTUSE_ISOSCELES_TRIANGLE,
-                        {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                        {dependencyId}, IDependency::Importance::HIGH);
 
       newDependenciesNumber +=
           setEqualAngles(vertices[2], vertices[0], vertices[1], vertices[2], vertices[1], vertices[0], AngleType::CONVEX,
-                         IDependency::Reason::OBTUSE_ISOSCELES_TRIANGLE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                         IDependency::Reason::OBTUSE_ISOSCELES_TRIANGLE, {dependencyId}, IDependency::Importance::HIGH);
 
       return newDependenciesNumber;
     case PolygonType::SQUARE:
@@ -93,26 +93,26 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
         newDependenciesNumber +=
             setEqualSides(vertices[vertexId], vertices[(vertexId + 1) % verticesNumber],
                           vertices[(vertexId + 1) % verticesNumber], vertices[(vertexId + 2) % verticesNumber],
-                          IDependency::Reason::SQUARE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          IDependency::Reason::SQUARE, {dependencyId}, IDependency::Importance::HIGH);
       }
 
       for (size_t vertexId = 0; vertexId < verticesNumber; vertexId++) {
         newDependenciesNumber += dependenciesBank.addConvexAngle(
             vertices[vertexId], vertices[(vertexId + 1) % verticesNumber], vertices[(vertexId + 2) % verticesNumber],
             Integer(MathHelper::SQUARE_INTERNAL_ANGLE_VALUE), IDependency::Reason::SQUARE, {dependencyId},
-            IDependency::UsefulnessLevel::HIGH);
+            IDependency::Importance::HIGH);
       }
 
       for (unsigned int diff = 0; diff < 2; diff++) {
         newDependenciesNumber +=
             setSidesParallelism(vertices[diff], vertices[(diff + 1) % 4], vertices[(diff + 2) % 4], vertices[(diff + 3) % 4],
-                                IDependency::Reason::SQUARE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                IDependency::Reason::SQUARE, {dependencyId}, IDependency::Importance::HIGH);
       }
 
       for (unsigned int diff = 0; diff < 4; diff++) {
         newDependenciesNumber +=
             setSidesPerpendicularity(vertices[diff], vertices[(diff + 1) % 4], vertices[(diff + 1) % 4], vertices[(diff + 2) % 4],
-                                     IDependency::Reason::SQUARE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                     IDependency::Reason::SQUARE, {dependencyId}, IDependency::Importance::HIGH);
       }
 
       if (schemeGraph.checkIfEdgeExist(vertices[0], vertices[2]) && schemeGraph.checkIfEdgeExist(vertices[1], vertices[3])) {
@@ -120,24 +120,24 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
         newDependenciesNumber +=
             setEqualSides(vertices[0], vertices[2], vertices[1], vertices[3], IDependency::Reason::SQUARE_DIAGONAL,
-                          {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          {dependencyId}, IDependency::Importance::HIGH);
 
         const unsigned int diagonal1 = shapesBank.getLineIdThrowTwoPoints(vertices[0], vertices[2]);
         const unsigned int diagonal2 = shapesBank.getLineIdThrowTwoPoints(vertices[1], vertices[3]);
 
         newDependenciesNumber += dependenciesBank.addLinesDependency(diagonal1, diagonal2, IDependency::Type::PERPENDICULAR_LINES,
                                                                      IDependency::Reason::SQUARE_DIAGONAL, {dependencyId},
-                                                                     IDependency::UsefulnessLevel::HIGH);
+                                                                     IDependency::Importance::HIGH);
 
         const unsigned diagonalsIntersectionPoint = intersectionPointsOfLines[diagonal1][diagonal2][0];
 
         newDependenciesNumber +=
             setEqualSides(vertices[0], diagonalsIntersectionPoint, vertices[2], diagonalsIntersectionPoint,
-                          IDependency::Reason::SQUARE_DIAGONAL, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          IDependency::Reason::SQUARE_DIAGONAL, {dependencyId}, IDependency::Importance::HIGH);
 
         newDependenciesNumber +=
             setEqualSides(vertices[1], diagonalsIntersectionPoint, vertices[3], diagonalsIntersectionPoint,
-                          IDependency::Reason::SQUARE_DIAGONAL, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          IDependency::Reason::SQUARE_DIAGONAL, {dependencyId}, IDependency::Importance::HIGH);
       }
 
       return newDependenciesNumber;
@@ -147,27 +147,27 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
       }
 
       newDependenciesNumber += setEqualSides(vertices[0], vertices[1], vertices[2], vertices[3], IDependency::Reason::RECTANGLE,
-                                             {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                             {dependencyId}, IDependency::Importance::HIGH);
       newDependenciesNumber += setEqualSides(vertices[1], vertices[2], vertices[3], vertices[0], IDependency::Reason::RECTANGLE,
-                                             {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                             {dependencyId}, IDependency::Importance::HIGH);
 
       for (size_t vertexId = 0; vertexId < verticesNumber; vertexId++) {
         newDependenciesNumber += dependenciesBank.addConvexAngle(
             vertices[vertexId], vertices[(vertexId + 1) % verticesNumber], vertices[(vertexId + 2) % verticesNumber],
             Integer(MathHelper::RECTANGLE_INTERNAL_ANGLE_VALUE), IDependency::Reason::RECTANGLE, {dependencyId},
-            IDependency::UsefulnessLevel::HIGH);
+            IDependency::Importance::HIGH);
       }
 
       for (unsigned int diff = 0; diff < 2; diff++) {
         newDependenciesNumber +=
             setSidesParallelism(vertices[diff], vertices[(diff + 1) % 4], vertices[(diff + 2) % 4], vertices[(diff + 3) % 4],
-                                IDependency::Reason::RECTANGLE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                IDependency::Reason::RECTANGLE, {dependencyId}, IDependency::Importance::HIGH);
       }
 
       for (unsigned int diff = 0; diff < 4; diff++) {
         newDependenciesNumber +=
             setSidesPerpendicularity(vertices[diff], vertices[(diff + 1) % 4], vertices[(diff + 1) % 4], vertices[(diff + 2) % 4],
-                                     IDependency::Reason::RECTANGLE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                     IDependency::Reason::RECTANGLE, {dependencyId}, IDependency::Importance::HIGH);
       }
 
       if (schemeGraph.checkIfEdgeExist(vertices[0], vertices[2]) && schemeGraph.checkIfEdgeExist(vertices[1], vertices[3])) {
@@ -175,7 +175,7 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
         newDependenciesNumber +=
             setEqualSides(vertices[0], vertices[2], vertices[1], vertices[3], IDependency::Reason::RECTANGLE_DIAGONAL,
-                          {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          {dependencyId}, IDependency::Importance::HIGH);
 
         const unsigned int diagonal1 = shapesBank.getLineIdThrowTwoPoints(vertices[0], vertices[2]);
         const unsigned int diagonal2 = shapesBank.getLineIdThrowTwoPoints(vertices[1], vertices[3]);
@@ -184,11 +184,11 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
         newDependenciesNumber +=
             setEqualSides(vertices[0], diagonalsIntersectionPoint, vertices[2], diagonalsIntersectionPoint,
-                          IDependency::Reason::RECTANGLE_DIAGONAL, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          IDependency::Reason::RECTANGLE_DIAGONAL, {dependencyId}, IDependency::Importance::HIGH);
 
         newDependenciesNumber +=
             setEqualSides(vertices[1], diagonalsIntersectionPoint, vertices[3], diagonalsIntersectionPoint,
-                          IDependency::Reason::RECTANGLE_DIAGONAL, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          IDependency::Reason::RECTANGLE_DIAGONAL, {dependencyId}, IDependency::Importance::HIGH);
       }
 
       return newDependenciesNumber;
@@ -207,7 +207,7 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
           newDependenciesNumber +=
               setEqualSides(vertices[vertexId], vertices[(vertexId + 1) % verticesNumber],
                             vertices[(vertexId + 1) % verticesNumber], vertices[(vertexId + 2) % verticesNumber],
-                            IDependency::Reason::REGULAR_POLYGON, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::REGULAR_POLYGON, {dependencyId}, IDependency::Importance::HIGH);
         }
 
         for (size_t vertexId = 0; vertexId < verticesNumber; vertexId++) {
@@ -215,7 +215,7 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
               vertices[vertexId], vertices[(vertexId + 1) % verticesNumber], vertices[(vertexId + 2) % verticesNumber],
               Integer((static_cast<int>(verticesNumber) - 2) * MathHelper::STRAIGHT_ANGLE_VALUE) /
                   Integer(static_cast<int>(verticesNumber)),
-              IDependency::Reason::REGULAR_POLYGON, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+              IDependency::Reason::REGULAR_POLYGON, {dependencyId}, IDependency::Importance::HIGH);
         }
       }
       return newDependenciesNumber;
@@ -226,22 +226,22 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
       newDependenciesNumber +=
           setEqualSides(vertices[0], vertices[1], vertices[2], vertices[3], IDependency::Reason::PARALLELOGRAM, {dependencyId},
-                        IDependency::UsefulnessLevel::HIGH);
+                        IDependency::Importance::HIGH);
       newDependenciesNumber +=
           setEqualSides(vertices[1], vertices[2], vertices[3], vertices[0], IDependency::Reason::PARALLELOGRAM, {dependencyId},
-                        IDependency::UsefulnessLevel::HIGH);
+                        IDependency::Importance::HIGH);
       newDependenciesNumber +=
           setSidesParallelism(vertices[0], vertices[1], vertices[2], vertices[3], IDependency::Reason::PARALLELOGRAM,
-                              {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                              {dependencyId}, IDependency::Importance::HIGH);
       newDependenciesNumber +=
           setSidesParallelism(vertices[1], vertices[2], vertices[3], vertices[0], IDependency::Reason::PARALLELOGRAM,
-                              {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                              {dependencyId}, IDependency::Importance::HIGH);
       newDependenciesNumber +=
           setEqualAngles(vertices[0], vertices[1], vertices[2], vertices[2], vertices[3], vertices[0], AngleType::CONVEX,
-                         IDependency::Reason::PARALLELOGRAM, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                         IDependency::Reason::PARALLELOGRAM, {dependencyId}, IDependency::Importance::HIGH);
       newDependenciesNumber +=
           setEqualAngles(vertices[1], vertices[2], vertices[3], vertices[3], vertices[0], vertices[1], AngleType::CONVEX,
-                         IDependency::Reason::PARALLELOGRAM, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                         IDependency::Reason::PARALLELOGRAM, {dependencyId}, IDependency::Importance::HIGH);
 
       if (schemeGraph.checkIfEdgeExist(vertices[0], vertices[2]) && schemeGraph.checkIfEdgeExist(vertices[1], vertices[3])) {
         // both diagonal exist
@@ -252,11 +252,11 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
         newDependenciesNumber +=
             setEqualSides(vertices[0], diagonalsIntersectionPoint, vertices[2], diagonalsIntersectionPoint,
-                          IDependency::Reason::PARALLELOGRAM_DIAGONAL, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          IDependency::Reason::PARALLELOGRAM_DIAGONAL, {dependencyId}, IDependency::Importance::HIGH);
 
         newDependenciesNumber +=
             setEqualSides(vertices[1], diagonalsIntersectionPoint, vertices[3], diagonalsIntersectionPoint,
-                          IDependency::Reason::PARALLELOGRAM_DIAGONAL, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          IDependency::Reason::PARALLELOGRAM_DIAGONAL, {dependencyId}, IDependency::Importance::HIGH);
       }
 
       return newDependenciesNumber;
@@ -266,14 +266,14 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
       }
 
       newDependenciesNumber += setEqualSides(vertices[0], vertices[1], vertices[3], vertices[0], IDependency::Reason::KITE,
-                                             {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                             {dependencyId}, IDependency::Importance::HIGH);
 
       newDependenciesNumber += setEqualSides(vertices[1], vertices[2], vertices[2], vertices[3], IDependency::Reason::KITE,
-                                             {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                             {dependencyId}, IDependency::Importance::HIGH);
 
       newDependenciesNumber +=
           setEqualAngles(vertices[0], vertices[1], vertices[2], vertices[2], vertices[3], vertices[0], AngleType::CONVEX,
-                         IDependency::Reason::KITE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                         IDependency::Reason::KITE, {dependencyId}, IDependency::Importance::HIGH);
 
       if (schemeGraph.checkIfEdgeExist(vertices[0], vertices[2]) && schemeGraph.checkIfEdgeExist(vertices[1], vertices[3])) {
         // both diagonal exist
@@ -284,11 +284,11 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
         newDependenciesNumber +=
             setEqualSides(vertices[1], diagonalsIntersectionPoint, vertices[3], diagonalsIntersectionPoint,
-                          IDependency::Reason::KITE_DIAGONAL, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          IDependency::Reason::KITE_DIAGONAL, {dependencyId}, IDependency::Importance::HIGH);
 
         newDependenciesNumber +=
             setSidesPerpendicularity(vertices[1], vertices[3], vertices[0], vertices[2], IDependency::Reason::KITE_DIAGONAL,
-                                     {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                     {dependencyId}, IDependency::Importance::HIGH);
       }
 
       return newDependenciesNumber;
@@ -301,21 +301,21 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
         newDependenciesNumber +=
             setEqualSides(vertices[vertexId], vertices[(vertexId + 1) % verticesNumber],
                           vertices[(vertexId + 1) % verticesNumber], vertices[(vertexId + 2) % verticesNumber],
-                          IDependency::Reason::RHOMBUS, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          IDependency::Reason::RHOMBUS, {dependencyId}, IDependency::Importance::HIGH);
       }
 
       newDependenciesNumber +=
           setSidesParallelism(vertices[0], vertices[1], vertices[2], vertices[3], IDependency::Reason::RHOMBUS, {dependencyId},
-                              IDependency::UsefulnessLevel::HIGH);
+                              IDependency::Importance::HIGH);
       newDependenciesNumber +=
           setSidesParallelism(vertices[1], vertices[2], vertices[3], vertices[0], IDependency::Reason::RHOMBUS, {dependencyId},
-                              IDependency::UsefulnessLevel::HIGH);
+                              IDependency::Importance::HIGH);
       newDependenciesNumber +=
           setEqualAngles(vertices[0], vertices[1], vertices[2], vertices[2], vertices[3], vertices[0], AngleType::CONVEX,
-                         IDependency::Reason::RHOMBUS, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                         IDependency::Reason::RHOMBUS, {dependencyId}, IDependency::Importance::HIGH);
       newDependenciesNumber +=
           setEqualAngles(vertices[1], vertices[2], vertices[3], vertices[3], vertices[0], vertices[1], AngleType::CONVEX,
-                         IDependency::Reason::RHOMBUS, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                         IDependency::Reason::RHOMBUS, {dependencyId}, IDependency::Importance::HIGH);
 
       if (schemeGraph.checkIfEdgeExist(vertices[0], vertices[2]) && schemeGraph.checkIfEdgeExist(vertices[1], vertices[3])) {
         // both diagonal exist
@@ -325,17 +325,17 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
         newDependenciesNumber += dependenciesBank.addLinesDependency(diagonal1, diagonal2, IDependency::Type::PERPENDICULAR_LINES,
                                                                      IDependency::Reason::RHOMBUS_DIAGONAL, {dependencyId},
-                                                                     IDependency::UsefulnessLevel::HIGH);
+                                                                     IDependency::Importance::HIGH);
 
         const unsigned diagonalsIntersectionPoint = intersectionPointsOfLines[diagonal1][diagonal2][0];
 
         newDependenciesNumber +=
             setEqualSides(vertices[0], diagonalsIntersectionPoint, vertices[2], diagonalsIntersectionPoint,
-                          IDependency::Reason::RHOMBUS_DIAGONAL, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          IDependency::Reason::RHOMBUS_DIAGONAL, {dependencyId}, IDependency::Importance::HIGH);
 
         newDependenciesNumber +=
             setEqualSides(vertices[1], diagonalsIntersectionPoint, vertices[3], diagonalsIntersectionPoint,
-                          IDependency::Reason::RHOMBUS_DIAGONAL, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          IDependency::Reason::RHOMBUS_DIAGONAL, {dependencyId}, IDependency::Importance::HIGH);
       }
 
       return newDependenciesNumber;
@@ -346,7 +346,7 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
       newDependenciesNumber +=
           setSidesParallelism(vertices[0], vertices[1], vertices[2], vertices[3], IDependency::Reason::SCALENE_TRAPEZOID,
-                              {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                              {dependencyId}, IDependency::Importance::HIGH);
 
       return newDependenciesNumber;
     case PolygonType::ISOSCELES_TRAPEZOID:
@@ -356,24 +356,24 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
       newDependenciesNumber +=
           setSidesParallelism(vertices[0], vertices[1], vertices[2], vertices[3], IDependency::Reason::ISOSCELES_TRAPEZOID,
-                              {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                              {dependencyId}, IDependency::Importance::HIGH);
 
       newDependenciesNumber +=
           setEqualSides(vertices[1], vertices[2], vertices[3], vertices[0], IDependency::Reason::ISOSCELES_TRAPEZOID,
-                        {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                        {dependencyId}, IDependency::Importance::HIGH);
 
       newDependenciesNumber +=
           setEqualAngles(vertices[0], vertices[1], vertices[2], vertices[3], vertices[0], vertices[1], AngleType::CONVEX,
-                         IDependency::Reason::ISOSCELES_TRAPEZOID, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                         IDependency::Reason::ISOSCELES_TRAPEZOID, {dependencyId}, IDependency::Importance::HIGH);
 
       newDependenciesNumber +=
           setEqualAngles(vertices[1], vertices[2], vertices[3], vertices[2], vertices[3], vertices[0], AngleType::CONVEX,
-                         IDependency::Reason::ISOSCELES_TRAPEZOID, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                         IDependency::Reason::ISOSCELES_TRAPEZOID, {dependencyId}, IDependency::Importance::HIGH);
 
       if (schemeGraph.checkIfEdgeExist(vertices[0], vertices[2]) && schemeGraph.checkIfEdgeExist(vertices[1], vertices[3])) {
         newDependenciesNumber +=
             setEqualSides(vertices[0], vertices[2], vertices[1], vertices[3], IDependency::Reason::ISOSCELES_TRAPEZOID_DIAGONAL,
-                          {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                          {dependencyId}, IDependency::Importance::HIGH);
       }
 
       return newDependenciesNumber;
@@ -384,15 +384,15 @@ unsigned int Expert::findSpecificPolygonDependencies(const expertBackground::Pol
 
       newDependenciesNumber +=
           setSidesParallelism(vertices[0], vertices[1], vertices[2], vertices[3], IDependency::Reason::RIGHT_TRAPEZOID,
-                              {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                              {dependencyId}, IDependency::Importance::HIGH);
 
       newDependenciesNumber += dependenciesBank.addConcaveAngle(
           vertices[2], vertices[3], vertices[0], Integer(MathHelper::RIGHT_ANGLE_VALUE), IDependency::Reason::RIGHT_TRAPEZOID,
-          {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+          {dependencyId}, IDependency::Importance::HIGH);
 
       newDependenciesNumber += dependenciesBank.addConcaveAngle(
           vertices[3], vertices[0], vertices[1], Integer(MathHelper::RIGHT_ANGLE_VALUE), IDependency::Reason::RIGHT_TRAPEZOID,
-          {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+          {dependencyId}, IDependency::Importance::HIGH);
 
       return newDependenciesNumber;
     default:
@@ -408,11 +408,11 @@ unsigned int Expert::findMidPerpendicularDependencies(const expertBackground::Po
 
   newDependenciesNumber +=
       setEqualSides(segment.getPoint1Id(), intersectionPoint, intersectionPoint, segment.getPoint2Id(),
-                    IDependency::Reason::MID_PERPENDICULAR, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                    IDependency::Reason::MID_PERPENDICULAR, {dependencyId}, IDependency::Importance::HIGH);
 
   newDependenciesNumber += dependenciesBank.addLinesDependency(baseId, lineId, IDependency::Type::PERPENDICULAR_LINES,
                                                                IDependency::Reason::MID_PERPENDICULAR, {dependencyId},
-                                                               IDependency::UsefulnessLevel::HIGH);
+                                                               IDependency::Importance::HIGH);
 
   return newDependenciesNumber;
 }
@@ -426,7 +426,7 @@ unsigned int Expert::findBisectorDependencies(const expertBackground::AngleModel
     if (linePoints[i] != angle.getVertexId()) {
       newDependenciesNumber += setEqualAngles(angle.getPoint1Id(), angle.getVertexId(), linePoints[i], angle.getPoint2Id(),
                                               angle.getVertexId(), linePoints[i], AngleType::CONVEX,
-                                              IDependency::Reason::BISECTOR, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                              IDependency::Reason::BISECTOR, {dependencyId}, IDependency::Importance::HIGH);
       break;
     }
   }
@@ -443,7 +443,7 @@ unsigned int Expert::findTangentLineDependencies(unsigned int lineId, unsigned i
     const unsigned int radiusLineId = shapesBank.getLineIdThrowTwoPoints(commonPointId, circleCenterId);
     newDependenciesNumber += dependenciesBank.addLinesDependency(lineId, radiusLineId, IDependency::Type::PERPENDICULAR_LINES,
                                                                  IDependency::Reason::LINE_TANGENT_TO_CIRCLE, {dependencyId},
-                                                                 IDependency::UsefulnessLevel::HIGH);
+                                                                 IDependency::Importance::HIGH);
   }
 
   return newDependenciesNumber;
@@ -461,7 +461,7 @@ unsigned int Expert::findMedianDependencies(const expertBackground::PointsPairMo
                                  : median.getPoint2Id();
 
   newDependenciesNumber += setEqualSides(base.getPoint1Id(), pointOnBase, pointOnBase, base.getPoint2Id(),
-                                         IDependency::Reason::MEDIAN, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                         IDependency::Reason::MEDIAN, {dependencyId}, IDependency::Importance::HIGH);
 
   return newDependenciesNumber;
 }
@@ -474,7 +474,7 @@ unsigned int Expert::findAltitudeDependencies(unsigned int baseLineId, const exp
 
   newDependenciesNumber +=
       dependenciesBank.addLinesDependency(baseLineId, altitudeLineId, IDependency::Type::PERPENDICULAR_LINES,
-                                          IDependency::Reason::ALTITUDE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                          IDependency::Reason::ALTITUDE, {dependencyId}, IDependency::Importance::HIGH);
 
   return newDependenciesNumber;
 }
@@ -491,106 +491,106 @@ unsigned int Expert::findMidSegmentDependencies(const expertBackground::PointsPa
   if (arm1End2 == arm2End2 && schemeGraph.checkIfEdgeExist(arm1End1, arm2End1)) {
     newDependenciesNumber +=
         setSidesParallelism(midSegment.getPoint1Id(), midSegment.getPoint2Id(), arm1End1, arm2End1,
-                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber += dependenciesBank.addEquation(
         expertBackground::DependenciesBank::getLengthVariable(midSegment.getPoint1Id(), midSegment.getPoint2Id()),
         expertBackground::DependenciesBank::getLengthVariable(arm1End1, arm2End1) / Integer(2), IDependency::Reason::MID_SEGMENT,
-        {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+        {dependencyId}, IDependency::Importance::HIGH);
   }
   else if (arm1End2 == arm2End1 && schemeGraph.checkIfEdgeExist(arm1End1, arm2End2)) {
     newDependenciesNumber +=
         setSidesParallelism(midSegment.getPoint1Id(), midSegment.getPoint2Id(), arm1End1, arm2End2,
-                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber += dependenciesBank.addEquation(
         expertBackground::DependenciesBank::getLengthVariable(midSegment.getPoint1Id(), midSegment.getPoint2Id()),
         expertBackground::DependenciesBank::getLengthVariable(arm1End1, arm2End2) / Integer(2), IDependency::Reason::MID_SEGMENT,
-        {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+        {dependencyId}, IDependency::Importance::HIGH);
   }
   else if (arm1End1 == arm2End2 && schemeGraph.checkIfEdgeExist(arm1End2, arm2End1)) {
     newDependenciesNumber +=
         setSidesParallelism(midSegment.getPoint1Id(), midSegment.getPoint2Id(), arm1End2, arm2End1,
-                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber += dependenciesBank.addEquation(
         expertBackground::DependenciesBank::getLengthVariable(midSegment.getPoint1Id(), midSegment.getPoint2Id()),
         expertBackground::DependenciesBank::getLengthVariable(arm1End2, arm2End1) / Integer(2), IDependency::Reason::MID_SEGMENT,
-        {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+        {dependencyId}, IDependency::Importance::HIGH);
   }
   else if (arm1End1 == arm2End1 && schemeGraph.checkIfEdgeExist(arm1End2, arm2End2)) {
     newDependenciesNumber +=
         setSidesParallelism(midSegment.getPoint1Id(), midSegment.getPoint2Id(), arm1End2, arm2End2,
-                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber += dependenciesBank.addEquation(
         expertBackground::DependenciesBank::getLengthVariable(midSegment.getPoint1Id(), midSegment.getPoint2Id()),
         expertBackground::DependenciesBank::getLengthVariable(arm1End2, arm2End2) / Integer(2), IDependency::Reason::MID_SEGMENT,
-        {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+        {dependencyId}, IDependency::Importance::HIGH);
   }
   else if (schemeGraph.checkIfEdgeExist(arm1End2, arm2End2) && schemeGraph.checkIfEdgeExist(arm1End1, arm2End1)) {
     newDependenciesNumber +=
         setSidesParallelism(midSegment.getPoint1Id(), midSegment.getPoint2Id(), arm1End2, arm2End2,
-                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber +=
         setSidesParallelism(midSegment.getPoint1Id(), midSegment.getPoint2Id(), arm1End1, arm2End1,
-                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber += dependenciesBank.addEquation(
         expertBackground::DependenciesBank::getLengthVariable(midSegment.getPoint1Id(), midSegment.getPoint2Id()),
         (expertBackground::DependenciesBank::getLengthVariable(arm1End2, arm2End2) +
          expertBackground::DependenciesBank::getLengthVariable(arm1End1, arm2End1)) /
             Integer(2),
-        IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+        IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
   }
   else if (schemeGraph.checkIfEdgeExist(arm1End2, arm2End1) && schemeGraph.checkIfEdgeExist(arm1End1, arm2End2)) {
     newDependenciesNumber +=
         setSidesParallelism(midSegment.getPoint1Id(), midSegment.getPoint2Id(), arm1End2, arm2End1,
-                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber +=
         setSidesParallelism(midSegment.getPoint1Id(), midSegment.getPoint2Id(), arm1End1, arm2End2,
-                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber += dependenciesBank.addEquation(
         expertBackground::DependenciesBank::getLengthVariable(midSegment.getPoint1Id(), midSegment.getPoint2Id()),
         (expertBackground::DependenciesBank::getLengthVariable(arm1End2, arm2End1) +
          expertBackground::DependenciesBank::getLengthVariable(arm1End1, arm2End2)) /
             Integer(2),
-        IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+        IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
   }
   else if (schemeGraph.checkIfEdgeExist(arm1End1, arm2End2) && schemeGraph.checkIfEdgeExist(arm1End2, arm2End1)) {
     newDependenciesNumber +=
         setSidesParallelism(midSegment.getPoint1Id(), midSegment.getPoint2Id(), arm1End1, arm2End2,
-                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber +=
         setSidesParallelism(midSegment.getPoint1Id(), midSegment.getPoint2Id(), arm1End2, arm2End1,
-                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber += dependenciesBank.addEquation(
         expertBackground::DependenciesBank::getLengthVariable(midSegment.getPoint1Id(), midSegment.getPoint2Id()),
         (expertBackground::DependenciesBank::getLengthVariable(arm1End1, arm2End2) +
          expertBackground::DependenciesBank::getLengthVariable(arm1End2, arm2End1)) /
             Integer(2),
-        IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+        IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
   }
   else if (schemeGraph.checkIfEdgeExist(arm1End1, arm2End1) && schemeGraph.checkIfEdgeExist(arm1End2, arm2End2)) {
     newDependenciesNumber +=
         setSidesParallelism(midSegment.getPoint1Id(), midSegment.getPoint2Id(), arm1End1, arm2End1,
-                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber +=
         setSidesParallelism(midSegment.getPoint1Id(), midSegment.getPoint2Id(), arm1End2, arm2End2,
-                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                            IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber += dependenciesBank.addEquation(
         expertBackground::DependenciesBank::getLengthVariable(midSegment.getPoint1Id(), midSegment.getPoint2Id()),
         (expertBackground::DependenciesBank::getLengthVariable(arm1End1, arm2End1) +
          expertBackground::DependenciesBank::getLengthVariable(arm1End2, arm2End2)) /
             Integer(2),
-        IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+        IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
   }
 
   std::vector<unsigned int> arm1Points =
@@ -598,17 +598,17 @@ unsigned int Expert::findMidSegmentDependencies(const expertBackground::PointsPa
 
   if (std::find(arm1Points.begin(), arm1Points.end(), midSegment.getPoint1Id()) != arm1Points.end()) {
     newDependenciesNumber += setEqualSides(arm1End1, midSegment.getPoint1Id(), midSegment.getPoint1Id(), arm1End2,
-                                           IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                           IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber += setEqualSides(arm2End1, midSegment.getPoint2Id(), midSegment.getPoint2Id(), arm2End2,
-                                           IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                           IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
   }
   else {
     newDependenciesNumber += setEqualSides(arm1End1, midSegment.getPoint2Id(), midSegment.getPoint2Id(), arm1End2,
-                                           IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                           IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
 
     newDependenciesNumber += setEqualSides(arm2End1, midSegment.getPoint1Id(), midSegment.getPoint1Id(), arm2End2,
-                                           IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+                                           IDependency::Reason::MID_SEGMENT, {dependencyId}, IDependency::Importance::HIGH);
   }
 
   return newDependenciesNumber;
@@ -624,7 +624,7 @@ unsigned int Expert::findInscribedCircleDependencies(const expertBackground::Pol
     newDependenciesNumber += dependenciesBank.addLineCircleDependency(
         shapesBank.getLineIdThrowTwoPoints(vertices[vertexId], vertices[(vertexId + 1) % verticesNumber]), circleId,
         IDependency::Type::TANGENT_LINE_TO_CIRCLE, IDependency::Reason::INSCRIBED_CIRCLE, {dependencyId},
-        IDependency::UsefulnessLevel::HIGH);
+        IDependency::Importance::HIGH);
   }
 
   return newDependenciesNumber;
@@ -637,7 +637,7 @@ unsigned int Expert::findEscribedCircleDependencies(const expertBackground::Poly
 
   newDependenciesNumber += dependenciesBank.addLineCircleDependency(
       shapesBank.getLineIdThrowTwoPoints(vertices[1], vertices[2]), circleId, IDependency::Type::TANGENT_LINE_TO_CIRCLE,
-      IDependency::Reason::ESCRIBED_CIRCLE, {dependencyId}, IDependency::UsefulnessLevel::HIGH);
+      IDependency::Reason::ESCRIBED_CIRCLE, {dependencyId}, IDependency::Importance::HIGH);
 
   return newDependenciesNumber;
 }

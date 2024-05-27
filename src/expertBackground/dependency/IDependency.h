@@ -153,7 +153,7 @@ class IDependency {
 };
 
 
-void operator++(IDependency::Category& category, int) {
+inline void operator++(IDependency::Category& category, int) {
   if (category == IDependency::CategoryEnd) {
     throw std::out_of_range("Category out of range");
   }
@@ -161,7 +161,7 @@ void operator++(IDependency::Category& category, int) {
   category = static_cast<IDependency::Category>(static_cast<int>(category) + 1);
 }
 
-void operator++(IDependency::Category& category) {
+inline void operator++(IDependency::Category& category) {
   if (category == IDependency::CategoryEnd) {
     throw std::out_of_range("Category out of range");
   }
@@ -169,7 +169,7 @@ void operator++(IDependency::Category& category) {
   category = static_cast<IDependency::Category>(static_cast<int>(category) + 1);
 }
 
-void operator++(IDependency::Type& type, int) {
+inline void operator++(IDependency::Type& type, int) {
   if (type == IDependency::TypeEnd) {
     throw std::out_of_range("Type out of range");
   }
@@ -177,7 +177,7 @@ void operator++(IDependency::Type& type, int) {
   type = static_cast<IDependency::Type>(static_cast<int>(type) + 1);
 }
 
-void operator++(IDependency::Type& type) {
+inline void operator++(IDependency::Type& type) {
   if (type == IDependency::TypeEnd) {
     throw std::out_of_range("Type out of range");
   }
@@ -185,7 +185,7 @@ void operator++(IDependency::Type& type) {
   type = static_cast<IDependency::Type>(static_cast<int>(type) + 1);
 }
 
-void operator++(IDependency::Reason& reason, int) {
+inline void operator++(IDependency::Reason& reason, int) {
   if (reason == IDependency::ReasonEnd) {
     throw std::out_of_range("Reason out of range");
   }
@@ -193,7 +193,7 @@ void operator++(IDependency::Reason& reason, int) {
   reason = static_cast<IDependency::Reason>(static_cast<int>(reason) + 1);
 }
 
-void operator++(IDependency::Reason& reason) {
+inline void operator++(IDependency::Reason& reason) {
   if (reason == IDependency::ReasonEnd) {
     throw std::out_of_range("Reason out of range");
   }
@@ -201,7 +201,7 @@ void operator++(IDependency::Reason& reason) {
   reason = static_cast<IDependency::Reason>(static_cast<int>(reason) + 1);
 }
 
-void operator++(IDependency::Importance& importance, int) {
+inline void operator++(IDependency::Importance& importance, int) {
   if (importance == IDependency::ImportanceEnd) {
     throw std::out_of_range("Importance out of range");
   }
@@ -209,7 +209,7 @@ void operator++(IDependency::Importance& importance, int) {
   importance = static_cast<IDependency::Importance>(static_cast<int>(importance) + 1);
 }
 
-void operator++(IDependency::Importance& importance) {
+inline void operator++(IDependency::Importance& importance) {
   if (importance == IDependency::ImportanceEnd) {
     throw std::out_of_range("Importance out of range");
   }

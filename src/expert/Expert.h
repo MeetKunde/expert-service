@@ -13,9 +13,9 @@ typedef expertBackground::Const Constant;
 typedef expertBackground::MathHelper MathHelper;
 typedef expertBackground::IDependency IDependency;
 
-typedef expertBackground::LineModel::LineType LineType;
-typedef expertBackground::AngleModel::AngleType AngleType;
-typedef expertBackground::PolygonModel::PolygonType PolygonType;
+typedef expertBackground::LineModel::Type LineType;
+typedef expertBackground::AngleModel::Type AngleType;
+typedef expertBackground::PolygonModel::Type PolygonType;
 
 typedef expertBackground::EquationDependency EquationDependency;
 typedef expertBackground::DependenciesBank::EquationDependencies EquationDependencies;
@@ -39,8 +39,7 @@ typedef expertBackground::LinePointsPairDependency LinePointsPairDependency;
 typedef expertBackground::DependenciesBank::LinePointsPairDependencies LinePointsPairDependencies;
 typedef expertBackground::LineAngleDependency LineAngleDependency;
 typedef expertBackground::DependenciesBank::LineAngleDependencies LineAngleDependencies;
-typedef expertBackground::PointsPairPairPointsPairDependency PointsPairPairPointsPairDependency;
-typedef expertBackground::DependenciesBank::PointsPairPairPointsPairDependencies PointsPairPairPointsPairDependencies;
+typedef expertBackground::DependenciesBank::TriplePointsPairDependencies TriplePointsPairDependencies;
 typedef expertBackground::PolygonPointsPairDependency PolygonPointsPairDependency;
 typedef expertBackground::DependenciesBank::PolygonPointsPairDependencies PolygonPointsPairDependencies;
 typedef expertBackground::PolygonExpressionDependency PolygonExpressionDependency;
@@ -114,36 +113,36 @@ class Expert {
   void findIntersectionPointsOfCircles();
   void findIntersectionPointsOfLinesCircles();
   void checkPointsOnShapes();
-  json getIntersectionPointsAsJson();
+  json getIntersectionPointsJson();
 
   /*
   //Tools.cpp
   static void printUnsignedIntVector(const std::vector<unsigned int>& vec);
   bool pointsLiesOnOneLine(const std::vector<unsigned int>& points);
   unsigned int setEqualSides(unsigned int segment1End1, unsigned int segment1End2, unsigned int segment2End1,
-                             unsigned int segment2End2, IDependency::Reason reason, IDependency::UsefulnessLevel usefulness);
+                             unsigned int segment2End2, IDependency::Reason reason, IDependency::Importance usefulness);
   unsigned int setEqualSides(unsigned int segment1End1, unsigned int segment1End2, unsigned int segment2End1,
                              unsigned int segment2End2, IDependency::Reason reason, std::vector<unsigned int> basedOn,
-                             IDependency::UsefulnessLevel usefulness);
+                             IDependency::Importance usefulness);
   unsigned int setEqualAngles(unsigned int angle1Point1, unsigned int angle1Vertex, unsigned int angle1Point2,
                               unsigned int angle2Point1, unsigned int angle2Vertex, unsigned int angle2Point2,
-                              AngleType anglesType, IDependency::Reason reason, IDependency::UsefulnessLevel usefulness);
+                              AngleType anglesType, IDependency::Reason reason, IDependency::Importance usefulness);
   unsigned int setEqualAngles(unsigned int angle1Point1, unsigned int angle1Vertex, unsigned int angle1Point2,
                               unsigned int angle2Point1, unsigned int angle2Vertex, unsigned int angle2Point2,
                               AngleType anglesType, IDependency::Reason reason, std::vector<unsigned int> basedOn,
-                              IDependency::UsefulnessLevel usefulness);
+                              IDependency::Importance usefulness);
   unsigned int setSidesParallelism(unsigned int segment1End1, unsigned int segment1End2, unsigned int segment2End1,
                                    unsigned int segment2End2, IDependency::Reason reason,
-                                   IDependency::UsefulnessLevel usefulness);
+                                   IDependency::Importance usefulness);
   unsigned int setSidesParallelism(unsigned int segment1End1, unsigned int segment1End2, unsigned int segment2End1,
                                    unsigned int segment2End2, IDependency::Reason reason, std::vector<unsigned int> basedOn,
-                                   IDependency::UsefulnessLevel usefulness);
+                                   IDependency::Importance usefulness);
   unsigned int setSidesPerpendicularity(unsigned int segment1End1, unsigned int segment1End2, unsigned int segment2End1,
                                         unsigned int segment2End2, IDependency::Reason reason,
-                                        IDependency::UsefulnessLevel usefulness);
+                                        IDependency::Importance usefulness);
   unsigned int setSidesPerpendicularity(unsigned int segment1End1, unsigned int segment1End2, unsigned int segment2End1,
                                         unsigned int segment2End2, IDependency::Reason reason, std::vector<unsigned int> basedOn,
-                                        IDependency::UsefulnessLevel usefulness);
+                                        IDependency::Importance usefulness);
 
   // AnglesTheorems.cpp
   unsigned int findVerticalAngles();

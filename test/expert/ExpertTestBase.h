@@ -9,11 +9,11 @@
 
 typedef expert::Expert Expert;
 typedef expertBackground::ExpressionModel ExpressionModel;
-typedef expertBackground::PolygonModel::PolygonType PolygonType;
-typedef expertBackground::AngleModel::AngleType AngleType;
+typedef expertBackground::PolygonModel::Type PolygonType;
+typedef expertBackground::AngleModel::Type AngleType;
 typedef expert::IDependency::Category DependencyCategory;
 typedef expert::IDependency::Type DependencyType;
 typedef expert::IDependency::Reason DependencyReason;
-typedef expert::IDependency::ImportanceLevel DependencyImportanceLevel;
+typedef expert::IDependency::Importance DependencyImportance;
 
 #endif  //EXPERT_TEST_BASE_H
