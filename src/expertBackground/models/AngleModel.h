@@ -1,177 +1,69 @@
 #ifndef EXPERT_SERVICE_ANGLE_MODEL_H
 #define EXPERT_SERVICE_ANGLE_MODEL_H
 
-#include "IModel.h"
 #include "PointsPairModel.h"
+
+#include <nlohmann/json.hpp>
+#include <optional>
+
+typedef nlohmann::json json;
 
 namespace expertBackground {
 /**
 * @brief Class representing angle as triple of point IDs
 */
-class AngleModel : public IModel {
+class AngleModel {
  public:
   /**
-   * @brief Representing type of angle
+   * @brief Enum representing angle type
    */
-  enum class AngleType {
-    /**
-     * @brief Angle type is unknown - convex or concave
-     */
+  enum class Type {
     UNKNOWN,
-
-    /**
-     * @brief Angle is convex
-     */
     CONVEX,
-
-    /**
-     * @brief Angle is concave
-     */
     CONCAVE
   };
 
- private:
-  /**
-   * @brief Angle vertex ID
-   */
-  std::string vertexId;
+  AngleModel() = delete;
+  explicit AngleModel(std::string vertexId, std::string point1Id, std::string point2Id, Type type);
+  AngleModel(std::string vertexId, std::string point1Id, std::string point2Id, std::string arm1, std::string arm2, Type type);
 
-  /**
-   * @brief IDs of points which lies on ends of angle arms
-   */
-  PointsPairModel pointsOnArms;
+  AngleModel(const AngleModel& angleModel) = default;
+  AngleModel(AngleModel&& angleModel) = default;
 
-  /**
-   * @brief Type of angle
-   */
-  AngleType angleType;
+  AngleModel& operator=(const AngleModel& angleModel) = default;
+  AngleModel& operator=(AngleModel&& angleModel) = default;
 
- public:
-  /**
-   * @brief Constructor of a new AngleModel object
-   *
-   * @param point1Id ID of point on first angle arm
-   * @param vertexId ID of angle vertex
-   * @param point2Id ID of point on second angle arm
-   * @param type type of angle
-   */
-  explicit AngleModel(std::string vertexId, std::string point1Id, std::string point2Id, AngleType type);
+  ~AngleModel()  = default;
 
-  /**
-   * @brief Constructor of a new AngleModel object
-   *
-   * @param angleModel other AngleModel object
-   */
-  AngleModel(const AngleModel& angleModel);
+  inline const std::string& getPoint1Id() const { return pointsOnArms.getPoint1Id(); }
+  inline const std::string& getPoint2Id() const { return pointsOnArms.getPoint2Id(); }
+  inline const std::string& getVertexId() const { return vertexId; }
+  inline const std::optional<std::string>& getArm1() const { return arm1; }
+  inline const std::optional<std::string>& getArm2() const { return arm2; }
 
-  /**
-   * @brief Override of the assignment operator
-   *
-   * @param angleModel object to be assigned
-   * @return new AngleModel object
-   */
-  AngleModel& operator=(const AngleModel& angleModel);
+  inline bool hasTwoArms() const { return arm1.has_value() && arm2.has_value(); }
+  inline bool hasOneArm(const std::string& armId) const { return arm1 == armId || arm2 == armId; }
+  
+  inline Type getType() const { return type; }
 
-  /**
-   * @brief ID of point on first arm getter
-   *
-   * @return ID of point on first arm
-   */
-  inline std::string getPoint1Id() const { return pointsOnArms.getPoint1Id(); }
+  json getJson() const ;
 
-  /**
-   * @brief ID of point on second arm getter
-   *
-   * @return ID of point on second arm
-   */
-  inline std::string getPoint2Id() const { return pointsOnArms.getPoint2Id(); }
-
-  /**
-   * @brief ID of angle vertex getter
-   *
-   * @return ID of angle vertex
-   */
-  inline std::string getVertexId() const { return vertexId; }
-
-  /**
-   * @brief Angle type getter
-   *
-   * @return angle type
-   */
-  inline AngleType getAngleType() const { return angleType; }
-
-  /**
-   * @brief Override of equality operator
-   *
-   * @param angleModel1 first object to compare
-   * @param angleModel2 second object to compare
-   * @return true if given angles are equal
-   * @return false if given angles are not equal
-   */
   friend bool operator==(const AngleModel& angleModel1, const AngleModel& angleModel2);
-
-  /**
-   * @brief Override of inequality operator
-   *
-   * @param angleModel1 first object to compare
-   * @param angleModel2 second object to compare
-   * @return true if given angles are equal
-   * @return false if given angles are not equal
-   */
   friend bool operator!=(const AngleModel& angleModel1, const AngleModel& angleModel2);
-
-  /**
-   * @brief Override of less operator
-   *
-   * @param angleModel1 first object to compare
-   * @param angleModel2 second object to compare
-   * @return true if given angles are equal
-   * @return false if given angles are not equal
-   */
   friend bool operator<(const AngleModel& angleModel1, const AngleModel& angleModel2);
-
-  /**
-   * @brief Override of greater operator
-   *
-   * @param angleModel1 first object to compare
-   * @param angleModel2 second object to compare
-   * @return true if given angles are equal
-   * @return false if given angles are not equal
-   */
   friend bool operator>(const AngleModel& angleModel1, const AngleModel& angleModel2);
-
-  /**
-   * @brief Override of less or equal operator
-   *
-   * @param angleModel1 first object to compare
-   * @param angleModel2 second object to compare
-   * @return true if given angles are equal
-   * @return false if given angles are not equal
-   */
   friend bool operator<=(const AngleModel& angleModel1, const AngleModel& angleModel2);
-
-  /**
-   * @brief Override of greater or equal operator
-   *
-   * @param angleModel1 first object to compare
-   * @param angleModel2 second object to compare
-   * @return true if given angles are equal
-   * @return false if given angles are not equal
-   */
   friend bool operator>=(const AngleModel& angleModel1, const AngleModel& angleModel2);
 
-  /**
-   * @brief Override of stream insertion operator
-   *
-   * @param stream object of ostream class
-   * @param angleModel object to insert to stream
-   * @return object of ostream class
-   */
   friend std::ostream& operator<<(std::ostream& stream, const AngleModel& angleModel);
+  friend json& operator<<(json& j, const AngleModel& angleModel);
 
-  json getJsonObject() const override;
-
-  ~AngleModel() override;
+ private:
+  std::string vertexId;
+  PointsPairModel pointsOnArms;
+  std::optional<std::string> arm1;
+  std::optional<std::string> arm2;
+  Type type;
 };
 }  // namespace expertBackground
 

@@ -3,27 +3,17 @@
 namespace expertBackground {
 PointsPairModel::PointsPairModel(std::string point1, std::string point2) {
   if (point1 < point2) {
-    point1Id = std::move(point1);
-    point2Id = std::move(point2);
+    this->point1Id = std::move(point1);
+    this->point2Id = std::move(point2);
   }
   else {
-    point1Id = std::move(point2);
-    point2Id = std::move(point1);
+    this->point1Id = std::move(point2);
+    this->point2Id = std::move(point1);
   }
 }
 
-PointsPairModel::PointsPairModel(const PointsPairModel& pointsPair)
-    : point1Id{pointsPair.point1Id}, point2Id{pointsPair.point2Id} {}
-
-PointsPairModel& PointsPairModel::operator=(const PointsPairModel& pointsPair) {
-  point1Id = pointsPair.point1Id;
-  point2Id = pointsPair.point2Id;
-
-  return *this;
-}
-
-json PointsPairModel::getJsonObject() const {
-  return {{"end1Id", point1Id}, {"end2Id", point2Id}};
+json PointsPairModel::getJson() const {
+  return {{"point1Id", point1Id}, {"point2Id", point2Id}};
 }
 
 bool operator==(const PointsPairModel& pointsPair1, const PointsPairModel& pointsPair2) {
@@ -47,11 +37,11 @@ bool operator>(const PointsPairModel& pointsPair1, const PointsPairModel& points
 }
 
 bool operator<=(const PointsPairModel& pointsPair1, const PointsPairModel& pointsPair2) {
-  return pointsPair1 < pointsPair2 || pointsPair1 == pointsPair2;
+  return !(pointsPair1 > pointsPair2);
 }
 
 bool operator>=(const PointsPairModel& pointsPair1, const PointsPairModel& pointsPair2) {
-  return pointsPair1 > pointsPair2 || pointsPair1 == pointsPair2;
+  return !(pointsPair1 < pointsPair2);
 }
 
 std::ostream& operator<<(std::ostream& stream, const PointsPairModel& pointsPair) {
@@ -59,5 +49,10 @@ std::ostream& operator<<(std::ostream& stream, const PointsPairModel& pointsPair
 
   return stream;
 }
-PointsPairModel::~PointsPairModel() {}
+
+json& operator<<(json& j, const PointsPairModel& pointsPair) {
+  j = pointsPair.getJson();
+
+  return j;
+}
 }  // namespace expertBackground

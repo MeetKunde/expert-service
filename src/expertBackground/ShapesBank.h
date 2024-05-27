@@ -10,7 +10,51 @@ namespace expertBackground {
  * @brief Class storing all shapes
  */
 class ShapesBank {
+ public:
+  explicit ShapesBank();
+
+  ShapesBank(const ShapesBank&) = default;
+  ShapesBank(ShapesBank&&) = default;
+
+  ShapesBank& operator=(const ShapesBank&) = default;
+  ShapesBank& operator=(ShapesBank&&) = default;
+
+  ~ShapesBank() = default;
+
+  void addPoint(const std::string& identifier, float xCoordinate, float yCoordinate, const std::string& name);
+  
+  inline const PointModel& getPoint(const std::string& identifier) const { return points.at(pointIdsConverter.at(identifier)); }
+  inline size_t getPointsNumber() const { return points.size(); }
+  inline const std::vector<PointModel>& getPointsVector() const { return points; }
+  inline size_t getPointPositionInVector(const std::string& pointId) const { return pointIdsConverter.at(pointId); }
+
+  json getPointsJson() const;
+
+  void addLine(const std::string& identifier, LineModel::Type lineType, float lineA, float lineB,
+               const std::vector<std::string>& includedPoints);
+
+  inline const LineModel& getLine(const std::string& identifier) const { return lines.at(lineIdsConverter.at(identifier)); }
+  std::string getLineIdThrowTwoPoints(const std::string& point1Id, const std::string& point2Id) const;
+  inline size_t getLinesNumber() const { return lines.size(); }
+  inline const std::vector<LineModel>& getLinesVector() const { return lines; }
+  inline size_t getLinePositionInVector(const std::string& lineId) const { return lineIdsConverter.at(lineId); }
+
+  json getLinesJson() const;
+
+  void addCircle(const std::string& identifier, const std::string& centerId, float radius, 
+                 const std::vector<std::string>& includedPoints);
+
+  inline const CircleModel& getCircle(const std::string& identifier) const { return circles.at(circleIdsConverter.at(identifier)); }
+  std::string getCircleIdWithTwoPoints(const std::string& centerPointId, const std::string& pointOnCircleId) const;
+  inline size_t getCirclesNumber() const { return circles.size(); }
+  inline const std::vector<CircleModel>& getCirclesVector() const { return circles; }
+  inline size_t getCirclePositionInVector(const std::string& circleId) const { return circleIdsConverter.at(circleId); }
+
+  json getCirclesJson() const;
+
  private:
+  static bool counterClockwiseComparator(const PointModel& point1, const PointModel& point2, const PointModel& center);
+
   /**
    * @brief Point IDs counter
    */
@@ -61,193 +105,6 @@ class ShapesBank {
    * @brief Vector which converts ID of circles given by user to position at circles vector
    */
   std::map<std::string, size_t> circleIdsConverter;
-
- public:
-  /**
-   * @brief Constructor of a new ShapesBank object
-   */
-  explicit ShapesBank();
-
-  /**
-   * @brief Adding new PointModel to bank
-   *
-   * @param id point ID
-   * @param x point X coordinate
-   * @param y point Y coordinate
-   * @param name point name
-   */
-  void addPoint(const std::string& identifier, float xCoordinate, float yCoordinate, const std::string& name);
-
-  /**
-   * @brief PointModel object getter
-   *
-   * @param identifier ID of point
-   * @return reference to PointModel
-   * @throws std::out_of_range if point with given ID does not exist
-   */
-  inline const PointModel& getPoint(const std::string& identifier) const { return points.at(pointIdsConverter.at(identifier)); }
-
-  /**
-   * @brief Number of points getter
-   *
-   * @return number of points
-   */
-  inline size_t getPointsNumber() const { return points.size(); }
-
-  /**
-   * @brief All point objects getter
-   *
-   * @return reference to vector with all points
-   */
-  inline const std::vector<PointModel>& getPointsVector() const { return points; }
-
-  /**
-   * @brief Getting JSON object representing all PointModel objects
-   *
-   * @return JSON object representing all PointModel objects
-   */
-  json getPointsAsJsonObjects() const;
-
-  /**
-   * Getting point position in vector
-   * @param pointId point ID
-   * @return position of point
-   * @throws std::out_of_range if point with given ID does not exist
-   */
-  inline size_t getPointPositionInVector(const std::string& pointId) const { return pointIdsConverter.at(pointId); }
-
-  /**
-   * @brief Adding new LineModel to bank
-   *
-   * @param identifier line ID
-   * @param lineType line type
-   * @param lineA coefficient of x in line equation y = ax + b
-   * @param lineB constant term in line equation y = ax + b or y = b or x = b
-   * @param includedPoints IDs of points included in line
-   */
-  void addLine(const std::string& identifier, LineModel::LineType lineType, float lineA, float lineB,
-               const std::vector<std::string>& includedPoints);
-
-  /**
-   * @brief LineModel object getter
-   *
-   * @param id ID of line
-   * @return reference to LineModel
-   * @throws std::out_of_range if line with given ID does not exist
-   */
-  inline const LineModel& getLine(const std::string& identifier) const { return lines.at(lineIdsConverter.at(identifier)); }
-
-  /**
-   * @brief ID of LineModel object which pass throw given points
-   *
-   * @param point1Id ID of first point on line
-   * @param point2Id ID of second point on line
-   * @return id of LineModel which pass throw given points
-   * @throws std::out_of_range if line does not exist
-   */
-  std::string getLineIdThrowTwoPoints(const std::string& point1Id, const std::string& point2Id) const;
-
-  /**
-   * @brief Number of lines getter
-   *
-   * @return number of lines
-   */
-  inline size_t getLinesNumber() const { return lines.size(); }
-
-  /**
-   * @brief All line objects getter
-   *
-   * @return reference to vector with all lines
-   */
-  inline const std::vector<LineModel>& getLinesVector() const { return lines; }
-
-  /**
-   * @brief Getting JSON object representing all LineModel objects
-   *
-   * @return JSON object representing all LineModel objects
-   */
-  json getLinesAsJsonObjects() const;
-
-  /**
-   * Getting line position in vector
-   * @param lineId line ID
-   * @return position of line
-   * @throws std::out_of_range if point with given ID does not exist
-   */
-  inline size_t getLinePositionInVector(const std::string& lineId) const { return lineIdsConverter.at(lineId); }
-
-  /**
-   * @brief Adding new CircleModel to bank
-   *
-   * @param id circle ID
-   * @param centerId circle center point ID
-   * @param centerX cirlce center X coordinate
-   * @param centerY circle center Y coordinate
-   * @param radius circle radius length
-   * @param includedPoints IDs of points inluded in circle
-   */
-  void addCircle(const std::string& identifier, const std::string& centerId, float centerX, float centerY,
-                 const std::string& centerName, float radius, const std::vector<std::string>& includedPoints);
-
-  /**
-   * @brief CircleModel object getter
-   *
-   * @param id ID of circle
-   * @return reference to CircleModel
-   * @throws std::out_of_range if circle with given ID does not exist
-   */
-  inline const CircleModel& getCircle(const std::string& identifier) const { return circles.at(circleIdsConverter.at(identifier)); }
-
-  /**
-   * @brief ID of CircleModel object with given center id and point on id
-   *
-   * @param centerPointId ID of first point on line
-   * @param pointOnCircleId ID of second point on line
-   * @return id of CircleModel with given points
-   * @throws std::out_of_range if circle does not exist
-   */
-  std::string getCircleIdWithTwoPoints(const std::string& centerPointId, const std::string& pointOnCircleId) const;
-
-  /**
-   * @brief Number of circles getter
-   *
-   * @return number of circles
-   */
-  inline size_t getCirclesNumber() const { return circles.size(); }
-
-  /**
-   * @brief All circle objects getter
-   *
-   * @return reference to vector with all circles
-   */
-  inline const std::vector<CircleModel>& getCirclesVector() const { return circles; }
-
-  /**
-   * @brief Getting JSON object representing all CircleModel objects
-   *
-   * @return JSON object representing all CircleModel objects
-   */
-  json getCirclesAsJsonObjects() const;
-
-  /**
-   * Getting circle position in vector
-   * @param circleId circle ID
-   * @return position of circle
-   * @throws std::out_of_range if point with given ID does not exist
-   */
-  inline size_t getCirclePositionInVector(const std::string& circleId) const { return circleIdsConverter.at(circleId); }
-
-  /**
-   * @brief Comparator used in sorting points counter-clockwise
-   *
-   * @param point1 first object to compare
-   * @param point2 second object to compare
-   * @param centerX
-   * @param centerY
-   * @return true if point1 is greater than point2
-   * @return false if point1 is not greater than point2
-   */
-  static bool counterClockwiseComparator(const PointModel& point1, const PointModel& point2, float centerX, float centerY);
 };
 }  // namespace expertBackground
 

@@ -1,25 +1,51 @@
 #include "ExpressionModel.h"
 
 namespace expertBackground {
-ExpressionModel::ExpressionModel() : IModel{} {}
+ExpressionModel::ExpressionModel(const std::string& expressionString) : Expression{expressionString} {}
 
-ExpressionModel::ExpressionModel(const std::string& expressionString) : IModel{}, Expression{expressionString} {}
+ExpressionModel::ExpressionModel(const symbolicAlgebra::Expression& expression) : Expression{expression} {}
 
-ExpressionModel::ExpressionModel(const symbolicAlgebra::Expression& expression) : IModel{}, Expression{expression} {}
-
-ExpressionModel::ExpressionModel(const ExpressionModel& other) : IModel{}, Expression{other} {}
-
-ExpressionModel& ExpressionModel::operator=(const ExpressionModel& other) {
-  Expression::operator=(other);
-
-  return *this;
-}
-
-json ExpressionModel::getJsonObject() const {
+json ExpressionModel::getJson() const {
   std::set<std::string> vars = {};
   getIncludedVariables(vars);
 
-  return {{"value", getString()}, {"variables", json(vars)}};
+  return {{"value", getString()}, 
+          {"variables", json(vars)}};
 }
-ExpressionModel::~ExpressionModel() {}
+
+bool operator==(const ExpressionModel& expressionModel1, const ExpressionModel& expressionModel2) {
+  return expressionModel1.getString() == expressionModel2.getString();
+}
+
+bool operator!=(const ExpressionModel& expressionModel1, const ExpressionModel& expressionModel2) {
+  return !(expressionModel1 == expressionModel2);
+}
+
+bool operator<(const ExpressionModel& expressionModel1, const ExpressionModel& expressionModel2) {
+  return expressionModel1.getString() < expressionModel2.getString();
+}
+
+bool operator>(const ExpressionModel& expressionModel1, const ExpressionModel& expressionModel2) {
+  return expressionModel2 < expressionModel1;
+}
+
+bool operator<=(const ExpressionModel& expressionModel1, const ExpressionModel& expressionModel2) {
+  return !(expressionModel1 > expressionModel2);
+}
+
+bool operator>=(const ExpressionModel& expressionModel1, const ExpressionModel& expressionModel2) {
+  return !(expressionModel1 < expressionModel2);
+}
+
+std::ostream& operator<<(std::ostream& stream, const ExpressionModel& expressionModel) {
+  stream << expressionModel.getString();
+
+  return stream;
+}
+
+json& operator<<(json& j, const ExpressionModel& expressionModel) {
+  j = expressionModel.getJson();
+
+  return j;
+}
 }  // namespace expertBackground

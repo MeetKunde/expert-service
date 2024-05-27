@@ -1,14 +1,22 @@
 #ifndef EXPERT_SERVICE_POLYGON_MODEL_H
 #define EXPERT_SERVICE_POLYGON_MODEL_H
 
+#include <nlohmann/json.hpp>
+#include <string>
 #include <vector>
-#include "IModel.h"
+
+typedef nlohmann::json json;
 
 namespace expertBackground {
-
-class PolygonModel : public IModel {
+/**
+ * @brief Class representing polygon model
+*/
+class PolygonModel {
  public:
-  enum class PolygonType {
+  /**
+   * @brief Enum representing polygon type
+  */
+  enum class Type {
     UNKNOWN,
     ISOSCELES_ACUTE_TRIANGLE,
     EQUILATERAL_TRIANGLE,
@@ -26,26 +34,35 @@ class PolygonModel : public IModel {
     RIGHT_TRAPEZOID
   };
 
- private:
-  std::vector<std::string> verticesIds;
+  PolygonModel() = delete;
+  explicit PolygonModel(Type type, std::vector<std::string> vertices);
+  
+  PolygonModel(const PolygonModel& polygonModel) = default;
+  PolygonModel(PolygonModel&& polygonModel) = default;
 
-  bool fixedPointsOrder;
+  PolygonModel& operator=(const PolygonModel& polygonModel) = default;
+  PolygonModel& operator=(PolygonModel&& polygonModel) = default;
 
- public:
-  explicit PolygonModel(std::vector<std::string> vertices, bool fixedPointsOrder);
-  PolygonModel(const PolygonModel& polygonModel);
+  ~PolygonModel()  = default;
 
-  PolygonModel& operator=(const PolygonModel& polygonModel);
+  inline Type getType() const { return type; }
+  inline const std::vector<std::string>& getVerticesIds() const { return verticesIds; }
 
-  const std::vector<std::string>& getVerticesIds() const { return verticesIds; }
+  json getJson() const ;
 
-  friend bool operator==(const PolygonModel& lhs, const PolygonModel& rhs);
-  friend bool operator!=(const PolygonModel& lhs, const PolygonModel& rhs);
+  friend bool operator==(const PolygonModel& polygonModel1, const PolygonModel& polygonModel2);
+  friend bool operator!=(const PolygonModel& polygonModel1, const PolygonModel& polygonModel2);
+  friend bool operator<(const PolygonModel& polygonModel1, const PolygonModel& polygonModel2);
+  friend bool operator>(const PolygonModel& polygonModel1, const PolygonModel& polygonModel2);
+  friend bool operator<=(const PolygonModel& polygonModel1, const PolygonModel& polygonModel2);
+  friend bool operator>=(const PolygonModel& polygonModel1, const PolygonModel& polygonModel2);
 
   friend std::ostream& operator<<(std::ostream& stream, const PolygonModel& polygonModel);
-
-  json getJsonObject() const override;
-  ~PolygonModel() override;
+  friend json& operator<<(json& j, const PolygonModel& polygonModel);
+ 
+ private:
+  Type type;
+  std::vector<std::string> verticesIds;
 };
 }  // namespace expertBackground
 

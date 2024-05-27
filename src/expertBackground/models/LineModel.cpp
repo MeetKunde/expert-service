@@ -1,40 +1,21 @@
 #include "LineModel.h"
 
 namespace expertBackground {
-LineModel::LineModel(std::string identifier, LineType type, float lineA, float lineB, std::vector<std::string> includedPoints)
-    : id{std::move(identifier)}, lineType{type}, lineA{lineA}, lineB{lineB}, includedPointIds{std::move(includedPoints)} {}
+LineModel::LineModel(std::string identifier, Type type, float coeffA, float coeffB, std::vector<std::string> includedPoints)
+    : id{std::move(identifier)}, type{type}, coeffA{coeffA}, coeffB{coeffB}, includedPointIds{std::move(includedPoints)} {}
 
-LineModel::LineModel(const LineModel& lineModel)
-    : id{lineModel.id},
-      lineType{lineModel.lineType},
-      lineA{lineModel.lineA},
-      lineB{lineModel.lineB},
-      includedPointIds{lineModel.includedPointIds} {}
-
-LineModel& LineModel::operator=(const LineModel& lineModel) {
-  id = lineModel.id;
-  lineType = lineModel.lineType;
-  lineA = lineModel.lineA;
-  lineB = lineModel.lineB;
-  includedPointIds = lineModel.includedPointIds;
-
-  return *this;
-}
-
-json LineModel::getJsonObject() const {
+json LineModel::getJson() const {
   return {{"id", id},
-          {"type", lineType},
-          {"a", lineA},
-          {"b", lineB},
-          {"end1Id", includedPointIds.front()},
-          {"end2Id", includedPointIds.back()},
+          {"type", static_cast<int>(type)},
+          {"a", coeffA},
+          {"b", coeffB},
           {"pointsOn", json(includedPointIds)}};
 }
 
 bool operator==(const LineModel& lineModel1, const LineModel& lineModel2) {
-  return lineModel1.lineType == lineModel2.lineType &&
-         fabs(lineModel1.lineA - lineModel2.lineA) < MathHelper::COMPARISON_EPSILON &&
-         fabs(lineModel1.lineB - lineModel2.lineB) < MathHelper::COMPARISON_EPSILON;
+  return lineModel1.type == lineModel2.type &&
+         fabs(lineModel1.coeffA- lineModel2.coeffA) < MathHelper::COMPARISON_EPSILON &&
+         fabs(lineModel1.coeffB - lineModel2.coeffB) < MathHelper::COMPARISON_EPSILON;
 }
 
 bool operator!=(const LineModel& lineModel1, const LineModel& lineModel2) {
@@ -42,16 +23,16 @@ bool operator!=(const LineModel& lineModel1, const LineModel& lineModel2) {
 }
 
 bool operator<(const LineModel& lineModel1, const LineModel& lineModel2) {
-  if (fabs(lineModel1.lineA - lineModel2.lineA) < MathHelper::COMPARISON_EPSILON &&
-      fabs(lineModel1.lineB - lineModel2.lineB) < MathHelper::COMPARISON_EPSILON) {
-    return lineModel1.lineType < lineModel2.lineType;
+  if (fabs(lineModel1.coeffA - lineModel2.coeffA) < MathHelper::COMPARISON_EPSILON &&
+      fabs(lineModel1.coeffB - lineModel2.coeffB) < MathHelper::COMPARISON_EPSILON) {
+    return lineModel1.type < lineModel2.type;
   }
 
-  if (fabs(lineModel1.lineA - lineModel2.lineA) < MathHelper::COMPARISON_EPSILON) {
-    return lineModel1.lineB < lineModel2.lineB;
+  if (fabs(lineModel1.coeffA - lineModel2.coeffA) < MathHelper::COMPARISON_EPSILON) {
+    return lineModel1.coeffB < lineModel2.coeffB;
   }
 
-  return lineModel1.lineA < lineModel2.lineA;
+  return lineModel1.coeffA < lineModel2.coeffA;
 }
 
 bool operator>(const LineModel& lineModel1, const LineModel& lineModel2) {
@@ -59,25 +40,29 @@ bool operator>(const LineModel& lineModel1, const LineModel& lineModel2) {
 }
 
 bool operator<=(const LineModel& lineModel1, const LineModel& lineModel2) {
-  return lineModel1 < lineModel2 || lineModel1 == lineModel2;
+  return !(lineModel1 > lineModel2);
 }
 
 bool operator>=(const LineModel& lineModel1, const LineModel& lineModel2) {
-  return lineModel1 > lineModel2 || lineModel1 == lineModel2;
+  return !(lineModel1 < lineModel2);
 }
 
 std::ostream& operator<<(std::ostream& stream, const LineModel& lineModel) {
-  if (lineModel.lineType == LineModel::LineType::VERTICAL) {
-    stream << "x = " << lineModel.lineB;
+  if (lineModel.type == LineModel::Type::VERTICAL) {
+    stream << "x = " << lineModel.coeffB;
   }
-  else if (lineModel.lineType == LineModel::LineType::HORIZONTAL) {
-    stream << "y = " << lineModel.lineB;
+  else if (lineModel.type == LineModel::Type::HORIZONTAL) {
+    stream << "y = " << lineModel.coeffB;
   }
   else {
-    stream << "y = " << lineModel.lineA << "x + " << lineModel.lineB;
+    stream << "y = " << lineModel.coeffA << "x + " << lineModel.coeffB;
   }
 
   return stream;
 }
-LineModel::~LineModel() {}
+
+json& operator<<(json& j, const LineModel& lineModel) {
+  j = lineModel.getJson();
+  return j;
+}
 }  // namespace expertBackground

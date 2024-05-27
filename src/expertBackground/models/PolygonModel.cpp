@@ -1,79 +1,120 @@
 #include "PolygonModel.h"
 
 namespace expertBackground {
-PolygonModel::PolygonModel(std::vector<std::string> vertices, bool fixedPointsOrder) : 
-  verticesIds{std::move(vertices)}, fixedPointsOrder{fixedPointsOrder} {}
+PolygonModel::PolygonModel(Type type, std::vector<std::string> vertices) : 
+  type{type}, verticesIds{std::move(vertices)} {}
 
-PolygonModel::PolygonModel(const PolygonModel& polygonModel) : 
-  verticesIds{polygonModel.verticesIds}, fixedPointsOrder{polygonModel.fixedPointsOrder} {}
-
-PolygonModel& PolygonModel::operator=(const PolygonModel& polygonModel) {
-  verticesIds = std::vector<std::string>(polygonModel.verticesIds);
-  fixedPointsOrder = polygonModel.fixedPointsOrder;
-
-  return *this;
+json PolygonModel::getJson() const {
+  return {{"type", static_cast<int>(type)}, 
+          {"vertices", verticesIds}};
 }
 
-bool operator==(const PolygonModel& lhs, const PolygonModel& rhs) {
-  const size_t lhsSize = lhs.verticesIds.size();
-  const size_t rhsSize = rhs.verticesIds.size();
+bool operator==(const PolygonModel& polygonModel1, const PolygonModel& polygonModel2) {
+  const size_t size1 = polygonModel1.verticesIds.size();
+  const size_t size2 = polygonModel2.verticesIds.size();
 
-  if (lhsSize != rhsSize) {
+  if (size1 != size2) {
     return false;
   }
 
-  if (lhsSize == 0) {
+  if (size1 == 0) {
     return true;
   }
 
-  if(lhs.fixedPointsOrder && rhs.fixedPointsOrder) {
-    for (size_t i = 0; i < lhsSize; i++) {
-      if(lhs.verticesIds[i] != rhs.verticesIds[i]) {
-        return false;
-      }
+  std::string minId1 = polygonModel1.verticesIds[0];
+  std::string minId2 = polygonModel2.verticesIds[0];
+  size_t minId1Index = 0;
+  size_t minId2Index = 0;
+  for (size_t i = 1; i < size1; i++) {
+    if (minId1 > polygonModel1.verticesIds[i]) {
+      minId1 = polygonModel1.verticesIds[i];
+      minId1Index = i;
     }
 
-    return true;
+    if (minId2 > polygonModel2.verticesIds[i]) {
+      minId2 = polygonModel2.verticesIds[i];
+      minId2Index = i;
+    }
   }
-  else {
-    std::string lhsMinId = lhs.verticesIds[0];
-    std::string rhsMinId = rhs.verticesIds[0];
-    size_t lhsMinIdIndex = 0;
-    size_t rhsMinIdIndex = 0;
-    for (size_t i = 1; i < lhsSize; i++) {
-      if (lhsMinId > lhs.verticesIds[i]) {
-        lhsMinId = lhs.verticesIds[i];
-        lhsMinIdIndex = i;
-      }
 
-      if (rhsMinId > rhs.verticesIds[i]) {
-        rhsMinId = rhs.verticesIds[i];
-        rhsMinIdIndex = i;
-      }
+  bool test1 = true;
+  bool test2 = true;
+  for (size_t i = 0; i < size1; i++) {
+    if (polygonModel1.verticesIds[(minId1Index + i) % size1] != polygonModel2.verticesIds[(minId2Index + i) % size1]) {
+      test1 = false;
+      break;
     }
-
-    bool test1 = true;
-    bool test2 = true;
-    for (size_t i = 0; i < lhsSize; i++) {
-      if (lhs.verticesIds[(lhsMinIdIndex + i) % lhsSize] != rhs.verticesIds[(rhsMinIdIndex + i) % lhsSize]) {
-        test1 = false;
-        break;
-      }
-    }
-
-    for (size_t i = 0; i < lhsSize; i++) {
-      if (lhs.verticesIds[(lhsMinIdIndex + i) % lhsSize] != rhs.verticesIds[(rhsMinIdIndex - i) % lhsSize]) {
-        test2 = false;
-        break;
-      }
-    }
-
-    return test1 || test2;
   }
+
+  for (size_t i = 0; i < size1; i++) {
+    if (polygonModel1.verticesIds[(minId1Index + i) % size1] != polygonModel2.verticesIds[(minId2Index - i) % size1]) {
+      test2 = false;
+      break;
+    }
+  }
+
+  if(test1 && test2) {
+    if(polygonModel1.type != polygonModel2.type && 
+      polygonModel1.type != PolygonModel::Type::UNKNOWN && 
+      polygonModel2.type != PolygonModel::Type::UNKNOWN) {
+      return false;
+    }
+  }
+
+  return test1 || test2;
 }
 
-bool operator!=(const PolygonModel& lhs, const PolygonModel& rhs) {
-  return !(lhs == rhs);
+bool operator!=(const PolygonModel& polygonModel1, const PolygonModel& polygonModel2) {
+  return !(polygonModel1 == polygonModel2);
+}
+
+bool operator<(const PolygonModel& polygonModel1, const PolygonModel& polygonModel2) {
+  const size_t size1 = polygonModel1.verticesIds.size();
+  const size_t size2 = polygonModel2.verticesIds.size();
+
+  if (size1 != size2) {
+    return size1 < size2;
+  }
+
+  if (size1 == 0) {
+    return false;
+  }
+
+  std::string minId1 = polygonModel1.verticesIds[0];
+  std::string minId2 = polygonModel2.verticesIds[0];
+  size_t minId1Index = 0;
+  size_t minId2Index = 0;
+  for (size_t i = 1; i < size1; i++) {
+    if (minId1 > polygonModel1.verticesIds[i]) {
+      minId1 = polygonModel1.verticesIds[i];
+      minId1Index = i;
+    }
+
+    if (minId2 > polygonModel2.verticesIds[i]) {
+      minId2 = polygonModel2.verticesIds[i];
+      minId2Index = i;
+    }
+  }
+
+  for (size_t i = 0; i < size1; i++) {
+    if (polygonModel1.verticesIds[(minId1Index + i) % size1] != polygonModel2.verticesIds[(minId2Index + i) % size1]) {
+      return polygonModel1.verticesIds[(minId1Index + i) % size1] < polygonModel2.verticesIds[(minId2Index + i) % size1];
+    }
+  }
+
+  return polygonModel1.type < polygonModel2.type;
+}
+
+bool operator>(const PolygonModel& polygonModel1, const PolygonModel& polygonModel2) {
+  return polygonModel2 < polygonModel1;
+}
+
+bool operator<=(const PolygonModel& polygonModel1, const PolygonModel& polygonModel2) {
+  return !(polygonModel2 < polygonModel1);
+}
+
+bool operator>=(const PolygonModel& polygonModel1, const PolygonModel& polygonModel2) {
+  return !(polygonModel1 < polygonModel2);
 }
 
 std::ostream& operator<<(std::ostream& stream, const PolygonModel& polygonModel) {
@@ -86,8 +127,8 @@ std::ostream& operator<<(std::ostream& stream, const PolygonModel& polygonModel)
   return stream;
 }
 
-json PolygonModel::getJsonObject() const {
-  return {{"verticesIds", json(verticesIds)}};
+json& operator<<(json& j, const PolygonModel& polygonModel) {
+  j = polygonModel.getJson();
+  return j;
 }
-PolygonModel::~PolygonModel() {}
 }  // namespace expertBackground

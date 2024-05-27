@@ -6,15 +6,18 @@
 typedef nlohmann::json json;
 
 namespace expertBackground {
-
+/**
+ * @brief Interface for dependency
+ */
 class IDependency {
  public:
   /**
-   * @brief Representing category of dependency
+   * @brief Enum representing category of dependency
    */
   enum class Category {
     FORMULA,
     POLYGON_TYPE,
+    ANGLE_TYPE,
     OF_POINTS_PAIRS,
     OF_LINES,
     OF_CIRCLES,
@@ -29,10 +32,11 @@ class IDependency {
     OF_POLYGON_AND_EXPRESSION
   };
 
-  static const std::vector<Category> dependencyCategories;
+  static constexpr Category CategoryBegin = Category::FORMULA;
+  static constexpr Category CategoryEnd = static_cast<Category>(static_cast<int>(Category::OF_POLYGON_AND_EXPRESSION) + 1);
 
   /**
-   * @brief Representing type of dependency
+   * @brief Enum representing type of dependency
    */
   enum class Type {
     SEGMENT_LENGTH,
@@ -59,10 +63,11 @@ class IDependency {
     CONGRUENT_TRIANGLES
   };
 
-  static const std::vector<Type> dependencyTypes;
+  static constexpr Type TypeBegin = Type::SEGMENT_LENGTH;
+  static constexpr Type TypeEnd = static_cast<Type>(static_cast<int>(Type::CONGRUENT_TRIANGLES) + 1);
 
   /**
-   * @brief Representing reason of dependency
+   * @brief Enum representing reason of dependency
    */
   enum class Reason {
     NONE,
@@ -123,23 +128,94 @@ class IDependency {
     EQUATION_EXTRACTION
   };
 
-  enum class ImportanceLevel {
+  static constexpr Reason ReasonBegin = Reason::NONE;
+  static constexpr Reason ReasonEnd = static_cast<Reason>(static_cast<int>(Reason::EQUATION_EXTRACTION) + 1);
+
+  /**
+   * @brief Enum representing importance of dependency
+   */
+  enum class Importance {
     LOW,
     MEDIUM,
     HIGH
   };
 
-  virtual json getObjectAsJson() const = 0;
+  static constexpr Importance ImportanceBegin = Importance::LOW;
+  static constexpr Importance ImportanceEnd = static_cast<Importance>(static_cast<int>(Importance::HIGH) + 1);
+
   virtual inline size_t getId() const = 0;
   virtual inline Category getCategory() const = 0;
   virtual inline Type getType() const = 0;
   virtual inline Reason getReason() const = 0;
   virtual inline const std::vector<size_t>& getDependentDependencies() const = 0;
-  virtual inline ImportanceLevel getImportanceLevel() const = 0;
-
-  virtual ~IDependency() {}
+  virtual inline Importance getImportance() const = 0;
+  virtual json getJson() const = 0;
 };
 
+
+void operator++(IDependency::Category& category, int) {
+  if (category == IDependency::CategoryEnd) {
+    throw std::out_of_range("Category out of range");
+  }
+
+  category = static_cast<IDependency::Category>(static_cast<int>(category) + 1);
+}
+
+void operator++(IDependency::Category& category) {
+  if (category == IDependency::CategoryEnd) {
+    throw std::out_of_range("Category out of range");
+  }
+
+  category = static_cast<IDependency::Category>(static_cast<int>(category) + 1);
+}
+
+void operator++(IDependency::Type& type, int) {
+  if (type == IDependency::TypeEnd) {
+    throw std::out_of_range("Type out of range");
+  }
+
+  type = static_cast<IDependency::Type>(static_cast<int>(type) + 1);
+}
+
+void operator++(IDependency::Type& type) {
+  if (type == IDependency::TypeEnd) {
+    throw std::out_of_range("Type out of range");
+  }
+
+  type = static_cast<IDependency::Type>(static_cast<int>(type) + 1);
+}
+
+void operator++(IDependency::Reason& reason, int) {
+  if (reason == IDependency::ReasonEnd) {
+    throw std::out_of_range("Reason out of range");
+  }
+
+  reason = static_cast<IDependency::Reason>(static_cast<int>(reason) + 1);
+}
+
+void operator++(IDependency::Reason& reason) {
+  if (reason == IDependency::ReasonEnd) {
+    throw std::out_of_range("Reason out of range");
+  }
+
+  reason = static_cast<IDependency::Reason>(static_cast<int>(reason) + 1);
+}
+
+void operator++(IDependency::Importance& importance, int) {
+  if (importance == IDependency::ImportanceEnd) {
+    throw std::out_of_range("Importance out of range");
+  }
+
+  importance = static_cast<IDependency::Importance>(static_cast<int>(importance) + 1);
+}
+
+void operator++(IDependency::Importance& importance) {
+  if (importance == IDependency::ImportanceEnd) {
+    throw std::out_of_range("Importance out of range");
+  }
+
+  importance = static_cast<IDependency::Importance>(static_cast<int>(importance) + 1);
+}
 }  // namespace expertBackground
 
 #endif  //EXPERT_SERVICE_I_DEPENDENCY_H
