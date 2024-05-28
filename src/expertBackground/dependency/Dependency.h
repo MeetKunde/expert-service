@@ -39,6 +39,7 @@ class Dependency : public IDependency {
 
   inline json getJson() const override {
     json j;
+    
     j["id"] = id;
     j["category"] = static_cast<int>(category);
     j["type"] = static_cast<int>(type);
@@ -48,7 +49,7 @@ class Dependency : public IDependency {
 
     std::apply([&j](const auto&... elems) {
         std::size_t index = 0;
-        ((j["arg" + std::to_string(index++)] << elems), ...);
+        ((j["arg" + std::to_string(++index)] << elems), ...);
     }, args);
 
     return j;
@@ -57,14 +58,25 @@ class Dependency : public IDependency {
   inline const std::tuple<Args...>& getArgs() const { return args; }
 
   friend bool operator==(const Dependency& dependency1, const Dependency& dependency2) {
-    return dependency1.category == dependency2.category && dependency1.type == dependency2.type && 
-           dependency1.reason == dependency2.reason && dependency1.basedOn == dependency2.basedOn && 
-           dependency1.importance == dependency2.importance && dependency1.args == dependency2.args;
-   
+    return dependency1.reason == dependency2.reason && dependency1.args == dependency2.args;
   }
 
   friend bool operator!=(const Dependency& dependency1, const Dependency& dependency2) {
     return !(dependency1 == dependency2);
+  }
+
+  friend std::ostream& operator<<(std::ostream& stream, const Dependency& dependency) {
+    stream << "Dependency " << dependency.id << " of category " << static_cast<int>(dependency.category) << " of type " << static_cast<int>(dependency.type) << " because of " << static_cast<int>(dependency.reason) << " based on: ";
+    for (const auto& dep : dependency.basedOn) {
+      stream << dep << " ";
+    }
+
+    stream << " with importance " << static_cast<int>(dependency.importance) << " and args: ";
+    std::apply([&stream](const auto&... elems) {
+        ((stream << elems << " "), ...);
+    }, dependency.args);
+
+    return stream;
   }
 
  private:

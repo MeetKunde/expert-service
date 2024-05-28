@@ -31,7 +31,7 @@ TEST_CASE("Adding point to ShapesBank", "[expertBackground]") {
 
   const std::string pointId{"point id"};
   const float pointXCoord{10.0F};
-  const float pointYCoord{10.0F};
+  const float pointYCoord{20.0F};
   const std::string pointName{"P"};
   const size_t pointPositionInPointsVector{0};
   const json pointJson{
@@ -101,7 +101,7 @@ TEST_CASE("Adding line to ShapesBank", "[expertBackground]") {
   const std::vector<std::string> line1PointsOrder{point7Id, point4Id, point5Id, point6Id};
   const size_t line1PositionInLinesVector{0};
   const json line1Json{
-      {"object", {{"a", line1A}, {"b", line1B}, {"end1Id", point7Id}, {"end2Id", point6Id}, {"id", line1Id}, {"pointsOn", json(line1PointsOrder)}, {"type", line1Type}}},
+      {"object", {{"a", line1A}, {"b", line1B}, {"id", line1Id}, {"pointsOn", json(line1PointsOrder)}, {"type", line1Type}}},
       {"position", 0}
   };
 
@@ -191,15 +191,12 @@ TEST_CASE("Adding circle to ShapesBank", "[expertBackground]") {
 
   const std::string circleId{"circle id"};
   const std::string& circleCenterId{point1Id};
-  const float circleCenterCoordX{point1CoordX};
-  const float circleCenterCoordY{point1CoordY};
-  const std::string& circleCenterName{point1Name};
   const float circleRadius{1};
   const std::vector<std::string> circlePoints{point4Id, point5Id, point2Id, point3Id};
   const std::vector<std::string> circlePointsOrder{point5Id, point2Id, point4Id, point3Id};
   const size_t circlePositionInCirclesVector{0};
   const json circleJson{
-      {"object", {{"centerId", circleCenterId}, {"cx", circleCenterCoordX}, {"cy", circleCenterCoordY}, {"id", circleId}, {"pointsOn", json(circlePointsOrder)}, {"r", circleRadius}}},
+      {"object", {{"centerId", circleCenterId}, {"id", circleId}, {"pointsOn", json(circlePointsOrder)}, {"r", circleRadius}}},
       {"position", 0}
   };
 

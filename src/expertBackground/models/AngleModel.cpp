@@ -2,48 +2,26 @@
 
 namespace expertBackground {
 AngleModel::AngleModel(std::string vertexId, std::string point1Id, std::string point2Id, Type type)
-    : vertexId{std::move(vertexId)}, pointsOnArms{std::move(point1Id), std::move(point2Id)}, type{type} {
-}
+    : arm1{std::move(point1Id), vertexId}, arm2{std::move(point2Id), vertexId}, type{type} {}
 
-AngleModel::AngleModel(std::string vertexId, std::string point1Id, std::string point2Id, std::string arm1, std::string arm2, Type type)
-    : vertexId{std::move(vertexId)}, pointsOnArms{std::move(point1Id), std::move(point2Id)}, type{type} {
-    if(pointsOnArms.getPoint1Id() == point1Id) {
-        this->arm1 = arm1;
-        this->arm2 = arm2;
-    } else {
-        this->arm1 = arm2;
-        this->arm2 = arm1;
-    }
-}
+AngleModel::AngleModel(std::string arm1Point1Id, std::string arm1Point2Id, std::string arm2Point1Id, std::string arm2Point2Id, Type type)
+    : arm1{std::move(arm1Point1Id), std::move(arm1Point2Id)}, arm2{std::move(arm2Point1Id), std::move(arm2Point2Id)}, type{type} {}
 
 json AngleModel::getJson() const {
-  return {{"point1Id", pointsOnArms.getPoint1Id()},
-          {"vertexId", vertexId},
-          {"point2Id", pointsOnArms.getPoint2Id()},
+  return {{"arm1", {
+           "end1", arm1.getPoint1Id(),
+           "end2", arm1.getPoint2Id(),
+          }},
+          {"arm2", {
+           "end1", arm2.getPoint1Id(),
+           "end2", arm2.getPoint2Id(),
+          }},
           {"type", static_cast<int>(type)}};
 }
 
 bool operator==(const AngleModel& angleModel1, const AngleModel& angleModel2) {
-  if(angleModel1.hasTwoArms() && angleModel2.hasTwoArms()) {
-    return angleModel1.arm1.value() == angleModel2.arm2.value() && angleModel1.vertexId == angleModel2.vertexId && 
-           (angleModel1.type == angleModel2.type || angleModel1.type == AngleModel::Type::UNKNOWN || 
-            angleModel2.type == AngleModel::Type::UNKNOWN);
-  }
-  else if(angleModel1.arm1.has_value() && angleModel2.arm1.has_value()) {
-    return angleModel1.arm1.value() == angleModel2.arm1.value() && angleModel1.vertexId == angleModel2.vertexId && 
-           (angleModel1.type == angleModel2.type || angleModel1.type == AngleModel::Type::UNKNOWN || 
-            angleModel2.type == AngleModel::Type::UNKNOWN);
-  }
-  else if(angleModel1.arm2.has_value() && angleModel2.arm2.has_value()) {
-    return angleModel1.arm2.value() == angleModel2.arm2.value() && angleModel1.vertexId == angleModel2.vertexId && 
-           (angleModel1.type == angleModel2.type || angleModel1.type == AngleModel::Type::UNKNOWN || 
-            angleModel2.type == AngleModel::Type::UNKNOWN);
-  }
-  else {
-    return angleModel1.pointsOnArms == angleModel2.pointsOnArms && angleModel1.vertexId == angleModel2.vertexId &&
-           (angleModel1.type == angleModel2.type || angleModel1.type == AngleModel::Type::UNKNOWN ||
-            angleModel2.type == AngleModel::Type::UNKNOWN);
-  }
+  return angleModel1.arm1 == angleModel2.arm1 && angleModel1.arm2 == angleModel2.arm2 && 
+  (angleModel1.type == angleModel2.type || angleModel1.type == AngleModel::Type::UNKNOWN || angleModel2.type == AngleModel::Type::UNKNOWN);
 }
 
 bool operator!=(const AngleModel& angleModel1, const AngleModel& angleModel2) {
@@ -51,52 +29,12 @@ bool operator!=(const AngleModel& angleModel1, const AngleModel& angleModel2) {
 }
 
 bool operator<(const AngleModel& angleModel1, const AngleModel& angleModel2) {
-  if(angleModel1.hasTwoArms() && angleModel2.hasTwoArms()) {
-    if(angleModel1.arm1.value() != angleModel2.arm1.value()) {
-      return angleModel1.arm1.value() < angleModel2.arm2.value();
-    }
-    else if(angleModel1.arm2.value() != angleModel2.arm2.value()) {
-      return angleModel1.arm2.value() < angleModel2.arm2.value();
-    }
-    else if(angleModel1.vertexId != angleModel2.vertexId) {
-      return angleModel1.vertexId < angleModel2.vertexId;
-    }
-    else {
-      return angleModel1.type < angleModel2.type;
-    }
-  }
-  else if(angleModel1.arm1.has_value() && angleModel2.arm1.has_value()) {
-    if(angleModel1.arm1.value() != angleModel2.arm1.value()) {
-      return angleModel1.arm1.value() < angleModel2.arm1.value();
-    }
-    else if(angleModel1.vertexId != angleModel2.vertexId) {
-      return angleModel1.vertexId < angleModel2.vertexId;
-    }
-    else {
-      return angleModel1.type < angleModel2.type;
-    }
-  }
-  else if(angleModel1.arm2.has_value() && angleModel2.arm2.has_value()) {
-    if(angleModel1.arm2.value() != angleModel2.arm2.value()) {
-      return angleModel1.arm2.value() < angleModel2.arm2.value();
-    }
-    else if(angleModel1.vertexId != angleModel2.vertexId) {
-      return angleModel1.vertexId < angleModel2.vertexId;
-    }
-    else {
-      return angleModel1.type < angleModel2.type;
-    }
-  }
-  else {
-    if(angleModel1.pointsOnArms != angleModel2.pointsOnArms) {
-      return angleModel1.pointsOnArms < angleModel2.pointsOnArms;
-    }
-    else if(angleModel1.vertexId != angleModel2.vertexId) {
-      return angleModel1.vertexId < angleModel2.vertexId;
-    }
-    else {
-      return angleModel1.type < angleModel2.type;
-    }
+  if(angleModel1.arm1 != angleModel2.arm1) {
+    return angleModel1.arm1 < angleModel2.arm1;
+  } else if(angleModel1.arm2 != angleModel2.arm2) {
+    return angleModel1.arm2 < angleModel2.arm2;
+  } else {
+    return angleModel1.type < angleModel2.type;
   }
 }
 
@@ -113,7 +51,7 @@ bool operator>=(const AngleModel& angleModel1, const AngleModel& angleModel2) {
 }
 
 std::ostream& operator<<(std::ostream& stream, const AngleModel& angleModel) {
-  stream << "<)" << angleModel.getPoint1Id() << "-" << angleModel.vertexId << "-" << angleModel.getPoint2Id();
+  stream << "<)" << angleModel.arm1 << ", " << angleModel.arm2;
   switch (angleModel.type) {
     case AngleModel::Type::CONVEX:
       stream << " is convex";

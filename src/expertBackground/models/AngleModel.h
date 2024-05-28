@@ -25,7 +25,7 @@ class AngleModel {
 
   AngleModel() = delete;
   explicit AngleModel(std::string vertexId, std::string point1Id, std::string point2Id, Type type);
-  AngleModel(std::string vertexId, std::string point1Id, std::string point2Id, std::string arm1, std::string arm2, Type type);
+  explicit AngleModel(std::string arm1Point1Id, std::string arm1Point2Id, std::string arm2Point1Id, std::string arm2Point2Id, Type type);
 
   AngleModel(const AngleModel& angleModel) = default;
   AngleModel(AngleModel&& angleModel) = default;
@@ -35,15 +35,9 @@ class AngleModel {
 
   ~AngleModel()  = default;
 
-  inline const std::string& getPoint1Id() const { return pointsOnArms.getPoint1Id(); }
-  inline const std::string& getPoint2Id() const { return pointsOnArms.getPoint2Id(); }
-  inline const std::string& getVertexId() const { return vertexId; }
-  inline const std::optional<std::string>& getArm1() const { return arm1; }
-  inline const std::optional<std::string>& getArm2() const { return arm2; }
+  inline const PointsPairModel& getArm1() const { return arm1; }
+  inline const PointsPairModel& getArm2() const { return arm2; }
 
-  inline bool hasTwoArms() const { return arm1.has_value() && arm2.has_value(); }
-  inline bool hasOneArm(const std::string& armId) const { return arm1 == armId || arm2 == armId; }
-  
   inline Type getType() const { return type; }
 
   json getJson() const ;
@@ -59,10 +53,8 @@ class AngleModel {
   friend json& operator<<(json& j, const AngleModel& angleModel);
 
  private:
-  std::string vertexId;
-  PointsPairModel pointsOnArms;
-  std::optional<std::string> arm1;
-  std::optional<std::string> arm2;
+  PointsPairModel arm1;
+  PointsPairModel arm2;
   Type type;
 };
 }  // namespace expertBackground
